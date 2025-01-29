@@ -1,0 +1,136 @@
+/* General Styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Product Card Styles */
+.product-card {
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.product-images-slider {
+    position: relative; /* Ensure the slider is positioned relative for absolute positioning of buttons */
+}
+
+.left-arrow, .right-arrow {
+    z-index: 10; /* Ensure buttons are above the images */
+    background-color: rgba(255, 255, 255, 0.8); /* Optional: Background for better visibility */
+    border: none; /* Optional: Remove border */
+    border-radius: 50%; /* Optional: Make buttons circular */
+    width: 40px; /* Set width */
+    height: 40px; /* Set height */
+    display: flex; /* Center icon */
+    align-items: center; /* Center icon vertically */
+    justify-content: center; /* Center icon horizontally */
+}
+
+.left-arrow:hover, .right-arrow:hover {
+    background-color: rgba(255, 255, 255, 1); /* Change background on hover */
+}
+
+.product-images-slider img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Product Gallery Styles */
+.product-gallery .main-image {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.product-gallery .main-image img {
+    width: 100%;
+    height: auto;
+}
+
+.thumbnail-images {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.thumbnail-images img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.thumbnail-images img:hover {
+    border-color: #007bff;
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Footer Styles */
+footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    margin-top: auto;
+}
+
+footer a {
+    color: #6c757d;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .product-card {
+        margin-bottom: 1rem;
+    }
+
+    .thumbnail-images {
+        flex-wrap: wrap;
+    }
+
+    .thumbnail-images img {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Animation Styles */
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity 300ms ease-in;
+}
+
+.fade-exit {
+    opacity: 1;
+}
+
+.fade-exit-active {
+    opacity: 0;
+    transition: opacity 300ms ease-in;
+}
