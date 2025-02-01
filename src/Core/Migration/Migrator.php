@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Core\Migration;
+namespace Core\Migration;
 
 use PDO;
 use PDOException;
