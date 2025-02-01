@@ -4,41 +4,38 @@ namespace Core;
 
 class Router
 {
-	private $routes = [];
+    private $routes = [];
 
-	/**
-	 *
-	 *
-	 * @param string $method
-	 * @param string $path
-	 * @param callable $callback
-	 */
-	public function addRoute($method, $path, $callback)
-	{
-		$this->routes[] = [
-			'method' => strtoupper($method),
-			'path' => $path,
-			'callback' => $callback,
-		];
-	}
+    /**
+     *
+     *
+     * @param string $method
+     * @param string $path
+     * @param callable $callback
+     */
 
-	public function dispatch()
-	{
-		$requestMethod = $_SERVER['REQUEST_METHOD'];
-		$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    public function addRoute(string $method, string $path, callable|array $callback): Route
+    {
+        $route = new Route($method, $path, $callback);
+        $this->routes[] = $route;
+        return $route;
+    }
 
-		foreach ($this->routes as $route) {
-			$pattern = '#^' . preg_quote($route['path'], '#') . '$#';
+    public function dispatch(): void
+    {
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-			if ($route['method'] === $requestMethod && preg_match($pattern, $requestUri, $matches)) {
-				array_shift($matches);
+        foreach ($this->routes as $route) 
+        {
+            if ($route->matches($requestMethod,$requestUri))
+            {
+                $route->execute($requestUri);
+                return;
+            }    
+        }
 
-				call_user_func_array($route['callback'], $matches);
-				return;
-			}
-		}
-
-		http_response_code(404);
-		echo "Страница не найдена";
-	}
+        http_response_code(404);
+        echo "Страница не найдена";
+    }
 }
