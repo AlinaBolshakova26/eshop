@@ -1,6 +1,9 @@
 <?php
 
 namespace Controllers;
+
+use Core\View;
+
 class HomeController {
 
 	public static function index() {
@@ -39,10 +42,15 @@ class HomeController {
 		define("ITEMS_PER_PAGE", 10);
 		$totalPages = ceil($totalProducts / ITEMS_PER_PAGE);
 
-		ob_start();
-		require_once __DIR__ . '/../Views/home/catalog.php';
-		$content = ob_get_clean();
 
-		require_once __DIR__ . '/../Views/layouts/main_template.php';
+		$content = View::make(__DIR__ . '/../Views/home/catalog.php', [
+			'products' => $products,
+			'totalPages' => $totalPages,
+
+		]);
+
+		echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+			'content' => $content
+		]);
 	}
 }

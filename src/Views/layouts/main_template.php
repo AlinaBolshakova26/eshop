@@ -32,7 +32,7 @@
 </nav>
 
 <main class="container my-4">
-	<?php echo $content; ?>
+	<?= $content ?>
 </main>
 
 

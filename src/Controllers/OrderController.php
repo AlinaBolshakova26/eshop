@@ -1,6 +1,9 @@
 <?php
 
 namespace Controllers;
+
+use Core\View;
+
 class OrderController {
 
 	public static function create() {
@@ -24,19 +27,13 @@ class OrderController {
 
 		$quantity = 1;
 
-		ob_start();
-		require_once __DIR__ . '/../Views/order/form.php';
-		$content = ob_get_clean();
+		$content = View::make(__DIR__ . '/../Views/order/form.php', [
+			'product' => $product,
+			'quantity' => $quantity
+		]);
 
-		require_once __DIR__ . '/../Views/layouts/main_template.php';
-	}
-
-	public static function store() {
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-			if (empty($errors)) {
-				echo "<script>alert('Ваш заказ успешно оформлен.'); window.location.href='/products';</script>";
-				exit;
-			}
-		}
+		echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+			'content' => $content
+		]);
 	}
 }

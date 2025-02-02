@@ -25,7 +25,6 @@
 		<div class="description mb-4">
 			<?php echo nl2br(htmlspecialchars($product['description'])); ?>
 		</div>
-
 		<form action="/order" method="GET" class="mb-4">
 			<input type="hidden" name="id" value="<?php echo $product['id']; ?>">
 			<button type="submit" class="btn btn-success w-50">Купить</button>
