@@ -6,10 +6,9 @@ use Core\View;
 
 class OrderController {
 
-	public static function create() {
-		$productId = 1;
+	public static function create($id) {
 		$product = [
-			"id"=> 1,
+			"id"=> $id,
 			"name"=> "Нежность утра",
 			"short_description"=> "Лёгкий и воздушный букет из розовых пионов, белых роз и эвкалипта.",
 			"description"=> "Этот букет создан для тех, кто ценит нежность и утонченность. Нежно-розовые пионы гармонично сочетаются с белоснежными розами, а веточки эвкалипта добавляют свежести и легкого аромата. Идеально подойдёт для романтического подарка или утреннего признания в чувствах.",
@@ -35,5 +34,16 @@ class OrderController {
 		echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
 			'content' => $content
 		]);
+
+	}
+
+	public static function store()
+	{
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			if (empty($errors)) {
+				echo "<script>alert('Ваш заказ успешно оформлен.'); window.location.href='/';</script>"; // Success alert
+				exit;
+			}
+		}
 	}
 }

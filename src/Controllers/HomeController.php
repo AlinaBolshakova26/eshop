@@ -38,6 +38,7 @@ class HomeController {
 				]
 			]
 		];
+
 		$totalProducts = 2;
 		define("ITEMS_PER_PAGE", 10);
 		$totalPages = ceil($totalProducts / ITEMS_PER_PAGE);
@@ -46,6 +47,7 @@ class HomeController {
 		$content = View::make(__DIR__ . '/../Views/home/catalog.php', [
 			'products' => $products,
 			'totalPages' => $totalPages,
+			'currentPage' => $currentPage,
 
 		]);
 

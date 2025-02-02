@@ -4,13 +4,9 @@ namespace Controllers;
 
 use Core\View;
 
-// use PDO;
-
 class ProductController
 {
 
-
-    /* ТЕСТ */
     private static $products = 
     [
         1 => ['name' => 'Роза', 'price' => 249],
@@ -67,6 +63,4 @@ class ProductController
 		]);
 
     }
-    /* ТЕСТ */
-    
 }

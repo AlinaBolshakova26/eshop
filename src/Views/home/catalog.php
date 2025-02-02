@@ -29,7 +29,7 @@
 						<p class="card-text"><strong>&#8381; <?php echo number_format($product['price']); ?></strong></p>
 						<div class="d-flex justify-content-between">
 							<a href="/product/<?php echo $product['id']; ?>" class="btn btn-primary">Подробнее</a>
-							<a href="/order/<?php echo $product['id']; ?>" class="btn btn-success ml-auto">Купить</a>
+							<a href="/order/create/<?php echo $product['id']; ?>" class="btn btn-success ml-auto">Купить</a>
 						</div>
 
 					</div>

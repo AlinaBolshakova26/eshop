@@ -7,8 +7,6 @@ class Router
     private $routes = [];
 
     /**
-     *
-     *
      * @param string $method
      * @param string $path
      * @param callable $callback

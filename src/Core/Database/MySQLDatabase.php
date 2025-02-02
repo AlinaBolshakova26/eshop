@@ -4,7 +4,9 @@ namespace Core\Database;
 
 use Core\Database\Database;
 
-require_once '/home/alexandr/Git/Project/up_shop/eshop/src/config/configuration.php';
+
+# проверить работоспособность пути
+require_once __DIR__ . '/../src/config/configuration.php';
 
 class MySQLDatabase extends Database
 {
