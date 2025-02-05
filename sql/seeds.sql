@@ -1,5 +1,5 @@
-INSERT INTO up_user (name, phone, password, role)
-VALUES ('Владимир Путин', '+79955468264', '12345678', 'admin');
+INSERT INTO up_user (name, phone, password, email, role)
+VALUES ('Владимир Путин', '+79955468264', '12345678', 'temp@mail.ru', 'admin');
 
 INSERT INTO up_item (name, description, desc_short, price)
 VALUES ('Букет "Львиное сердце"', 'Ох, этот аромат, а эта фактура! Получатель такого букета будет часами любоваться им, проникаясь тем же мужеством и стойкостью, что и Геракл, которому подарила подобный букет богиня Флора.',
