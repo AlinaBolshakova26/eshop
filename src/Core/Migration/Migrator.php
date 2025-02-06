@@ -7,22 +7,22 @@ use PDOException;
 
 class Migrator
 {
-    private PDO $pdo;
-    private string $migrationsPath;
+    private static PDO $pdo;
+    private static string $migrationsPath;
 
     public function __construct(PDO $pdo, string $migrationsPath)
     {
-        $this->pdo = $pdo;
-        $this->migrationsPath = $migrationsPath;
+        self::$pdo = $pdo;
+        self::$migrationsPath = $migrationsPath;
     }
 
     public static function migrate(): void
     {
 
-        $stmt = $this->pdo->query("SELECT migration_name FROM migrations ORDER BY id DESC LIMIT 1");
+        $stmt = self::$pdo->query("SELECT migration_name FROM migrations ORDER BY id DESC LIMIT 1");
         $lastExecutedMigration = $stmt->fetchColumn() ?: null;
 
-        $allMigrations = scandir($this->migrationsPath);
+        $allMigrations = scandir(self::$migrationsPath);
         $newMigrations = [];
 
         foreach ($allMigrations as $migration)
@@ -41,12 +41,12 @@ class Migrator
         foreach ($newMigrations as $migration)
         {
             echo "Выполняется миграция: $migration\n";
-            $sql = file_get_contents($this->migrationsPath . DIRECTORY_SEPARATOR . $migration);
+            $sql = file_get_contents(self::$migrationsPath . DIRECTORY_SEPARATOR . $migration);
 
             try
             {
-                $this->pdo->exec($sql);
-                $stmt = $this->pdo->prepare("INSERT INTO migrations (migration_name) VALUES (:migration_name)");
+                self::$pdo->exec($sql);
+                $stmt = self::$pdo->prepare("INSERT INTO migrations (migration_name) VALUES (:migration_name)");
                 $stmt->execute(['migration_name' => $migration]);
                 echo "Миграция $migration выполнена успешно\n";
             }

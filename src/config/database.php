@@ -1,8 +1,8 @@
 <?php
 
-return [
-		'DB_HOST' => '',
-		'DB_NAME' => '',
-    	'DB_USER' => '',
-    	'DB_PASSWORD' => '',
-];
+return new PDO(
+    "mysql:host=mysql-8.2;dbname=eshop",
+    "root",
+    "",
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+);
