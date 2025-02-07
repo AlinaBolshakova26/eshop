@@ -6,17 +6,6 @@ use Core\View;
 
 class ProductController
 {
-
-    private static $products = 
-    [
-        1 => ['name' => 'Роза', 'price' => 249],
-        2 => ['name' => 'Пион', 'price' => 499],
-        3 => ['name' => 'Пион XXL', 'price' => 1399],
-        4 => ['name' => 'Тюльпан в ассортименте', 'price' => 179],
-        6 => ['name' => 'Хризантема', 'price' => 89],
-        100 => ['name' => 'Фиалка', 'price' => 49],
-    ];
-
     public static function show($id)
     {
 		$product = [
