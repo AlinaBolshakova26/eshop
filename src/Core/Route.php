@@ -50,7 +50,7 @@ class Route
     }
 
     // Достаём нужный параметр и отправялем в контроллер
-    public function execute(string $uri): void
+    public function execute(string $uri):? array
     {
 
         preg_match('#^' . $this->pattern . '$#', $uri, $matches);
@@ -66,7 +66,16 @@ class Route
             else $params[] = $match;
         }
 
-        call_user_func_array($this->callback, $params);
+        if (is_array($this->callback))
+        {
+            [$controllerClass, $method] = $this->callback;
+
+            $controller = new $controllerClass();
+
+            return call_user_func_array([$controller, $method], $params);
+        }
+
+        return call_user_func_array($this->callback, $params);
     }
 
 }

@@ -13,18 +13,32 @@ final class ProductListDTO
         public readonly string $desc_short,
         public readonly string $price,
         public readonly int $is_active,
-    ){}
+    ) {}
 }
+
+final class ProductDetailDTO   
+{
+
+    public function __construct
+    (
+        public readonly int $id,
+        public readonly string $name, 
+        public readonly string $price,
+        public readonly string $description
+    ) {}
+}
+
 
 
 class Product
 {
+
     private int $id;
     private string $name;
     private string $description;
     private string $desc_short;
-    private string $price;
-    private int $is_active;
+    private ?string $price;
+    private string $is_active;
     private string $created_at;
     private string $updated_at;
     
@@ -37,9 +51,9 @@ class Product
         $product->id = $row['id'];
         $product->name = $row['name'];
         $product->description = $row['description'] ?? '';
-        $product->desc_short = $row['desc_short'];
+        $product->desc_short = $row['desc_short'] ?? '';
         $product->price = $row['price'];
-        $product->is_active = $row['is_active'];
+        $product->is_active = $row['is_active'] ?? '';
         $product->created_at = $row['created_at'] ?? 'Y-m-d H:i:s';
         $product->updated_at = $row['updated_at'] ?? 'Y-m-d H:i:s';
 
@@ -69,6 +83,17 @@ class Product
             $this->desc_short,
             $this->price,
             $this->is_active,
+        );
+    }
+
+    public function toDetailDTO(): ProductDetailDTO
+    {
+        return new ProductDetailDTO
+        (
+            $this->id,
+            $this->name,
+            $this->price,
+            $this->description,
         );
     }
 
