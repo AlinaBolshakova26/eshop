@@ -14,8 +14,8 @@ class AdminRepository
     }
 
     /**
-     * @param string $email Email пользователя
-     * @return User|null    Возвращает объект User или null, если пользователь не найден
+     * @param string $email
+     * @return User|null
      */
     public function findUserByEmail(string $email): ?User
     {
@@ -28,7 +28,8 @@ class AdminRepository
         $stmt->execute();
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row) {
+        if ($row)
+        {
             return User::fromDatabase($row);
         }
 
