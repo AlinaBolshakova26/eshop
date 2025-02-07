@@ -1,10 +1,8 @@
-<?php 
+<?php
 
 namespace Models;
 
-// класс продукта и класс productDTO
-
-final class ProductListDTO 
+final class ProductListDTO
 {
     public function __construct
     (
@@ -16,19 +14,17 @@ final class ProductListDTO
     ) {}
 }
 
-final class ProductDetailDTO   
+final class ProductDetailDTO
 {
 
     public function __construct
     (
         public readonly int $id,
-        public readonly string $name, 
+        public readonly string $name,
         public readonly string $price,
         public readonly string $description
     ) {}
 }
-
-
 
 class Product
 {
@@ -41,11 +37,11 @@ class Product
     private string $is_active;
     private string $created_at;
     private string $updated_at;
-    
+
 
     public static function fromDatabase(array $row): self
-    {   
-        
+    {
+
         $product = new self();
 
         $product->id = $row['id'];
@@ -59,9 +55,6 @@ class Product
 
         return $product;
     }
-
-
-
 
     public function activate(): void
     {
@@ -97,7 +90,7 @@ class Product
         );
     }
 
-    
+
 
 //... описание и тд как DTO...
 

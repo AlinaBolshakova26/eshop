@@ -1,8 +1,9 @@
 <?php
 
-return new PDO(
-    "mysql:host=mysql-8.2;dbname=eshop",
-    "root",
-    "",
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-);
+return [
+    'DB_HOST' => 'MySQL-8.2',
+    'DB_NAME' => 'bitflix',
+    'DB_USER' => 'student',
+    'DB_PASSWORD' => 'password',
+    'charset' => 'utf8mb4'
+];

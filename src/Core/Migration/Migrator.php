@@ -16,7 +16,7 @@ class Migrator
         self::$migrationsPath = $migrationsPath;
     }
 
-    public static function migrate(): void
+    public function migrate(): void
     {
 
         $stmt = self::$pdo->query("SELECT migration_name FROM migrations ORDER BY id DESC LIMIT 1");
