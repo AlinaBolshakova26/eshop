@@ -2,8 +2,6 @@
 
 namespace Models;
 
-// класс продукта и класс productDTO
-
 final class ProductListDTO 
 {
     public function __construct
