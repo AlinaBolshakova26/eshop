@@ -25,6 +25,13 @@ class ProductService
         );
     }
 
+    public function getProductByid(int $id)
+    {
+        $product = $this->repository->findById($id);
+
+        return $product->toDetailDTO();
+    }
+
     public function getTotalPages(int $itemsPerPage): int
     {
         $totalProducts = $this->repository->getTotalCount();

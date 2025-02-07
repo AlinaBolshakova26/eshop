@@ -2,54 +2,55 @@
 
 namespace Controllers;
 
+use Core\Services\Product\ProductRepository;
+use Core\Services\Product\ProductService;
 use Core\View;
+use PDOException;
 
 class ProductController
 {
-    public static function show($id)
-    {
-		$product = [
-			"id"=> 1,
-			"name"=> "Нежность утра",
-			"short_description"=> "Лёгкий и воздушный букет из розовых пионов, белых роз и эвкалипта.",
-			"description"=> "Этот букет создан для тех, кто ценит нежность и утонченность. Нежно-розовые пионы гармонично сочетаются с белоснежными розами, а веточки эвкалипта добавляют свежести и легкого аромата. Идеально подойдёт для романтического подарка или утреннего признания в чувствах.",
-			"price"=> 4500,
-			"main_image"=> "/assets/images/product1.jpg",
-			"created_at"=> "2025-01-27 17:23:08",
-			"updated_at"=> "2025-01-28 17:45:49"
-		];
 
-		$productImages = [
-			[
-				"id"=> 1,
-				"product_id"=> 1,
-				"url"=> "/assets/images/product1-1.jpg",
-				"sort_order"=> 1,
-				"created_at"=> "2025-01-27 17:23:08"
-			],
-			[
-				"id"=> 2,
-				"product_id"=> 1,
-				"url"=> "/assets/images/product1-2.jpg",
-				"sort_order"=> 2,
-				"created_at"=> "2025-01-27 17:23:08"
-			]
-		];
+	private ProductService $productService;
 
-		if (!$product) {
-			http_response_code(404);
-			echo '404 Not Found';
-			return;
+	private function initialize()
+	{
+		if (!isset($this->productService))
+		{
+			$pdo = require_once __DIR__ . "/../config/database.php";
+			$repository = new ProductRepository($pdo);
+			$this->productService = new ProductService($repository);
 		}
+	}
 
-		$content = View::make(__DIR__ . '/../Views/product/detail.php', [
-			'product' => $product,
-			'productImages' => $productImages
-		]);
+	public function show($id) 
+	{
 
-		echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-			'content' => $content
-		]);
+		$this->initialize();
+		
+		try {
 
-    }
+			$product = $this->productService->getProductByid($id);
+
+			if (!$product) {
+				http_response_code(404);
+				echo '404 Not Found';
+				return;
+			}
+
+			$content = View::make(__DIR__ . '/../Views/product/detail.php', [
+				'product' => $product,
+				// 'productImages' => $productImages
+			]);
+
+			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+				'content' => $content
+			]);
+		}
+		catch(PDOException $e)
+		{
+			error_log("Database error: " . $e->getMessage());
+    		echo "Произошла ошибка при загрузке товара.";
+		}
+	}
+
 }

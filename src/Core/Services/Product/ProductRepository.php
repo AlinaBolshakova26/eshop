@@ -21,7 +21,7 @@ class ProductRepository
         $stmt = $this->pdo->prepare
 			("
 				SELECT id, name, price, is_active, created_at, desc_short
-				FROM up_item 
+				FROM up_item
 				WHERE is_active = 1
 				GROUP BY id
 				ORDER BY created_at DESC
@@ -37,6 +37,23 @@ class ProductRepository
             fn($row) => Product::fromDatabase($row),
             $stmt->fetchAll(PDO::FETCH_ASSOC),
         );
+    }
+
+    public function findById(int $id)
+    {
+
+        $stmt = $this->pdo->prepare
+			("
+				SELECT id, name, price, description
+				FROM up_item WHERE id = :id	
+		    ");
+
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT );
+        $stmt->execute();
+
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $product ? Product::fromDatabase($product) : null;
     }
 
     public function getTotalCount(): int

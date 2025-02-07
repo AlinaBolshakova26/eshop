@@ -7,9 +7,6 @@
        <?php foreach ($products as $product): ?>
            <div class="col-md-4 mb-4">
                <div class="card product-card">
-                   <div class="product-images-slider position-relative">
-                       <!-- Блок с картинками пока закомментирован -->
-                   </div>
                    <div class="card-body">
                        <h5 class="card-title"><?php echo htmlspecialchars($product->name); ?></h5>
                        <p class="card-text"><?php echo htmlspecialchars($product->desc_short); ?></p>
@@ -19,7 +16,7 @@
                            <a href="/order/create/<?php echo $product->id; ?>" class="btn btn-success ml-auto">Купить</a>
                        </div>
                    </div>
-               </div>
+                </div>
            </div>
        <?php endforeach; ?>
    <?php else: ?>

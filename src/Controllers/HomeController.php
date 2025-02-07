@@ -11,30 +11,31 @@ use PDOException;
 
 class HomeController {
 
-	private static ProductService $productService;
+	private ProductService $productService;
 
 
-	private static function initialize()
+	private function initialize()
 	{
-		if (!isset(self::$productService))
+		if (!isset($this->productService))
 		{
 			$pdo = require_once __DIR__ . "/../config/database.php";
 			$repository = new ProductRepository($pdo);
-			self::$productService = new ProductService($repository);
+			$this->productService = new ProductService($repository);
 		}
 	}
-	public static function index() {
+	public function index() {
 
-		self::initialize();
+		$this->initialize();
 
 		$currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 		define("ITEMS_PER_PAGE", 10);
 
 		try 
 		{
+			
 
-			$products = self::$productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
-			$totalPages = self::$productService->getTotalPages(ITEMS_PER_PAGE);
+			$products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
+			$totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
 			
 			$content = View::make
 			(
