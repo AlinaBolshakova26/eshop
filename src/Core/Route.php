@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Core;
 
@@ -13,8 +13,8 @@ class Route
 
     public function __construct
     (
-        string $method, 
-        string $path, 
+        string $method,
+        string $path,
         callable|array $callback
     )
     {
@@ -24,8 +24,6 @@ class Route
         $this->processPath();
     }
 
-
-    // Преобразование маршрута из routes в регулярку
     private function processPath(): void
     {
         $this->pattern  = preg_replace_callback
@@ -33,23 +31,22 @@ class Route
             '/\{(\w+)(?::([^}]+))?\}/',
             function($matches)
             {
-                $this->paramNames[] = $matches[1]; // 
-                
+                $this->paramNames[] = $matches[1]; //
+
                 return isset($matches[2]) ? '(' . $matches[2] . ')' : '(\w+)';
             },
             $this->path,
         );
-    } 
+    }
 
     public function matches(string $method, string $uri): bool
     {
         return
-        $this->method === $method 
-        && 
-        preg_match('#^' . $this->pattern . '$#', $uri);
+            $this->method === $method
+            &&
+            preg_match('#^' . $this->pattern . '$#', $uri);
     }
 
-    // Достаём нужный параметр и отправялем в контроллер
     public function execute(string $uri):? array
     {
 
@@ -77,5 +74,4 @@ class Route
 
         return call_user_func_array($this->callback, $params);
     }
-
 }

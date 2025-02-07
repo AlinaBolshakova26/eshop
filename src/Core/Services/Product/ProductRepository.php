@@ -1,12 +1,12 @@
-<?php 
+<?php
 
 namespace Core\Services\Product;
 
-use PDO; 
+use PDO;
 use Models\Product;
 
-class ProductRepository 
-{   
+class ProductRepository
+{
     private PDO $pdo;
 
     public function __construct(PDO $pdo)
@@ -19,7 +19,7 @@ class ProductRepository
     {
 
         $stmt = $this->pdo->prepare
-			("
+        ("
 				SELECT id, name, price, is_active, created_at, desc_short
 				FROM up_item
 				WHERE is_active = 1
@@ -27,7 +27,7 @@ class ProductRepository
 				ORDER BY created_at DESC
 				LIMIT :limit OFFSET :offset
 			");
-        
+
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT );
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT );
         $stmt->execute();
@@ -43,7 +43,7 @@ class ProductRepository
     {
 
         $stmt = $this->pdo->prepare
-			("
+        ("
 				SELECT id, name, price, description
 				FROM up_item WHERE id = :id	
 		    ");
@@ -52,7 +52,7 @@ class ProductRepository
         $stmt->execute();
 
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         return $product ? Product::fromDatabase($product) : null;
     }
 
