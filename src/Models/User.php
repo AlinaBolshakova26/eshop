@@ -40,6 +40,16 @@ class User
         return $user;
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+
     public function updateProfile(string $name, string $phone, string $email): void
     {
         $this->name = $name;
@@ -50,7 +60,8 @@ class User
 
     public function changeRole(string $role): void
     {
-        if (!in_array($role, ['admin', 'customer'])) {
+        if (!in_array($role, ['admin', 'customer']))
+        {
             throw new \InvalidArgumentException("Invalid role");
         }
         $this->role = $role;
@@ -59,8 +70,25 @@ class User
 
     public function verifyPassword(string $password): bool
     {
-        return password_verify($password, $this->password);
+        if ($this->password === null)
+        {
+            error_log("Stored password is NULL");
+            return false;
+        }
+
+        if (password_verify($password, $this->password))
+        {
+            error_log("Password is correct!");
+            return true;
+        }
+        else
+        {
+            error_log("Password is incorrect!");
+            return false;
+        }
     }
+
+
 
     public function setPassword(string $password): void
     {
