@@ -12,7 +12,8 @@ class HomeController
 
     private static function initialize(): void
     {
-        if (!isset(self::$productService)) {
+        if (!isset(self::$productService))
+        {
             $database = new MySQLDatabase();
             $pdo = $database->getConnection();
 
@@ -48,7 +49,9 @@ class HomeController
                     'content' => $content,
                 ]
             );
-        } catch (\PDOException $e) {
+        }
+        catch (\PDOException $e)
+        {
             error_log("Database error: " . $e->getMessage());
             echo "Произошла ошибка при загрузке товаров.";
         }

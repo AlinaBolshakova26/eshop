@@ -3,32 +3,28 @@ namespace Controllers\Admin;
 
 use Core\Services\Admin\AdminService;
 use Core\Services\Admin\AdminRepository;
+use Core\Session;
 use Core\Database\MySQLDatabase;
 
 class AdminController
 {
-    private static AdminService $adminService;
+    private AdminService $adminService;
 
-    private static function initialize(): void
+    public function __construct()
     {
-        if (!isset(self::$adminService)) {
-            $database = new MySQLDatabase();
-            $pdo = $database->getConnection();
-
-            $repository = new AdminRepository($pdo);
-            self::$adminService = new AdminService($repository);
-        }
+        $database = new MySQLDatabase();
+        $pdo = $database->getConnection();
+        $repository = new AdminRepository($pdo);
+        $this->adminService = new AdminService($repository);
     }
 
-    public static function login(): void
+    public function login(): void
     {
         require __DIR__ . '/../../Views/admin/auth/login.php';
     }
 
-    public static function authenticate(): void
+    public function authenticate(): void
     {
-        self::initialize();
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST')
         {
             try
@@ -36,7 +32,7 @@ class AdminController
                 $email = $_POST['email'];
                 $password = $_POST['password'];
 
-                if (self::$adminService->authenticate($email, $password))
+                if ($this->adminService->authenticate($email, $password))
                 {
                     header('Location: /admin');
                     exit;
@@ -56,15 +52,22 @@ class AdminController
         }
     }
 
-    public static function index(): void
+    public function index(): void
     {
-        self::initialize();
-
-        if (!isset($_SESSION['admin'])) {
+        Session::start();
+        if (!Session::has('admin'))
+        {
             header('Location: /admin/login');
             exit;
         }
+        $products = [];
+        require __DIR__ . '/../../Views/admin/orders/index.php';
+    }
 
-        require __DIR__ . '/../../Views/admin/products/index.php';
+    public function logout(): void
+    {
+        $this->adminService->logout();
+        header('Location: /admin/login');
+        exit;
     }
 }
