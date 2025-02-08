@@ -22,11 +22,12 @@ class HomeController
         }
     }
 
+
     public static function index(): void
     {
         self::initialize();
 
-        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $currentPage = max(1, (int)($_GET['page'] ?? 1));
         define("ITEMS_PER_PAGE", 10);
 
         try {
