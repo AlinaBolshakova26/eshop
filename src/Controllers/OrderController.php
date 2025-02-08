@@ -12,7 +12,7 @@ class OrderController
     public static function create($id)
     {
         $db = (new MySQLDatabase())->getConnection();
-        // Инфа о товаре по ID
+        // Картинка из бд (главная)
         $stmt = $db->prepare("
             SELECT i.*, im.path AS main_image 
             FROM up_item i 
