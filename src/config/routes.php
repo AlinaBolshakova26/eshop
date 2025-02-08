@@ -13,6 +13,9 @@ $router->addRoute('GET', '/product/{id:\d+}', [\Controllers\ProductController::c
 $router->addRoute('GET', '/order/create/{id:\d+}', [\Controllers\OrderController::class, 'create']);
 $router->addRoute('POST', '/order/submit', [\Controllers\OrderController::class, 'store']);
 
+$router->addRoute('GET', '/order/success', [\Controllers\OrderController::class, 'success']);
+
+
 // Пример маршрута для страницы входа
 $router->addRoute('GET', '/admin/login', [Controllers\Admin\AdminController::class, 'login']);
 
