@@ -20,7 +20,7 @@
                                <img src="<?php echo htmlspecialchars($image); ?>"
                                    class="card-img-top --><?php echo $index === 0 ? 'd-none' : ''; ?>"
                                    alt="<?php echo htmlspecialchars($product->name); ?>"
-                                    data-index="--><?php echo $index + 1; ?>">
+                                    data-index="<?php echo $index + 1; ?>">
 							<?php endforeach; ?>
                         </div>
                         <button class="btn btn-secondary left-arrow position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%);">❮</button>

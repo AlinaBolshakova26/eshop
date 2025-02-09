@@ -45,6 +45,7 @@
         </tbody>
     </table>
 </div>
+</form>
 <?php if ($totalPages > 1): ?>
     <nav aria-label="Product pagination">
         <ul class="pagination justify-content-center">
