@@ -18,10 +18,13 @@ class ProductRepository
     public function findAllPaginated(int $limit, int $offset): array
     {
         $stmt = $this->pdo->prepare("
-        SELECT id, name, price, is_active, created_at, desc_short
-        FROM up_item
-        WHERE is_active = 1
-        ORDER BY id ASC
+        SELECT 
+            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short,
+            img.path AS main_image_path
+        FROM up_item i
+        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        WHERE i.is_active = 1
+        ORDER BY i.id ASC
         LIMIT :limit OFFSET :offset
     ");
 

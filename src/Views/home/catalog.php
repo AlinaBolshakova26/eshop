@@ -7,7 +7,9 @@
             <div class="col-md-4 mb-4">
                 <div class="card product-card">
                     <?php if (!empty($product->main_image_path)): ?>
-                        <img src="<?php echo htmlspecialchars($product->main_image_path); ?>" alt="Main Image">
+                        <img src="<?php echo htmlspecialchars($product->main_image_path); ?>"
+                             alt="<?php echo htmlspecialchars($product->name); ?>"
+                             class="img-fluid">
                     <?php else: ?>
                         <div>Нет изображения</div>
                     <?php endif; ?>
