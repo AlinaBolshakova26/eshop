@@ -1,20 +1,23 @@
+<form id="products-form" action="/admin/products/process" method="POST">
 <div class="fixed-top-row">
     <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <button class="btn btn-danger">Удалить</button>
-            <button class="btn btn-success">Активировать</button>
-        </div>
+
         <div class="mx-3 flex-grow-1">
             <input type="text" class="form-control" placeholder="Поиск товаров...">
         </div>
         <div>
-            <button class="btn btn-primary">Добавить товар</button>
+            <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
         </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+            <button type="submit" name="action" value="delete" class="btn btn-danger">Удалить</button>
+            <button type="submit" name="action" value="activate" class="btn btn-success">Активировать</button>
+            <a href="add" class="btn btn-primary">+ Добавить элемент</a>
     </div>
 </div>
 
-<!-- Список товаров -->
 <div class="mt-5">
+    <?= $error ?>
     <table class="table">
         <thead>
         <tr>
@@ -28,7 +31,7 @@
         <tbody>
         <?php foreach ($products as $product): ?>
             <tr class="product-row <?php echo $product->is_active ? '' : 'inactive-product'; ?>">
-                <td><input type="checkbox" class="product-checkbox" value="<?php echo $product->id; ?>"></td>
+                <td><input type="checkbox" class="product-checkbox" name="selected_products[]" value="<?php echo $product->id; ?>"></td>
                 <td><?php echo htmlspecialchars($product->id); ?></td>
                 <td><?php echo htmlspecialchars($product->name); ?></td>
                 <td><?php echo $product->is_active ? 'true' : 'false'; ?></td>
