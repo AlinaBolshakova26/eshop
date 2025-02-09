@@ -74,25 +74,15 @@ class OrderRepository
         }
     }
 
-    public function addOrder(int $userId, int $itemId, float $price, string $address): bool
+    public function getOrderById(int $id): ?array
     {
-        try
-        {
-            $stmt = $this->pdo->prepare("INSERT INTO up_order 
-                (user_id, item_id, price, address, status) 
-                VALUES (:user_id, :item_id, :price, :address, 'Создан')");
-
-            return $stmt->execute([
-                'user_id' => $userId,
-                'item_id' => $itemId,
-                'price' => $price,
-                'address' => $address
-            ]);
-        }
-        catch (PDOException $e)
-        {
-            error_log("Ошибка при добавлении заказа: " . $e->getMessage());
-            return false;
-        }
+        $stmt = $this->pdo->prepare("SELECT o.id, o.user_id, o.item_id, o.price, o.status, o.created_at,
+        o.updated_at, o.address, u.phone, u.name, u.email FROM up_order o 
+        INNER JOIN up_user u on o.user_id = u.id WHERE o.id = :id LIMIT 1");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $order ?: null;
     }
+
 }

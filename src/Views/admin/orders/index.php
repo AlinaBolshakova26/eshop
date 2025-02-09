@@ -21,7 +21,7 @@
             </thead>
             <tbody>
             <?php foreach ($orders as $order): ?>
-                <tr>
+                <tr ondblclick="window.location='/admin/orders/<?= $order['id'] ?>';" style="cursor: pointer;">
                     <td>
                         <input type="checkbox" class="order-checkbox" name="cancel_order_ids[]" value="<?= htmlspecialchars($order['id']) ?>">
                     </td>

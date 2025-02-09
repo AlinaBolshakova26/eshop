@@ -37,12 +37,9 @@ class OrderService
         return $this->orderRepository->changeOrderStatus($orderId, $status);
     }
 
-
-    public function addOrder(int $userId, int $itemId, float $price, string $address): bool
+    public function getOrderById(int $id): ?array
     {
-        if ($price <= 0 || empty($address)) {
-            throw new \InvalidArgumentException("Неправильные данные");
-        }
-        return $this->orderRepository->addOrder($userId, $itemId, $price, $address);
+        return $this->orderRepository->getOrderById($id);
     }
+
 }
