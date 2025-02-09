@@ -33,7 +33,7 @@ class HomeController
         try {
             $products = self::$productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
             $totalPages = self::$productService->getTotalPages(ITEMS_PER_PAGE);
-
+            
             $content = View::make(
                 __DIR__ . "/../Views/home/catalog.php",
                 [
