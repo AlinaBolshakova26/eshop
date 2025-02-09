@@ -3,7 +3,6 @@ namespace Controllers\Admin;
 
 use Core\Services\Admin\AdminService;
 use Core\Services\Admin\AdminRepository;
-use Core\Session;
 use Core\Database\MySQLDatabase;
 
 class AdminController
@@ -34,7 +33,7 @@ class AdminController
 
                 if ($this->adminService->authenticate($email, $password))
                 {
-                    header('Location: /admin');
+                    header('Location: /admin/products');
                     exit;
                 }
                 else
@@ -50,18 +49,6 @@ class AdminController
                 exit;
             }
         }
-    }
-
-    public function index(): void
-    {
-        Session::start();
-        if (!Session::has('admin'))
-        {
-            header('Location: /admin/login');
-            exit;
-        }
-        $products = [];
-        require __DIR__ . '/../../Views/admin/orders/index.php';
     }
 
     public function logout(): void
