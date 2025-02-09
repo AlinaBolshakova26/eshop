@@ -41,7 +41,7 @@ class AdminController
 
             if ($this->adminService->authenticate($email, $password))
             {
-                header('Location: /admin');
+                header('Location: /admin/products');
                 exit;
             }
 

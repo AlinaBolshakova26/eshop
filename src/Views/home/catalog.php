@@ -6,13 +6,26 @@
         <?php foreach ($products as $product): ?>
             <div class="col-md-4 mb-4">
                 <div class="card product-card">
-                    <?php if (!empty($product->main_image_path)): ?>
-                        <img src="<?php echo htmlspecialchars($product->main_image_path); ?>"
-                             alt="<?php echo htmlspecialchars($product->name); ?>"
-                             class="img-fluid">
-                    <?php else: ?>
-                        <div>Нет изображения</div>
-                    <?php endif; ?>
+                    <div class="product-images-slider position-relative">
+                        <div class="image-container">
+                            <?php if (!empty($product->main_image_path)): ?>
+                                <img src="<?php echo htmlspecialchars($product->main_image_path); ?>"
+                                     alt="<?php echo htmlspecialchars($product->name); ?>"
+                                     class="card-img-top"
+                                     data-index="0">
+                            <?php else: ?>
+                                <div>Нет изображения</div>
+                            <?php endif; ?>
+<!--							--><?php //foreach ($product['images'] as $index => $image): ?>
+<!--                                <img src="--><?php //echo htmlspecialchars($image); ?><!--"-->
+<!--                                     class="card-img-top --><?php //echo $index === 0 ? 'd-none' : ''; ?><!--"-->
+<!--                                     alt="--><?php //echo htmlspecialchars($product['name']); ?><!--"-->
+<!--                                     data-index="--><?php //echo $index + 1; ?><!--">-->
+<!--							--><?php //endforeach; ?>
+                        </div>
+                        <button class="btn btn-secondary left-arrow position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%);">❮</button>
+                        <button class="btn btn-secondary right-arrow position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%);">❯</button>
+                    </div>
                     <div class="card-body">
                         <h5 class="card-title"><?php echo htmlspecialchars($product->name); ?></h5>
                         <p class="card-text"><?php echo nl2br(htmlspecialchars($product->desc_short)); ?></p>

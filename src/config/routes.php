@@ -17,11 +17,12 @@ $router->addRoute('GET', '/order/success', [\Controllers\OrderController::class,
 
 $router->addRoute('GET', '/admin/login', [\Controllers\Admin\AdminController::class, 'login']);
 $router->addRoute('POST', '/admin/login', [\Controllers\Admin\AdminController::class, 'authenticate']);
-$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
+$router->addRoute('GET', '/admin/logout', [\Controllers\Admin\AdminController::class, 'logout']);
+//$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
 
 
 //$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
-// $router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductAdminController::class, 'index']);
+$router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 // $router->addRoute('GET', '/admin/products/edit/(\d+)', [\Controllers\Admin\ProductAdminController::class, 'edit']);
 // $router->addRoute('POST', '/admin/products/update/(\d+)', [\Controllers\Admin\ProductAdminController::class, 'update']);
 // $router->addRoute('POST', '/admin/products/delete/(\d+)', [\Controllers\Admin\ProductAdminController::class, 'delete']);
