@@ -21,7 +21,10 @@ $router->addRoute('GET', '/admin/logout', [\Controllers\Admin\AdminController::c
 //$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
 
 
-//$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
+$router->addRoute('GET', '/admin', function () {
+	header('Location: /admin/products');
+	exit;
+});
 $router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 // $router->addRoute('GET', '/admin/products/edit/(\d+)', [\Controllers\Admin\ProductAdminController::class, 'edit']);
 // $router->addRoute('POST', '/admin/products/update/(\d+)', [\Controllers\Admin\ProductAdminController::class, 'update']);

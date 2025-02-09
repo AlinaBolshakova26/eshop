@@ -50,12 +50,6 @@ class AdminController
         }
     }
 
-    public function index(): void
-    {
-        echo "<h1>Добро пожаловать в админку!</h1>";
-        echo "<p>Вы администратор. Если видите это сообщение, авторизация работает.</p>";
-    }
-
 
     public function logout(): void
     {
