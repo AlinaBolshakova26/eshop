@@ -1,4 +1,4 @@
-/* Общие стили */
+
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f9;
@@ -62,7 +62,13 @@ button:hover {
     margin-bottom: 15px;
 }
 
-/* Стиль для placeholder */
 ::placeholder {
     color: #aaa;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
 }
