@@ -1,32 +1,18 @@
 <div class="row">
     <div class="col-md-6">
         <div class="product-gallery">
-            <?php if (!empty($productImages)): ?>
-                <!-- Основное изображение -->
-                <?php $mainImage = null; ?>
-                <?php foreach ($productImages as $image): ?>
-                    <?php if ($image['is_main']): ?>
-                        <?php $mainImage = $image; ?>
-                        <div class="main-image mb-3">
-                            <img src="<?php echo htmlspecialchars($image['path']); ?>" alt="<?php echo htmlspecialchars($image['description']); ?>" class="img-fluid">
-                        </div>
-                        <?php break; ?>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-
-                <!-- Дополнительные изображения -->
-                <?php if (!empty($mainImage)): ?>
-                    <div class="additional-images d-flex flex-wrap gap-2">
-                        <?php foreach ($productImages as $image): ?>
-                            <?php if (!$image['is_main']): ?>
-                                <img src="<?php echo htmlspecialchars($image['path']); ?>" alt="<?php echo htmlspecialchars($image['description']); ?>" class="img-thumbnail" style="width: 100px; height: auto;">
-                            <?php endif; ?>
+                <div class="main-image mb-3">
+                    <img src="<?php echo htmlspecialchars($product->main_image_path); ?>" alt="<?php echo htmlspecialchars($product->name); ?>" class="img-fluid">
+                </div>
+                <?php if (!empty($product->additional_image_paths)): ?>
+                    <div class="thumbnail-images">
+                        <?php foreach ($product->additional_image_paths as $image): ?>
+                            <img src="<?php echo htmlspecialchars($image); ?>" alt="<?php echo htmlspecialchars($product->name); ?>" class="img-thumbnail" style="width: 100px; height: auto;">
                         <?php endforeach; ?>
                     </div>
+                <?php else: ?>
+                    <p>Изображений нет.</p>
                 <?php endif; ?>
-            <?php else: ?>
-                <p>Изображений нет.</p>
-            <?php endif; ?>
         </div>
     </div>
     <div class="col-md-6">

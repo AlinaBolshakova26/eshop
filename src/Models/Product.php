@@ -11,7 +11,8 @@ final class ProductListDTO
         public readonly string $desc_short,
         public readonly string $price,
         public readonly int $is_active,
-        public readonly ?string $main_image_path
+        public readonly ?string $main_image_path,
+        public readonly ?array $additional_image_paths,
     ) {}
 }
 
@@ -23,7 +24,9 @@ final class ProductDetailDTO
         public readonly int $id,
         public readonly string $name,
         public readonly string $price,
-        public readonly string $description
+        public readonly string $description,
+        public readonly ?string $main_image_path,
+        public readonly ?array $additional_image_paths,
     ) {}
 }
 
@@ -39,6 +42,8 @@ class Product
     private string $created_at;
     private string $updated_at;
     private ?string $main_image_path;
+
+    private ?array $additional_image_paths;
 
     public static function fromDatabase(array $row): self
     {
@@ -56,8 +61,14 @@ class Product
 //        $product->updated_at = $row['updated_at'] ?? 'Y-m-d H:i:s';
         $product->created_at = $row['created_at'] ?? date('Y-m-d H:i:s');
         $product->updated_at = $row['updated_at'] ?? date('Y-m-d H:i:s');
+        $product->additional_image_paths = $row['additional_image_paths'] ?? null;
 
         return $product;
+    }
+
+    public function setAdditionalImagePaths(?array $additional_image_paths)
+    {
+        $this->additional_image_paths = $additional_image_paths;
     }
 
     public function activate(): void
@@ -80,7 +91,8 @@ class Product
             $this->desc_short,
             $this->price,
             $this->is_active,
-            $this->main_image_path
+            $this->main_image_path,
+            $this->additional_image_paths,
         );
     }
 
@@ -92,11 +104,9 @@ class Product
             $this->name,
             $this->price,
             $this->description,
+            $this->main_image_path,
+            $this->additional_image_paths
         );
     }
-
-
-
-//... описание и тд как DTO...
 
 }
