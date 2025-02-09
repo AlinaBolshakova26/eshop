@@ -13,10 +13,6 @@ class AdminRepository
         $this->pdo = $pdo;
     }
 
-    /**
-     * @param string $email
-     * @return User|null
-     */
     public function findUserByEmail(string $email): ?User
     {
         $stmt = $this->pdo->prepare("
@@ -28,11 +24,6 @@ class AdminRepository
         $stmt->execute();
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row)
-        {
-            return User::fromDatabase($row);
-        }
-
-        return null;
+        return $row ? User::fromDatabase($row) : null;
     }
 }
