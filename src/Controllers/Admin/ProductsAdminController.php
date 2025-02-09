@@ -54,6 +54,7 @@ class ProductsAdminController
 				'products' => $products,
 				'totalPages' => $totalPages,
 				'currentPage' => $currentPage,
+				'error' => View::make(__DIR__ . '/../../Views/admin/error_block.php')
 			]);
 
 			echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', [
@@ -65,5 +66,53 @@ class ProductsAdminController
 			error_log("Database error: " . $e->getMessage());
 			echo "Произошла ошибка при загрузке товаров.";
 		}
+	}
+
+	public static function process(): void
+	{
+		self::initialize();
+
+		if (!self::$adminService->isAdminLoggedIn()) {
+			header('Location: /admin/login');
+			exit;
+		}
+
+		if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$selectedProducts = $_POST['selected_products'] ?? [];
+			$action = $_POST['action'] ?? '';
+
+			if (empty($selectedProducts)) {
+				// Если товары не выбраны, перенаправляем обратно с сообщением об ошибке
+				header('Location: /admin/products?error=no_products_selected');
+				exit;
+			}
+
+			try {
+				switch ($action) {
+					case 'delete':
+						self::$productService->deleteProducts($selectedProducts);
+						break;
+					case 'activate':
+						self::$productService->activateProducts($selectedProducts);
+						break;
+					default:
+						// Неизвестное действие
+						header('Location: /admin/products?error=invalid_action');
+						exit;
+				}
+
+				// Перенаправляем обратно с сообщением об успехе
+				header('Location: /admin/products?success=1');
+				exit;
+			} catch (\PDOException $e) {
+				error_log("Database error: " . $e->getMessage());
+				header('Location: /admin/products?error=database_error');
+				exit;
+			}
+		}
+
+		// Если метод запроса не POST, перенаправляем обратно
+		header('Location: /admin/products');
+		exit;
 	}
 }

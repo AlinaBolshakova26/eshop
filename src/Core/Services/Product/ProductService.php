@@ -27,8 +27,7 @@ class ProductService
 
     public function getProductByid(int $id)
     {
-        $product = $this->repository->findById($id);
-
+        $product = $this->repository->findProductById($id);
         return $product->toDetailDTO();
     }
 

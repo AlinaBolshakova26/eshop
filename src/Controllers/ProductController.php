@@ -32,7 +32,6 @@ class ProductController
 
             $content = View::make(__DIR__ . '/../Views/product/detail.php', [
                 'product' => $product,
-//                 'productImages' => $productImages
             ]);
 
             echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
