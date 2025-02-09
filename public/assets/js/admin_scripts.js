@@ -9,7 +9,6 @@ $(document).ready(function() {
         $('.main-content').addClass('shift');
     }
 
-    // Скрытие панели при клике вне её области
     $(document).click(function(event) {
         if (!$(event.target).closest('.sidebar, .sidebar-toggle').length) {
             $('.sidebar').removeClass('open');
@@ -18,6 +17,6 @@ $(document).ready(function() {
     });
 
     $('#select-all').change(function() {
-        $('.product-checkbox').prop('checked', this.checked);
+        $('.product-checkbox, .order-checkbox').prop('checked', this.checked);
     });
 });
