@@ -15,11 +15,9 @@ $router->addRoute('POST', '/order/submit', [\Controllers\OrderController::class,
 
 $router->addRoute('GET', '/order/success', [\Controllers\OrderController::class, 'success']);
 
-
-// Пример маршрута для страницы входа
-$router->addRoute('GET', '/admin/login', [Controllers\Admin\AdminController::class, 'login']);
-$router->addRoute('POST', '/admin/login', [Controllers\Admin\AdminController::class, 'authenticate']);
-$router->addRoute('GET', '/admin', [Controllers\Admin\AdminController::class, 'index']);
+$router->addRoute('GET', '/admin/login', [\Controllers\Admin\AdminController::class, 'login']);
+$router->addRoute('POST', '/admin/login', [\Controllers\Admin\AdminController::class, 'authenticate']);
+$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
 
 
 //$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
