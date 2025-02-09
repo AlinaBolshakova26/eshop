@@ -16,6 +16,15 @@ class AdminController
         $pdo = $database->getConnection();
         $repository = new AdminRepository($pdo);
         $this->adminService = new AdminService($repository);
+
+        if (!in_array($_SERVER['REQUEST_URI'], ['/admin/login', '/admin/login?error=1']))
+        {
+            if (!Session::has('admin'))
+            {
+                header('Location: /admin/login');
+                exit;
+            }
+        }
     }
 
     public function login(): void
@@ -54,15 +63,10 @@ class AdminController
 
     public function index(): void
     {
-        Session::start();
-        if (!Session::has('admin'))
-        {
-            header('Location: /admin/login');
-            exit;
-        }
-        $products = [];
-        require __DIR__ . '/../../Views/admin/orders/index.php';
+        echo "<h1>Добро пожаловать в админку!</h1>";
+        echo "<p>Вы администратор. Если видите это сообщение, авторизация работает.</p>";
     }
+
 
     public function logout(): void
     {
