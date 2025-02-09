@@ -28,7 +28,7 @@ class HomeController
         self::initialize();
 
         $currentPage = max(1, (int)($_GET['page'] ?? 1));
-        define("ITEMS_PER_PAGE", 10);
+        define("ITEMS_PER_PAGE", 9);
 
         try {
             $products = self::$productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);

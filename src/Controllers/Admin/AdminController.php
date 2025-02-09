@@ -36,35 +36,18 @@ class AdminController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST')
         {
-            try
-            {
-                $email = $_POST['email'];
-                $password = $_POST['password'];
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
 
-                if ($this->adminService->authenticate($email, $password))
-                {
-                    header('Location: /admin');
-                    exit;
-                }
-                else
-                {
-                    header('Location: /admin/login?error=1');
-                    exit;
-                }
-            }
-            catch (\Exception $e)
+            if ($this->adminService->authenticate($email, $password))
             {
-                error_log("Authentication error: " . $e->getMessage());
-                header('Location: /admin/login?error=1');
+                header('Location: /admin/products');
                 exit;
             }
-        }
-    }
 
-    public function index(): void
-    {
-        echo "<h1>Добро пожаловать в админку!</h1>";
-        echo "<p>Вы администратор. Если видите это сообщение, авторизация работает.</p>";
+            header('Location: /admin/login?error=1');
+            exit;
+        }
     }
 
 

@@ -1,0 +1,96 @@
+.fixed-top-row {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1000;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.inactive-product {
+    background-color: #ffe6e6;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -200px;
+    height: 100vh;
+    width: 200px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #ddd;
+    overflow-y: auto;
+    z-index: 1001;
+    transition: left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+.sidebar-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1002;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 10px;
+    cursor: pointer;
+    display: block;
+}
+
+.main-content {
+    margin-left: 0;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.shift {
+    margin-left: 250px;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        left: 0;
+    }
+    .main-content {
+        margin-left: 250px;
+    }
+    .sidebar-toggle {
+        display: none;
+    }
+}
+
+.sidebar .nav-link {
+    padding: 10px 15px;
+    color: #333;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.sidebar .nav-link.logout {
+    margin-top: 50px;
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.sidebar .nav-link.logout:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-edit {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.fixed-top-row .btn-danger {
+    margin-left: 50px;
+}
