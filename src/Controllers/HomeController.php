@@ -8,31 +8,31 @@ use Core\Database\MySQLDatabase;
 
 class HomeController
 {
-    private static ProductService $productService;
+    private ProductService $productService;
 
-    private static function initialize(): void
+    private function initialize(): void
     {
-        if (!isset(self::$productService))
+        if (!isset($this->productService))
         {
             $database = new MySQLDatabase();
             $pdo = $database->getConnection();
 
             $repository = new ProductRepository($pdo);
-            self::$productService = new ProductService($repository);
+            $this->productService = new ProductService($repository);
         }
     }
 
 
-    public static function index(): void
+    public function index(): void
     {
-        self::initialize();
+        $this->initialize();
 
         $currentPage = max(1, (int)($_GET['page'] ?? 1));
         define("ITEMS_PER_PAGE", 9);
 
         try {
-            $products = self::$productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
-            $totalPages = self::$productService->getTotalPages(ITEMS_PER_PAGE);
+            $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
+            $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
             
             $content = View::make(
                 __DIR__ . "/../Views/home/catalog.php",

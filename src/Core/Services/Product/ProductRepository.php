@@ -15,19 +15,25 @@ class ProductRepository
     }
 
 
-    public function findAllPaginated(int $limit, int $offset): array
+    public function findAllPaginated(int $limit, int $offset, bool $showOnlyActive = true): array
     {
-        $stmt = $this->pdo->prepare("
-        SELECT 
-            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short,
-            img.path AS main_image_path
-        FROM up_item i
-        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
-        WHERE i.is_active = 1
-        ORDER BY i.id ASC
-        LIMIT :limit OFFSET :offset
-    ");
+        $sql = 
+        ("
+            SELECT 
+                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short,
+                img.path AS main_image_path
+            FROM up_item i
+            LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        ");
 
+        if ($showOnlyActive)
+        {
+            $sql .= "WHERE i.is_active = 1 ";
+        }
+
+        $sql .= " ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
@@ -119,6 +125,18 @@ class ProductRepository
         $stmt->execute($productIds);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    }
+
+    public function updateStatus(array $productIds, bool $newStatus): void
+    {   
+        $placeholders = str_repeat('?,', count($productIds) - 1) . '?';
+        $params = array_merge([$newStatus ? 1 : 0], $productIds);
+
+        $stmt = $this->pdo->prepare("UPDATE up_item 
+        SET is_active = ?
+        WHERE id IN ($placeholders)");
+
+        $stmt->execute($params);        
     }
 
     public function getTotalCount(): int

@@ -10,7 +10,7 @@
         </div>
     </div>
     <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
-            <button type="submit" name="action" value="delete" class="btn btn-danger">Удалить</button>
+            <button type="submit" name="action" value="deactivate" class="btn btn-danger">Деактивировать</button>
             <button type="submit" name="action" value="activate" class="btn btn-success">Активировать</button>
             <a href="add" class="btn btn-primary">+ Добавить элемент</a>
     </div>
@@ -30,13 +30,13 @@
         </thead>
         <tbody>
         <?php foreach ($products as $product): ?>
-            <tr class="product-row <?php echo $product->is_active ? '' : 'inactive-product'; ?>">
-                <td><input type="checkbox" class="product-checkbox" name="selected_products[]" value="<?php echo $product->id; ?>"></td>
-                <td><?php echo htmlspecialchars($product->id); ?></td>
-                <td><?php echo htmlspecialchars($product->name); ?></td>
-                <td><?php echo $product->is_active ? 'true' : 'false'; ?></td>
+            <tr class="product-row <?php echo $product->getIsActive() ? '' : 'inactive-product'; ?>">
+                <td><input type="checkbox" class="product-checkbox" name="selected_products[]" value="<?php echo $product->getId(); ?>"></td>
+                <td><?php echo htmlspecialchars($product->getId()); ?></td>
+                <td><?php echo htmlspecialchars($product->getName()); ?></td>
+                <td><?php echo $product->getIsActive() ? 'true' : 'false'; ?></td>
                 <td>
-                    <a href="/admin/products/<?php echo $product->id; ?>" class="btn btn-sm btn-warning btn-edit">
+                    <a href="/admin/products/<?php echo $product->getId(); ?>" class="btn btn-sm btn-warning btn-edit">
                         Редактировать
                     </a>
                 </td>
