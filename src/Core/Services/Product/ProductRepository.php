@@ -13,26 +13,39 @@ class ProductRepository
         $this->pdo = $pdo;
     }
 
-    public function findAllPaginated(int $limit, int $offset, ?int $tagId = null): array
+
+    public function findAllPaginated(int $limit, int $offset, bool $showOnlyActive = true): array
     {
-        if ($tagId)
+        $sql = 
+        ("
+            SELECT 
+                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short,
+                img.path AS main_image_path
+            FROM up_item i
+            LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        ");
+
+        if ($showOnlyActive)
         {
-            $query = "SELECT i.id, i.name, i.price, i.description, img.path AS main_image_path
-              FROM up_item i
-              LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
-              JOIN up_item_tag it ON i.id = it.item_id
-              WHERE it.tag_id = :tagId
-              LIMIT :limit OFFSET :offset";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(':tagId', $tagId, PDO::PARAM_INT);
+            $sql .= "WHERE i.is_active = 1 ";
         }
-        else
-        {
-            $query = "SELECT i.id, i.name, i.price, i.description, img.path AS main_image_path
-              FROM up_item i
-              LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
-              LIMIT :limit OFFSET :offset";
-            $stmt = $this->pdo->prepare($query);
+
+        $sql .= " ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $productIds = array_column($products, 'id');
+
+        $additionalImages = $this->findAdditionalImages($productIds);
+
+        $imagesByProduct = [];
+        foreach ($additionalImages as $image) {
+            $imagesByProduct[$image['item_id']][] = $image['path'];
         }
 
         $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
@@ -103,4 +116,23 @@ class ProductRepository
         $stmt->execute();
         return (int) $stmt->fetchColumn();
     }
+
+    public function updateStatus(array $productIds, bool $newStatus): void
+    {   
+        $placeholders = str_repeat('?,', count($productIds) - 1) . '?';
+        $params = array_merge([$newStatus ? 1 : 0], $productIds);
+
+        $stmt = $this->pdo->prepare("UPDATE up_item 
+        SET is_active = ?
+        WHERE id IN ($placeholders)");
+
+        $stmt->execute($params);        
+    }
+
+    public function getTotalCount(): int
+    {
+        $stmt = $this->pdo->query('SELECT COUNT(*) FROM up_item');
+        return (int)$stmt->fetchColumn();
+    }
+
 }

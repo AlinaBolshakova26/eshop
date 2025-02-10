@@ -30,7 +30,7 @@ class OrdersAdminController
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->handlePostRequest();
+            $this->handlePost();
             header('Location: /admin/orders');
             exit;
         }

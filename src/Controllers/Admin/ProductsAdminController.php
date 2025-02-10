@@ -10,34 +10,34 @@ use Core\Services\Product\ProductRepository;
 
 class ProductsAdminController
 {
-	private static AdminService $adminService;
-	private static ProductService $productService;
+	private AdminService $adminService;
+	private ProductService $productService;
 
-	private static function initialize(): void
+	private function initialize(): void
 	{
-		if (!isset(self::$productService) || !isset(self::$adminService))
+		if (!isset($this->productService) || !isset($this->adminService) || !isset($this->productRepository))
 		{
 			$database = new MySQLDatabase();
 			$pdo = $database->getConnection();
 
-			if (!isset(self::$adminService))
+			if (!isset($this->adminService))
 			{
 				$adminRepository = new AdminRepository($pdo);
-				self::$adminService = new AdminService($adminRepository);
+				$this->adminService = new AdminService($adminRepository);
 			}
 
-			if (!isset(self::$productService)) {
+			if (!isset($this->productService)) {
 				$productRepository = new ProductRepository($pdo);
-				self::$productService = new ProductService($productRepository);
+				$this->productService = new ProductService($productRepository);
 			}
 		}
 
 	}
-	public static function index(): void
+	public function index(): void
 	{
-		self::initialize();
+		$this->initialize();
 
-		if (!self::$adminService->isAdminLoggedIn())
+		if (!$this->adminService->isAdminLoggedIn())
 		{
 			header('Location: /admin/login');
 			exit;
@@ -47,8 +47,9 @@ class ProductsAdminController
 		define("ITEMS_PER_PAGE", 30);
 
 		try {
-			$products = self::$productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
-			$totalPages = self::$productService->getTotalPages(ITEMS_PER_PAGE);
+
+			$products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE);
+			$totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
 
 			$content = View::make(__DIR__ . '/../../Views/admin/products/index.php', [
 				'products' => $products,
@@ -60,6 +61,7 @@ class ProductsAdminController
 			echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', [
 				'content' => $content,
 			]);
+
 		}
 		catch (\PDOException $e)
         {
@@ -68,11 +70,11 @@ class ProductsAdminController
 		}
 	}
 
-	public static function process(): void
+	public function process(): void
 	{
-		self::initialize();
+		$this->initialize();
 
-		if (!self::$adminService->isAdminLoggedIn()) {
+		if (!$this->adminService->isAdminLoggedIn()) {
 			header('Location: /admin/login');
 			exit;
 		}
@@ -88,12 +90,15 @@ class ProductsAdminController
 			}
 
 			try {
+
+				$productIds = array_map('intval', $selectedProducts);
+
 				switch ($action) {
-					case 'delete':
-						self::$productService->deleteProducts($selectedProducts);
+					case 'deactivate':
+						$this->productService->adminToggleStatus($productIds, false);
 						break;
 					case 'activate':
-						self::$productService->activateProducts($selectedProducts);
+						$this->productService->adminToggleStatus($productIds,  true);
 						break;
 					default:
 						// Неизвестное действие
@@ -101,10 +106,11 @@ class ProductsAdminController
 						exit;
 				}
 
-				// Перенаправляем обратно с сообщением об успехе
 				header('Location: /admin/products?success=1');
-				exit;
-			} catch (\PDOException $e) {
+            	exit;
+			} 
+			catch (\PDOException $e) 
+			{
 				error_log("Database error: " . $e->getMessage());
 				header('Location: /admin/products?error=database_error');
 				exit;

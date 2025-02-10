@@ -34,4 +34,20 @@ class ProductService
         $totalProducts = $this->repository->getTotalCount($tagId);
         return ceil($totalProducts / $itemsPerPage);
     }
+
+    public function adminGetPaginatedProducts(int $page, int $itemsPerPage): array
+    {
+        $offset = ($page - 1) * $itemsPerPage;
+        return $this->repository->findAllPaginated($itemsPerPage, $offset, false);     
+    }
+
+    public function adminToggleStatus(array $productIds, bool $newStatus): void
+    {
+        if (empty($productIds)) {
+            throw new \InvalidArgumentException('No products to update');
+        }
+
+        $this->repository->updateStatus($productIds, $newStatus);
+    }
+
 }

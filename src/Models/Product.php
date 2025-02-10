@@ -109,4 +109,103 @@ class Product
         );
     }
 
+
+    // Геттеры
+public function getId(): int 
+{
+   return $this->id;
+}
+
+public function getName(): string 
+{
+   return $this->name;
+}
+
+public function getDescription(): string 
+{
+   return $this->description;
+}
+
+public function getDescShort(): string 
+{
+   return $this->desc_short;
+}
+
+public function getPrice(): ?string 
+{
+   return $this->price;
+}
+
+public function getIsActive(): bool 
+{
+   return $this->is_active;
+}
+
+public function getCreatedAt(): string 
+{
+   return $this->created_at;
+}
+
+public function getUpdatedAt(): string 
+{
+   return $this->updated_at;
+}
+
+public function getMainImagePath(): ?string 
+{
+   return $this->main_image_path;
+}
+
+public function getAdditionalImagePaths(): ?array 
+{
+   return $this->additional_image_paths;
+}
+
+// Сеттеры
+public function setId(int $id): void 
+{
+   $this->id = $id;
+}
+
+public function setName(string $name): void 
+{
+   $this->name = $name;
+}
+
+public function setDescription(string $description): void 
+{
+   $this->description = $description;
+}
+
+public function setDescShort(string $desc_short): void 
+{
+   $this->desc_short = $desc_short;
+}
+
+public function setPrice(?string $price): void 
+{
+   $this->price = $price;
+}
+
+public function setIsActive(bool $is_active): void 
+{
+   $this->is_active = $is_active;
+}
+
+public function setCreatedAt(string $created_at): void 
+{
+   $this->created_at = $created_at;
+}
+
+public function setUpdatedAt(string $updated_at): void 
+{
+   $this->updated_at = $updated_at;
+}
+
+public function setMainImagePath(?string $main_image_path): void 
+{
+   $this->main_image_path = $main_image_path;
+}
+
+
 }

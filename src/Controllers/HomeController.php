@@ -10,50 +10,33 @@ use Core\Database\MySQLDatabase;
 
 class HomeController
 {
-    private static ProductService $productService;
-    private static ?TagService $tagService = null;
+    private ProductService $productService;
 
-    private static function initialize(): void
+    private function initialize(): void
     {
-        if (!isset(self::$productService))
+        if (!isset($this->productService))
         {
             $database = new MySQLDatabase();
             $pdo = $database->getConnection();
 
             $repository = new ProductRepository($pdo);
-            self::$productService = new ProductService($repository);
-
-            if (self::$tagService === null)
-            {
-                self::$tagService = new TagService((new TagRepository($pdo)));
-            }
+            $this->productService = new ProductService($repository);
         }
     }
 
 
-    public static function index(?int $id = null): void
+    public function index(): void
     {
-        self::initialize();
+        $this->initialize();
 
         define("ITEMS_PER_PAGE", 9);
         $selectedTagId = $id;
         $currentPage = max(1, (int)($_GET['page'] ?? 1));
 
         try {
-            $tags = self::$tagService->getAllTags();
-            $products = self::$productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE, $selectedTagId);
-            $totalPages = self::$productService->getTotalPages(ITEMS_PER_PAGE, $selectedTagId);
-
-            $selectedTagName = null;
-            if ($selectedTagId !== null) {
-                foreach ($tags as $tag) {
-                    if ($tag->toListDTO()->id === $selectedTagId) {
-                        $selectedTagName = $tag->toListDTO()->name;
-                        break;
-                    }
-                }
-            }
-
+            $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
+            $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
+            
             $content = View::make(
                 __DIR__ . "/../Views/home/catalog.php",
                 [
