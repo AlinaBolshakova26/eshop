@@ -23,7 +23,6 @@ class ProductController
     {
         try {
             $product = $this->productService->getProductByid((int)$id);
-
             if (!$product) {
                 http_response_code(404);
                 echo '404 Not Found';
