@@ -12,7 +12,7 @@ class OrderController
     public static function create($id)
     {
         $db = (new MySQLDatabase())->getConnection();
-        // Картинка из бд (главная)
+        // данные о товаре из бд
         $stmt = $db->prepare("
             SELECT i.*, im.path AS main_image 
             FROM up_item i 
@@ -116,7 +116,7 @@ class OrderController
             $total_price = $price * $quantity;
 
             $order = new Order($user_id, $product_id, $total_price, $address);
-            if ($order->save()) {
+            if ($order->saveInDb()) {
                 header("Location: /order/success");
                 exit;
             } else {

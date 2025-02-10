@@ -16,15 +16,6 @@ class Order
     private string $created_at;
     private string $updated_at;
 
-    /**
-     * Конструктор заказа
-     *
-     * @param int $user_id
-     * @param int $item_id
-     * @param float $price
-     * @param string $address
-     * @param string $status
-     */
     public function __construct(int $user_id, int $item_id, float $price, string $address, string $status = 'Создан')
     {
         $this->user_id = $user_id;
@@ -34,11 +25,7 @@ class Order
         $this->status = $status;
     }
 
-    /**
-     *
-     * @return bool
-     */
-    public function save(): bool
+    public function saveInDb(): bool
     {
         $db = (new MySQLDatabase())->getConnection();
         $stmt = $db->prepare("INSERT INTO up_order (user_id, item_id, price, address, status) VALUES (:user_id, :item_id, :price, :address, :status)");
