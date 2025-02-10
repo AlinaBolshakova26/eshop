@@ -1,9 +1,13 @@
 <form id="products-form" action="/admin/products/process" method="POST">
-<div class="fixed-top-row">
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="fixed-top-row">
+        <div class="d-flex justify-content-between align-items-center">
 
-        <div class="mx-3 flex-grow-1">
-            <input type="text" class="form-control" placeholder="Поиск товаров...">
+            <div class="mx-3 flex-grow-1">
+                <input type="text" class="form-control" placeholder="Поиск товаров...">
+            </div>
+            <div>
+                <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
+            </div>
         </div>
         <div>
             <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
@@ -13,8 +17,8 @@
             <button type="submit" name="action" value="deactivate" class="btn btn-danger">Деактивировать</button>
             <button type="submit" name="action" value="activate" class="btn btn-success">Активировать</button>
             <a href="add" class="btn btn-primary">+ Добавить элемент</a>
+        </div>
     </div>
-</div>
 
 <div class="mt-5">
     <?= $error ?>
@@ -41,10 +45,24 @@
                     </a>
                 </td>
             </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+            <?php foreach ($products as $product): ?>
+                <tr class="product-row <?php echo $product->getIsActive() ? '' : 'inactive-product'; ?>">
+                    <td><input type="checkbox" class="product-checkbox" name="selected_products[]" value="<?php echo $product->getId(); ?>"></td>
+                    <td><?php echo htmlspecialchars($product->getId()); ?></td>
+                    <td><?php echo htmlspecialchars($product->getName()); ?></td>
+                    <td><?php echo $product->getIsActive() ? 'true' : 'false'; ?></td>
+                    <td>
+                        <a href="/admin/products/<?php echo $product->getId(); ?>" class="btn btn-sm btn-warning btn-edit">
+                            Редактировать
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </form>
 <?php if ($totalPages > 1): ?>
     <nav aria-label="Product pagination">

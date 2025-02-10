@@ -35,10 +35,11 @@ class ProductService
         return ceil($totalProducts / $itemsPerPage);
     }
 
+
     public function adminGetPaginatedProducts(int $page, int $itemsPerPage): array
     {
         $offset = ($page - 1) * $itemsPerPage;
-        return $this->repository->findAllPaginated($itemsPerPage, $offset, false);     
+        return $this->repository->findAllPaginated($itemsPerPage, $offset, false);
     }
 
     public function adminToggleStatus(array $productIds, bool $newStatus): void
@@ -49,5 +50,4 @@ class ProductService
 
         $this->repository->updateStatus($productIds, $newStatus);
     }
-
 }
