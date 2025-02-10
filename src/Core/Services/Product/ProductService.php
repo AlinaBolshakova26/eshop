@@ -2,6 +2,8 @@
 
 namespace Core\Services\Product;
 
+use Core\Services\Product\ProductRepository;
+
 class ProductService
 {
 
@@ -36,10 +38,10 @@ class ProductService
     }
 
 
-    public function adminGetPaginatedProducts(int $page, int $itemsPerPage): array
+    public function adminGetPaginatedProducts(int $currentPage, int $itemsPerPage, bool $showOnlyActive = true): array
     {
-        $offset = ($page - 1) * $itemsPerPage;
-        return $this->repository->findAllPaginated($itemsPerPage, $offset, false);
+        $offset = ($currentPage - 1) * $itemsPerPage;
+        return $this->repository->findAllPaginated($itemsPerPage, $offset, null, $showOnlyActive);
     }
 
     public function adminToggleStatus(array $productIds, bool $newStatus): void
@@ -50,4 +52,6 @@ class ProductService
 
         $this->repository->updateStatus($productIds, $newStatus);
     }
+
+
 }

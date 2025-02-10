@@ -15,43 +15,63 @@ class ProductRepository
 
     public function findAllPaginated(int $limit, int $offset, ?int $tagId = null, bool $showOnlyActive = true): array
     {
-        $sql = "SELECT i.id, i.name, i.price, i.description, img.path AS main_image_path
-            FROM up_item i
-            LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1";
-
-        $params = [
-            'limit'  => $limit,
-            'offset' => $offset,
-        ];
+        $sql = "
+        SELECT 
+            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, 
+            img.path AS main_image_path
+        FROM up_item i
+        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+    ";
 
         if ($tagId)
         {
-            $sql .= " JOIN up_item_tag it ON i.id = it.item_id WHERE it.tag_id = :tagId";
-            $params['tagId'] = $tagId;
-
-            if ($showOnlyActive)
-            {
-                $sql .= " AND i.is_active = 1";
-            }
+            $sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
         }
-        elseif ($showOnlyActive)
+
+        $sql .= "WHERE 1=1 "; // Заглушка для удобного добавления условий
+
+        if ($showOnlyActive)
         {
-            $sql .= " WHERE i.is_active = 1";
+            $sql .= "AND i.is_active = 1 ";
         }
 
-        $sql .= " ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+        if ($tagId) {
+            $sql .= "AND it.tag_id = :tagId ";
+        }
+
+        $sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+
         $stmt = $this->pdo->prepare($sql);
-        foreach ($params as $key => &$val) {
-            $stmt->bindParam(":$key", $val, PDO::PARAM_INT);
+
+        if ($tagId)
+        {
+            $stmt->bindParam(':tagId', $tagId, PDO::PARAM_INT);
         }
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
-        $products = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $product = Product::fromDatabase($row);
-            $product->setAdditionalImagePaths($this->findAdditionalImagesById($row['id']));
-            $products[] = $product;
+
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $productIds = array_column($products, 'id');
+        $additionalImages = $this->findAdditionalImages($productIds);
+
+        $imagesByProduct = [];
+        foreach ($additionalImages as $image)
+        {
+            $imagesByProduct[$image['item_id']][] = $image['path'];
         }
-        return $products;
+
+        return array_map(
+            function ($productData) use ($imagesByProduct) {
+                $product = Product::fromDatabase($productData);
+                $additionalImages = $imagesByProduct[$productData['id']] ?? [];
+                $product->setAdditionalImagePaths($additionalImages);
+                return $product;
+            },
+            $products
+        );
     }
 
     public function findProductById(int $id): ?Product
@@ -118,5 +138,20 @@ class ProductRepository
 
         $stmt->execute($params);
     }
+    public function findAdditionalImages(array $productIds)
+    {
 
+        $stmt = $this->pdo->prepare
+        ("
+        SELECT item_id, path
+        FROM up_image
+        WHERE item_id IN (" . implode(',', array_fill(0, count($productIds), '?')) . ")        
+        AND is_main = 0
+        ORDER BY id
+        ");
+
+        $stmt->execute($productIds);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    }
 }
