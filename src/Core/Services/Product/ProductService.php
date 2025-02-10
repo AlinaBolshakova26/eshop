@@ -2,8 +2,6 @@
 
 namespace Core\Services\Product;
 
-use Core\Services\Product\ProductRepository;
-
 class ProductService
 {
 

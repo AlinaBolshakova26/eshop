@@ -50,7 +50,6 @@ class AdminController
         }
     }
 
-
     public function logout(): void
     {
         $this->adminService->logout();

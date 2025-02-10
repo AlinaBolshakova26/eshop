@@ -66,4 +66,11 @@ $(document).ready(function() {
         e.preventDefault();
         $('html, body').animate({scrollTop: 0}, 'slow');
     });
+
+    $('.product-card').dblclick(function() {
+        const productLink = $(this).find('.btn-primary').attr('href');
+        if (productLink) {
+            window.location.href = productLink;
+        }
+    });
 });

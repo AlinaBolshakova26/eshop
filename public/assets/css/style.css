@@ -173,3 +173,17 @@ footer a:hover {
     border-color: #7a1be1;
     font-weight: bold;
 }
+
+.logo-link {
+    min-width: 250px;
+    width: 40%;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-link img {
+    min-width: 250px;
+    width: 40%;
+    align-items: center;
+    justify-content: center;
+}
