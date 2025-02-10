@@ -133,3 +133,43 @@ footer a:hover {
     opacity: 0;
     transition: opacity 300ms ease-in;
 }
+
+.tag-filter {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag-filter strong {
+    margin-right: 10px;
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag-cloud a {
+    display: inline-block;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    text-decoration: none;
+    background: #f0f0f0;
+    color: #333;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid transparent;
+}
+
+.tag-cloud a:hover {
+    background: #e0e0e0;
+}
+
+.tag-cloud a.active {
+    background: #8a2be2;
+    color: #fff;
+    border-color: #7a1be1;
+    font-weight: bold;
+}

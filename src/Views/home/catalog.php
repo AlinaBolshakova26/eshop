@@ -1,7 +1,18 @@
-<div class="row">
-    <div class="col-12">
-        <h1 class="mb-4">Наши товары</h1>
+<div class="tag-filter mb-4">
+    <div class="tag-cloud">
+        <a href="/" class="btn <?php echo empty($selectedTagId) ? 'active' : ''; ?>">Все</a>
+        <?php foreach ($tags as $tag): ?>
+            <a href="/tag/<?php echo $tag->toListDTO()->id; ?>"
+               class="<?php echo ($selectedTagId == $tag->toListDTO()->id) ? 'active' : ''; ?>">
+                <?php echo htmlspecialchars($tag->toListDTO()->name); ?>
+            </a>
+        <?php endforeach; ?>
     </div>
+</div>
+<div class="row">
+    <h1 class="mb-4">
+        <?php echo $selectedTagName ? "Товары с тегом: " . htmlspecialchars($selectedTagName) : "Наши товары"; ?>
+    </h1>
     <?php if (!empty($products)): ?>
         <?php foreach ($products as $product): ?>
             <div class="col-md-4 mb-4">
@@ -47,7 +58,9 @@
         <ul class="pagination justify-content-center">
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?php echo $currentPage == $i ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="/tag/<?php echo $selectedTagId; ?>?page=<?php echo $i; ?>">
+                        <?php echo $i; ?>
+                    </a>
                 </li>
             <?php endfor; ?>
         </ul>

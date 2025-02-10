@@ -39,6 +39,7 @@ class TagRepository
 		}
 		return null;
 	}
+
 	public function update(int $id, string $newName): bool
 	{
 		$stmt = $this->pdo->prepare("
@@ -54,4 +55,18 @@ class TagRepository
 		$stmt = $this->pdo->prepare("DELETE FROM up_tag WHERE id = :id");
 		return $stmt->execute(['id' => $id]);
 	}
+
+    public function getProductsByTag(int $tagId): array
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT i.*
+        FROM up_item i
+        JOIN up_item_tag it ON i.id = it.item_id
+        WHERE it.tag_id = :tagId
+    ");
+        $stmt->execute(['tagId' => $tagId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }

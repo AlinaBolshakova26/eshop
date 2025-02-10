@@ -2,8 +2,6 @@
 
 namespace Core\Services\Product;
 
-use Models\Product;
-
 class ProductService
 {
 
@@ -14,10 +12,10 @@ class ProductService
         $this->repository = $repository;
     }
 
-    public function getPaginatedProducts(int $page, int $itemsPerPage): array
+    public function getPaginatedProducts(int $page, int $itemsPerPage, $tagId): array
     {
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset);
+        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagId);
 
         return array_map
         (
@@ -31,10 +29,9 @@ class ProductService
         return $product->toDetailDTO();
     }
 
-    public function getTotalPages(int $itemsPerPage): int
+    public function getTotalPages(int $itemsPerPage, ?int $tagId = null): int
     {
-        $totalProducts = $this->repository->getTotalCount();
+        $totalProducts = $this->repository->getTotalCount($tagId);
         return ceil($totalProducts / $itemsPerPage);
     }
-
 }
