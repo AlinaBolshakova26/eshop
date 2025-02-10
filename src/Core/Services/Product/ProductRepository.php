@@ -28,7 +28,7 @@ class ProductRepository
             $sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
         }
 
-        $sql .= "WHERE 1=1 "; // Заглушка для удобного добавления условий
+        $sql .= "WHERE 1=1 ";
 
         if ($showOnlyActive)
         {
