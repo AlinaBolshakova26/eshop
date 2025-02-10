@@ -4,6 +4,8 @@ namespace Controllers;
 use Core\View;
 use Core\Services\Product\ProductRepository;
 use Core\Services\Product\ProductService;
+use Core\Services\Product\TagService;
+use Core\Services\Product\TagRepository;
 use Core\Database\MySQLDatabase;
 
 class HomeController
@@ -27,8 +29,9 @@ class HomeController
     {
         $this->initialize();
 
-        $currentPage = max(1, (int)($_GET['page'] ?? 1));
         define("ITEMS_PER_PAGE", 9);
+        $selectedTagId = $id;
+        $currentPage = max(1, (int)($_GET['page'] ?? 1));
 
         try {
             $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE);
@@ -38,6 +41,9 @@ class HomeController
                 __DIR__ . "/../Views/home/catalog.php",
                 [
                     'products' => $products,
+                    'tags' => $tags,
+                    'selectedTagId' => $selectedTagId,
+                    'selectedTagName' => $selectedTagName,
                     'totalPages' => $totalPages,
                     'currentPage' => $currentPage,
                 ]

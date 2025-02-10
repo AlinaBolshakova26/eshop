@@ -9,6 +9,8 @@ $router = new Router();
 $router->addRoute('GET', '/', [\Controllers\HomeController::class, 'index']);
 
 $router->addRoute('GET', '/product/{id:\d+}', [\Controllers\ProductController::class, 'show']);
+$router->addRoute('GET', '/tag/', [\Controllers\HomeController::class, 'index']);
+$router->addRoute('GET', '/tag/{id:\d+}', [\Controllers\HomeController::class, 'index']);
 
 $router->addRoute('GET', '/order/create/{id:\d+}', [\Controllers\OrderController::class, 'create']);
 $router->addRoute('POST', '/order/submit', [\Controllers\OrderController::class, 'store']);
