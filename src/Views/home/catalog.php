@@ -11,7 +11,7 @@
 </div>
 <div class="row">
     <h1 class="mb-4">
-        <?php echo $selectedTagName ? "Товары с тегом: " . htmlspecialchars($selectedTagName) : "Наши товары"; ?>
+        <?php echo $selectedTagName ? "Выбрана категория: " . htmlspecialchars($selectedTagName) : "Галерея цветов"; ?>
     </h1>
     <?php if (!empty($products)): ?>
         <?php foreach ($products as $product): ?>
