@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php echo isset($pageTitle) ? $pageTitle : 'Интернет-магазин'; ?></title>
+	<title><?php echo isset($pageTitle) ? $pageTitle : 'Fleur Éclat'; ?></title>
 
 
 	<link href="/assets/css/bootstrap.min.css" rel="stylesheet">
@@ -14,7 +14,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
 	<div class="container">
-		<a class="navbar-brand" href="/">Интернет-магазин</a>
+		<a class="navbar-brand" href="/">Fleur Éclat</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -41,7 +41,7 @@
 		<div class="row">
 			<div class="col-md-4">
 				<h5>Связаться с нами</h5>
-				<p>Email: info@example.com<br>
+				<p>Email: superprogeri@vasche.com<br>
 					Телефон: +1234567890</p>
 			</div>
 			<div class="col-md-4">
@@ -54,15 +54,15 @@
 			<div class="col-md-4">
 				<h5>Подписаться на нас</h5>
 				<div class="social-links">
-					<a href="#" class="me-2">Facebook</a>
-					<a href="#" class="me-2">Twitter</a>
-					<a href="#">Instagram</a>
+					<a href="#" class="me-2">Telegram</a>
+					<a href="#" class="me-2">ВКонакте</a>
+					<a href="#">Битрикс24</a>
 				</div>
 			</div>
 		</div>
 		<div class="row mt-3">
 			<div class="col text-center">
-				<p class="mb-0">&copy; <?php echo date('Y'); ?> Интернет-магазин. Все права защищены.</p>
+				<p class="mb-0">&copy; <?php echo date('Y'); ?> Fleur Éclat. Все права защищены.</p>
 			</div>
 		</div>
 	</div>

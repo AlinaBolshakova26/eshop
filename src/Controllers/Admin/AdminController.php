@@ -41,19 +41,13 @@ class AdminController
 
             if ($this->adminService->authenticate($email, $password))
             {
-                header('Location: /admin');
+                header('Location: /admin/products');
                 exit;
             }
 
             header('Location: /admin/login?error=1');
             exit;
         }
-    }
-
-    public function index(): void
-    {
-        echo "<h1>Добро пожаловать в админку!</h1>";
-        echo "<p>Вы администратор. Если видите это сообщение, авторизация работает.</p>";
     }
 
 
