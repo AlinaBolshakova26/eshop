@@ -16,9 +16,9 @@ class ProductService
 
     public function getPaginatedProducts(int $page, int $itemsPerPage, $tagId): array
     {
+        
         $offset = ($page - 1) * $itemsPerPage;
         $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagId);
-
         return array_map
         (
             fn($product) => $product->toListDTO(), $products
@@ -52,6 +52,5 @@ class ProductService
 
         $this->repository->updateStatus($productIds, $newStatus);
     }
-
 
 }

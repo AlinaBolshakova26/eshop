@@ -34,6 +34,10 @@ class HomeController
             $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE, $selectedTagId);
             $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE, $selectedTagId);
 
+            if (empty($products)) {
+                throw new \Exception("No products found");
+            }
+
             $selectedTagName = null;
             foreach ($tags as $tag)
             {
@@ -62,5 +66,20 @@ class HomeController
             error_log("Database error: " . $e->getMessage());
             echo "Произошла ошибка при загрузке товаров.";
         }
+        catch (\Exception $e) {
+            $content = View::make(__DIR__ . "/../Views/home/catalog.php", [
+                'products' => [],
+                'tags' => $tags,
+                'selectedTagId' => $selectedTagId,
+                'selectedTagName' => '',
+                'error' => 'Товары не найдены',
+                'totalPages' => 0,
+                'currentPage' => 1
+            ]);
+         
+            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+                'content' => $content
+            ]);
+         }
     }
 }

@@ -53,25 +53,32 @@ class ProductRepository
         $stmt->execute();
 
         $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $productIds = array_column($products, 'id');
-        $additionalImages = $this->findAdditionalImages($productIds);
-
-        $imagesByProduct = [];
-        foreach ($additionalImages as $image)
+        
+        
+        if (!empty($products))
         {
-            $imagesByProduct[$image['item_id']][] = $image['path'];
-        }
+            $productIds = array_column($products, 'id');
+            $additionalImages = $this->findAdditionalImages($productIds);
 
-        return array_map(
-            function ($productData) use ($imagesByProduct) {
-                $product = Product::fromDatabase($productData);
-                $additionalImages = $imagesByProduct[$productData['id']] ?? [];
-                $product->setAdditionalImagePaths($additionalImages);
-                return $product;
-            },
-            $products
-        );
+            $imagesByProduct = [];
+            foreach ($additionalImages as $image)
+            {
+                $imagesByProduct[$image['item_id']][] = $image['path'];
+            }
+
+            return array_map(
+                function ($productData) use ($imagesByProduct) {
+                    $product = Product::fromDatabase($productData);
+                    $additionalImages = $imagesByProduct[$productData['id']] ?? [];
+                    $product->setAdditionalImagePaths($additionalImages);
+                    return $product;
+                },
+                $products
+        );  
+        }
+        
+        return [];
+        
     }
 
     public function findProductById(int $id): ?Product
