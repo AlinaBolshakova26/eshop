@@ -1,11 +1,12 @@
 <?php
 
 use Core\Migration\Migrator;
+use Core\Autoloader;
 
 require_once __DIR__ . '/../src/Core/Autoloader.php';
 
-\Core\Autoloader::register();
-\Core\Autoloader::addPath(__DIR__ . '/../src/');
+Autoloader::register();
+Autoloader::addPath(__DIR__ . '/../src/');
 
 session_start();
 
