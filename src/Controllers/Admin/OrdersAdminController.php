@@ -1,52 +1,62 @@
 <?php
+
 namespace Controllers\Admin;
 
 use Core\View;
-use Core\Services\Admin\AdminService;
-use Core\Services\Order\OrderService;
+use Core\Services\AdminService;
+use Core\Services\OrderService;
 use Core\Database\MySQLDatabase;
-use Core\Services\Admin\AdminRepository;
-use Core\Services\Order\OrderRepository;
+use Core\Repositories\AdminRepository;
+use Core\Repositories\OrderRepository;
 
 class OrdersAdminController
 {
+
     private AdminService $adminService;
     private OrderService $orderService;
 
     public function __construct()
     {
+
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
 
         $this->adminService = new AdminService(new AdminRepository($pdo));
         $this->orderService = new OrderService(new OrderRepository($pdo));
+
     }
 
     public function index(): void
     {
-        if (!$this->adminService->isAdminLoggedIn()) {
+
+        if (!$this->adminService->isAdminLoggedIn()) 
+        {
             header('Location: /admin/login');
             exit;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+        {
             $this->handlePost();
             header('Location: /admin/orders');
             exit;
         }
 
         $this->showOrderList();
+
     }
 
     public function handlePost(): void
     {
+
         if (!$this->adminService->isAdminLoggedIn())
         {
             header('Location: /admin/login');
             exit;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+        {
             // Смена статуса для конкретного заказа
             if (isset($_POST['status'], $_POST['order_id']))
             {
@@ -65,11 +75,14 @@ class OrdersAdminController
 
         header('Location: /admin/orders');
         exit;
+
     }
 
     private function showOrderList(): void
     {
-        try {
+        
+        try 
+        {
             $currentPage = (int)($_GET['page'] ?? 1);
             $itemsPerPage = 30;
 
@@ -85,9 +98,12 @@ class OrdersAdminController
             echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', [
                 'content' => $content,
             ]);
-
-        } catch (\Exception $e) {
+        } 
+        catch (\Exception $e) 
+        {
             View::make('error.php', ['message' => 'Произошла ошибка при загрузке заказов']);
         }
+
     }
+    
 }

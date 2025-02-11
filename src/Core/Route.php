@@ -18,14 +18,17 @@ class Route
         callable|array $callback
     )
     {
+
         $this->method = strtoupper($method);
         $this->path = $path;
         $this->callback = $callback;
         $this->processPath();
+        
     }
 
     private function processPath(): void
     {
+
         $this->pattern  = preg_replace_callback
         (
             '/\{(\w+)(?::([^}]+))?\}/',
@@ -37,14 +40,17 @@ class Route
             },
             $this->path,
         );
+
     }
 
     public function matches(string $method, string $uri): bool
     {
+
         return
             $this->method === $method
             &&
             preg_match('#^' . $this->pattern . '$#', $uri);
+
     }
 
     public function execute(string $uri):? array
@@ -54,6 +60,7 @@ class Route
         array_shift($matches);
 
         $params = [];
+
         foreach($matches as $i => $match)
         {
             if (isset($this->paramNames[$i]))
@@ -73,5 +80,7 @@ class Route
         }
 
         return call_user_func_array($this->callback, $params);
+
     }
+    
 }

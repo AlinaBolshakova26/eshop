@@ -7,13 +7,16 @@ use PDOException;
 
 class Migrator
 {
+
     private PDO $pdo;
     private string $migrationsPath;
 
     public function __construct(PDO $pdo, string $migrationsPath)
     {
+
         self::$pdo = $pdo;
         self::$migrationsPath = $migrationsPath;
+
     }
 
     public function migrate(): void
@@ -52,7 +55,7 @@ class Migrator
             }
             catch (PDOException $e)
             {
-//                echo "Ошибка выполнения миграции $migration: " . $e->getMessage() . "\n";
+//              echo "Ошибка выполнения миграции $migration: " . $e->getMessage() . "\n";
                 error_log("Ошибка выполнения миграции $migration: " . $e->getMessage());
                 exit(1);
             }
@@ -62,5 +65,7 @@ class Migrator
         {
             echo "Нет новых миграций.\n";
         }
+        
     }
+
 }
