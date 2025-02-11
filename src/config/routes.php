@@ -28,6 +28,7 @@ $router->addRoute('GET', '/admin', function () {
 	exit;
 });
 $router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductsAdminController::class, 'index']);
+$router->addRoute('GET', '/admin/products/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'index']);
 $router->addRoute('POST', '/admin/products/process', [\Controllers\Admin\ProductsAdminController::class, 'process']);
 $router->addRoute('GET', '/admin/orders', [\Controllers\Admin\OrdersAdminController::class, 'index']);
 $router->addRoute('POST', '/admin/orders', [\Controllers\Admin\OrdersAdminController::class, 'handlePost']);

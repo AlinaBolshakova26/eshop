@@ -13,30 +13,17 @@ class ProductsAdminController
     private AdminService $adminService;
     private ProductService $productService;
 
-    private function initialize(): void
-    {
-        if (!isset($this->productService) ||  !isset($this->adminService) ||  !isset($this->productRepository))
-    {
-        $database = new MySQLDatabase();
-        $pdo = $database->getConnection();
+	private function __construct()
+	{
+		$database = new MySQLDatabase();
+		$pdo = $database->getConnection();
 
-        if (!isset($this->adminService))
-        {
-            $adminRepository = new AdminRepository($pdo);
-            $this->adminService = new AdminService($adminRepository);
-        }
+		$this->adminService = new AdminService(new AdminRepository($pdo));
+		$this->productService = new ProductService(new ProductRepository($pdo));
+	}
 
-        if (!isset($this->productService)) {
-            $productRepository = new ProductRepository($pdo);
-            $this->productService = new ProductService($productRepository);
-        }
-    }
-
-  }
     public function index(): void
     {
-        $this->initialize();
-
         if (!$this->adminService->isAdminLoggedIn())
         {
             header('Location: /admin/login');
@@ -72,8 +59,6 @@ class ProductsAdminController
 
     public function process(): void
     {
-        $this->initialize();
-
         if (!$this->adminService->isAdminLoggedIn()) {
             header('Location: /admin/login');
             exit;
