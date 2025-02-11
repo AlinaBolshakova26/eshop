@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Вход</title>
     <link rel="stylesheet" href="/assets/css/style_admin.css">
+    <link rel="shortcut icon" href="/assets/images/short_logo_admin.png" />
 </head>
 <body>
 <div class="login-container">

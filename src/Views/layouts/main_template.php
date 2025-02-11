@@ -30,6 +30,14 @@
                 </div>
             </div>
         </div>
+        <div class="d-flex align-items-center">
+            <?php if(isset($_SESSION['user_id'])): ?>
+                <a href="/user/profile" class="btn btn-outline-primary me-2">Профиль</a>
+                <a href="/user/logout" class="btn btn-outline-danger">Выйти</a>
+            <?php else: ?>
+                <a href="/user/login" class="btn btn-primary">Войти</a>
+            <?php endif; ?>
+        </div>
 	</div>
 </nav>
 
