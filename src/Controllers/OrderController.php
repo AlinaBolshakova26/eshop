@@ -12,22 +12,18 @@ class OrderController
 
     public static function create($id)
     {
-
         $db = (new MySQLDatabase())->getConnection();
 
-        // данные о товаре из бд
         $stmt = $db->prepare("
-            SELECT i.*, im.path AS main_image 
-            FROM up_item i 
-            LEFT JOIN up_image im ON i.id = im.item_id AND im.is_main = 1 
-            WHERE i.id = :id
-        ");
-
+        SELECT i.*, im.path AS main_image 
+        FROM up_item i 
+        LEFT JOIN up_image im ON i.id = im.item_id AND im.is_main = 1 
+        WHERE i.id = :id
+    ");
         $stmt->execute(['id' => $id]);
-        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        $product = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$product) 
-        {
+        if (!$product) {
             http_response_code(404);
             echo '404 Not Found';
             return;
@@ -35,19 +31,26 @@ class OrderController
 
         $quantity = isset($_GET['quantity']) ? max(1, (int)$_GET['quantity']) : 1;
 
-        $content = View::make(__DIR__ . '/../Views/order/form.php', [
-            'product' => $product,
+        $userData = null;
+        if (isset($_SESSION['user_id']))
+        {
+            $stmtUser = $db->prepare("SELECT name, phone, email FROM up_user WHERE id = :id");
+            $stmtUser->execute([':id' => $_SESSION['user_id']]);
+            $userData = $stmtUser->fetch(\PDO::FETCH_ASSOC);
+        }
+
+        $content = \Core\View::make(__DIR__ . '/../Views/order/form.php', [
+            'product'  => $product,
             'quantity' => $quantity,
-            'errors' => []
+            'errors'   => [],
+            'user'     => $userData, // передаём информацию о пользователе
         ]);
 
-        echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+        echo \Core\View::make(__DIR__ . '/../Views/layouts/main_template.php', [
             'content' => $content
         ]);
-
     }
 
-    // Обрабатываем заказ
     public static function store()
     {
 

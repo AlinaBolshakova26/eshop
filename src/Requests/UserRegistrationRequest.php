@@ -22,16 +22,13 @@ class UserRegistrationRequest
 
     public function validate(): void
     {
-        if (!$this->name || !$this->phone || !$this->email || !$this->password)
-        {
+        if (!$this->name || !$this->phone || !$this->email || !$this->password) {
             throw new \InvalidArgumentException("Все поля обязательны для заполнения.");
         }
-        if ($this->password !== $this->passwordConfirm)
-        {
+        if ($this->password !== $this->passwordConfirm) {
             throw new \InvalidArgumentException("Пароли не совпадают.");
         }
-        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL))
-        {
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException("Неверный формат email.");
         }
     }

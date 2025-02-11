@@ -11,23 +11,34 @@
                 <form method="post" action="/user/register">
                     <div class="mb-3">
                         <label for="name" class="form-label">Имя</label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Введите ваше имя" required>
+                        <input type="text" class="form-control" id="name" name="name"
+                               placeholder="Введите ваше имя"
+                               value="<?= isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>"
+                               required>
                     </div>
                     <div class="mb-3">
                         <label for="phone" class="form-label">Телефон</label>
-                        <input type="text" class="form-control" id="phone" name="phone" placeholder="Введите номер телефона" required>
+                        <input type="text" class="form-control" id="phone" name="phone"
+                               placeholder="Введите номер телефона"
+                               value="<?= isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>"
+                               required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Введите ваш email" required>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="Введите ваш email"
+                               value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
+                               required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" required>
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Введите пароль" required>
                     </div>
                     <div class="mb-3">
                         <label for="password_confirm" class="form-label">Подтверждение пароля</label>
-                        <input type="password" class="form-control" id="password_confirm" name="password_confirm" placeholder="Подтвердите пароль" required>
+                        <input type="password" class="form-control" id="password_confirm" name="password_confirm"
+                               placeholder="Подтвердите пароль" required>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Зарегистрироваться</button>

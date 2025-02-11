@@ -33,7 +33,9 @@
                 <input type="text"
                        class="form-control <?php echo isset($errors['customer_name']) ? 'is-invalid' : ''; ?>"
                        id="customer_name" name="customer_name" required
-                       value="<?php echo isset($_POST['customer_name']) ? htmlspecialchars($_POST['customer_name']) : ''; ?>">
+                       value="<?php echo isset($user['name'])
+                           ? htmlspecialchars($user['name'])
+                           : (isset($_POST['customer_name']) ? htmlspecialchars($_POST['customer_name']) : ''); ?>">
                 <?php if (isset($errors['customer_name'])): ?>
                     <div class="invalid-feedback"><?php echo $errors['customer_name']; ?></div>
                 <?php endif; ?>
@@ -43,7 +45,9 @@
                 <label for="phone" class="form-label">Номер телефона *</label>
                 <input type="tel" class="form-control <?php echo isset($errors['phone']) ? 'is-invalid' : ''; ?>"
                        id="phone" name="phone" required
-                       value="<?php echo isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''; ?>">
+                       value="<?php echo isset($user['phone'])
+                           ? htmlspecialchars($user['phone'])
+                           : (isset($_POST['phone']) ? htmlspecialchars($_POST['phone']) : ''); ?>">
                 <?php if (isset($errors['phone'])): ?>
                     <div class="invalid-feedback"><?php echo $errors['phone']; ?></div>
                 <?php endif; ?>
@@ -53,7 +57,9 @@
                 <label for="email" class="form-label">Электронная почта *</label>
                 <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>"
                        id="email" name="email" required
-                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                       value="<?php echo isset($user['email'])
+                           ? htmlspecialchars($user['email'])
+                           : (isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''); ?>">
                 <?php if (isset($errors['email'])): ?>
                     <div class="invalid-feedback"><?php echo $errors['email']; ?></div>
                 <?php endif; ?>
@@ -62,8 +68,11 @@
             <div class="mb-3">
                 <label for="address" class="form-label">Адрес доставки *</label>
                 <textarea class="form-control <?php echo isset($errors['address']) ? 'is-invalid' : ''; ?>"
-                          id="address" name="address" rows="3"
-                          required><?php echo isset($_POST['address']) ? htmlspecialchars($_POST['address']) : ''; ?></textarea>
+                          id="address" name="address" rows="3" required><?php
+                    echo isset($user['address'])
+                        ? htmlspecialchars($user['address'])
+                        : (isset($_POST['address']) ? htmlspecialchars($_POST['address']) : '');
+                    ?></textarea>
                 <?php if (isset($errors['address'])): ?>
                     <div class="invalid-feedback"><?php echo $errors['address']; ?></div>
                 <?php endif; ?>

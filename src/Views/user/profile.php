@@ -30,10 +30,6 @@
                                 <label for="phone" class="form-label">Телефон</label>
                                 <input type="text" class="form-control" name="phone" id="phone" value="<?= htmlspecialchars($user['phone']) ?>" required>
                             </div>
-                            <div>
-                                <label for="address" class="form-label"> Адрес:</label>
-                                <input type="text" class="form-control" name="address" id="address" value="<?= htmlspecialchars($user['address'] ?? '') ?>" required>
-                            </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Новый пароль (оставьте пустым, если не хотите менять)</label>
                                 <input type="password" class="form-control" name="password" id="password">
