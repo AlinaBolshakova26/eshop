@@ -9,6 +9,8 @@ use Core\Database\MySQLDatabase;
 use Core\Repositories\ProductRepository;
 use Core\Repositories\TagRepository;
 
+use Core\Services\TransliterateService;
+
 class HomeController
 {
 
@@ -26,19 +28,44 @@ class HomeController
 
     }
 
-    public function index(?int $id = null): void
+    public function index(?int $id = null, ?string $query = null): void
     {
+
+        if (isset($_GET['searchInput']) && !empty($_GET['searchInput'])) 
+        {
+            $searchQuery = trim($_GET['searchInput']);
+
+            if ($searchQuery !== '') 
+            {
+                header('Location: /search/' . urlencode($searchQuery));
+                exit;
+            }
+            else 
+            {
+                header('Location: /');
+                exit;
+            }
+        }
 
         $selectedTagId = $id;
         $currentPage = max(1, (int)($_GET['page'] ?? 1));
         define("ITEMS_PER_PAGE", 9);
 
+        $searchValue = null;
+        $searchQuery = null;
+        if ($query)
+        {
+            $searchValue = urldecode($query);
+            $searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
+        }
+        
         try
         {
+              
             $tags = $this->tagService->getAllTags();
-            $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE, $selectedTagId);
-            $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE, $selectedTagId);
-
+            $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE, $searchQuery, $selectedTagId);
+            $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE, $selectedTagId, $searchQuery);
+            
             if (empty($products)) 
             {
                 throw new \Exception("No products found");
@@ -61,6 +88,7 @@ class HomeController
                 'selectedTagName' => $selectedTagName,
                 'totalPages' => $totalPages,
                 'currentPage' => $currentPage,
+                'searchQuery' => $searchQuery,
             ]);
 
             echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
@@ -81,14 +109,14 @@ class HomeController
                 'selectedTagName' => '',
                 'error' => 'Товары не найдены',
                 'totalPages' => 0,
-                'currentPage' => 1
+                'currentPage' => 1,
+                'searchQuery' => $searchQuery,
             ]);
          
             echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
                 'content' => $content
             ]);
          }
-
     }
     
 }

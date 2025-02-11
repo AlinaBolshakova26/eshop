@@ -20,15 +20,15 @@
 <!--			<span class="navbar-toggler-icon"></span>-->
 <!--		</button>-->
         <div class="fixed-top-row">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="mx-3 flex-grow-1">
-                    <input type="text" class="form-control" placeholder="Поиск товаров..."
-                    value="<?= htmlspecialchars($search_query ?? ''); ?>">
-                </div>
-                <div>
-                    <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
-                </div>
-            </div>
+			<form method="GET" action="/search"  class="d-flex justify-content-between align-items-center">
+				<div class="mx-3 flex-grow-1">
+					<input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..."
+					value="<?= htmlspecialchars($search_query ?? ''); ?>">
+				</div>
+				<div>
+					<button type="submit" class="btn btn-primary">Поиск</button>
+				</div>
+			</form>
         </div>
 	</div>
 </nav>

@@ -15,11 +15,11 @@ class ProductService
 
     }
 
-    public function getPaginatedProducts(int $page, int $itemsPerPage, $tagId): array
+    public function getPaginatedProducts(int $page, int $itemsPerPage, ?string $query, ?int $tagId): array
     {
         
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagId);
+        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $query, $tagId);
 
         return array_map
         (
@@ -37,10 +37,10 @@ class ProductService
 
     }
 
-    public function getTotalPages(int $itemsPerPage, ?int $tagId = null): int
+    public function getTotalPages(int $itemsPerPage, ?int $tagId = null, ?string $query = null): int
     {
 
-        $totalProducts = $this->repository->getTotalCount($tagId);
+        $totalProducts = $this->repository->getTotalCount($tagId, $query);
 
         return ceil($totalProducts / $itemsPerPage);
 
