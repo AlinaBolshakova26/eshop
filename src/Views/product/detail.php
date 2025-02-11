@@ -6,7 +6,7 @@
                 </div>
                 <?php if (!empty($product->getAdditionalImagePaths())): ?>
                     <div class="thumbnail-images">
-                        
+
 
                     </div>
                 <?php else: ?>
