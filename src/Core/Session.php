@@ -3,11 +3,15 @@ namespace Core;
 
 class Session
 {
+
     public static function start(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
+
+        if (session_status() === PHP_SESSION_NONE) 
+        {
             session_start();
         }
+
     }
 
     public static function set(string $key, mixed $value): void
@@ -27,8 +31,11 @@ class Session
 
     public static function destroy(): void
     {
+
         session_start(); // Убедимся, что сессия запущена перед удалением
         $_SESSION = [];
         session_destroy();
+
     }
+    
 }

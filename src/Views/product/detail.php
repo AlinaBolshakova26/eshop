@@ -4,11 +4,10 @@
                 <div class="main-image mb-3">
                     <img src="<?php echo htmlspecialchars($product->main_image_path); ?>" alt="<?php echo htmlspecialchars($product->name); ?>" class="img-fluid">
                 </div>
-                <?php if (!empty($product->additional_image_paths)): ?>
+                <?php if (!empty($product->getAdditionalImagePaths())): ?>
                     <div class="thumbnail-images">
-                        <?php foreach ($product->additional_image_paths as $image): ?>
-                            <img src="<?php echo htmlspecialchars($image); ?>" alt="<?php echo htmlspecialchars($product->name); ?>" class="img-thumbnail" style="width: 100px; height: auto;">
-                        <?php endforeach; ?>
+                        
+
                     </div>
                 <?php else: ?>
                     <p>Изображений нет.</p>

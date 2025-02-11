@@ -1,19 +1,21 @@
 <?php
+
 namespace Controllers\Admin;
 
 use Core\View;
-use Core\Services\Admin\AdminService;
-use Core\Services\Product\ProductService;
+use Core\Services\AdminService;
+use Core\Services\ProductService;
 use Core\Database\MySQLDatabase;
-use Core\Services\Admin\AdminRepository;
-use Core\Services\Product\ProductRepository;
+use Core\Repositories\AdminRepository;
+use Core\Repositories\ProductRepository;
 
 class ProductsAdminController
 {
+
     private AdminService $adminService;
     private ProductService $productService;
 
-	private function __construct()
+	public function __construct()
 	{
 		$database = new MySQLDatabase();
 		$pdo = $database->getConnection();
@@ -24,6 +26,7 @@ class ProductsAdminController
 
     public function index(): void
     {
+
         if (!$this->adminService->isAdminLoggedIn())
         {
             header('Location: /admin/login');
@@ -33,8 +36,8 @@ class ProductsAdminController
         $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         define("ITEMS_PER_PAGE", 30);
 
-        try {
-
+        try 
+        {
             $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE, false);
             $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
 
@@ -48,37 +51,41 @@ class ProductsAdminController
             echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', [
                 'content' => $content,
             ]);
-
         }
         catch (\PDOException $e)
         {
             error_log("Database error: " . $e->getMessage());
             echo "Произошла ошибка при загрузке товаров.";
         }
+
     }
 
     public function process(): void
     {
-        if (!$this->adminService->isAdminLoggedIn()) {
+
+        if (!$this->adminService->isAdminLoggedIn()) 
+        {
             header('Location: /admin/login');
             exit;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+        {
             $selectedProducts = $_POST['selected_products'] ?? [];
             $action = $_POST['action'] ?? '';
 
-            if (empty($selectedProducts)) {
-                // Если товары не выбраны, перенаправляем обратно с сообщением об ошибке
+            if (empty($selectedProducts)) 
+            {
                 header('Location: /admin/products?error=no_products_selected');
                 exit;
             }
 
-            try {
-
+            try 
+            {
                 $productIds = array_map('intval', $selectedProducts);
 
-                switch ($action) {
+                switch ($action) 
+                {
                     case 'deactivate':
                         $this->productService->adminToggleStatus($productIds, false);
                         break;
@@ -86,7 +93,6 @@ class ProductsAdminController
                         $this->productService->adminToggleStatus($productIds,  true);
                         break;
                     default:
-                        // Неизвестное действие
                         header('Location: /admin/products?error=invalid_action');
                         exit;
                 }
@@ -102,8 +108,9 @@ class ProductsAdminController
             }
         }
 
-        // Если метод запроса не POST, перенаправляем обратно
         header('Location: /admin/products');
         exit;
+
     }
+    
 }

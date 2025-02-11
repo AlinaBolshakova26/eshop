@@ -6,6 +6,7 @@
 	<title>Админка</title>
 	<link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/assets/css/admin_style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="/assets/images/short_logo_admin.png" />
 </head>
 <body>
 

@@ -1,17 +1,20 @@
 <?php
+
 namespace Controllers\Admin;
 
-use Core\Services\Admin\AdminService;
-use Core\Services\Admin\AdminRepository;
-use Core\Session;
+use Core\Services\AdminService;
 use Core\Database\MySQLDatabase;
+use Core\Repositories\AdminRepository;
+use Core\Session;
 
 class AdminController
 {
+
     private AdminService $adminService;
 
     public function __construct()
     {
+
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
         $repository = new AdminRepository($pdo);
@@ -25,15 +28,19 @@ class AdminController
                 exit;
             }
         }
+
     }
 
     public function login(): void
     {
+
         require __DIR__ . '/../../Views/admin/auth/login.php';
+
     }
 
     public function authenticate(): void
     {
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST')
         {
             $email = $_POST['email'] ?? '';
@@ -48,12 +55,16 @@ class AdminController
             header('Location: /admin/login?error=1');
             exit;
         }
+
     }
 
     public function logout(): void
     {
+
         $this->adminService->logout();
         header('Location: /admin/login');
         exit;
+
     }
+    
 }

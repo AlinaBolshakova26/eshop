@@ -1,21 +1,30 @@
 <?php
-namespace Core\Services\Order;
 
+namespace Core\Services;
+
+use Core\Repositories\OrderRepository;
 class OrderService
 {
+
     private OrderRepository $orderRepository;
 
     public function __construct(OrderRepository $orderRepository)
     {
+
         $this->orderRepository = $orderRepository;
+
     }
 
     public function getPaginatedOrders(int $page, int $itemsPerPage): array
     {
-        if ($page < 1 || $itemsPerPage < 1) {
+
+        if ($page < 1 || $itemsPerPage < 1) 
+        {
             throw new \InvalidArgumentException("Неправильные параметры пагинации");
         }
+
         return $this->orderRepository->getPaginatedOrders($page, $itemsPerPage);
+
     }
 
     public function cancelOrders(array $orderIds): bool
@@ -30,11 +39,16 @@ class OrderService
 
     public function changeOrderStatus(int $orderId, string $status): bool
     {
+
         $allowedStatuses = ['Создан', 'В пути', 'Доставлен', 'Отменен'];
-        if (!in_array($status, $allowedStatuses)) {
+
+        if (!in_array($status, $allowedStatuses)) 
+        {
             throw new \InvalidArgumentException("Неправильный статус");
         }
+
         return $this->orderRepository->changeOrderStatus($orderId, $status);
+        
     }
 
     public function getOrderById(int $id): ?array

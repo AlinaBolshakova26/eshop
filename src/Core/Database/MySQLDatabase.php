@@ -9,10 +9,12 @@ require_once __DIR__ . '/../../config/config_database.php';
 
 class MySQLDatabase extends Database
 {
+
     private ?PDO $connection = null;
 
     public function getConnection(): PDO
     {
+
         if ($this->connection === null)
         {
             $dbHost = option('DB_HOST');
@@ -20,6 +22,7 @@ class MySQLDatabase extends Database
             $dbPassword = option('DB_PASSWORD');
             $dbName = option('DB_NAME');
             $dsn = "mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4";
+
             try
             {
                 $this->connection = new PDO($dsn, $dbUser, $dbPassword, [
@@ -33,11 +36,15 @@ class MySQLDatabase extends Database
                 throw new Exception("Database connection error: " . $e->getMessage());
             }
         }
+
         return $this->connection;
+
     }
 
     public function disconnect(): void
     {
+
         $this->connection = null;
+        
     }
 }

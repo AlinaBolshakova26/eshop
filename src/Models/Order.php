@@ -7,6 +7,7 @@ use PDO;
 
 class Order
 {
+
     private int $id;
     private int $user_id;
     private int $item_id;
@@ -18,17 +19,22 @@ class Order
 
     public function __construct(int $user_id, int $item_id, float $price, string $address, string $status = 'Создан')
     {
+
         $this->user_id = $user_id;
         $this->item_id = $item_id;
         $this->price = $price;
         $this->address = $address;
         $this->status = $status;
+
     }
 
     public function saveInDb(): bool
     {
+
         $db = (new MySQLDatabase())->getConnection();
+
         $stmt = $db->prepare("INSERT INTO up_order (user_id, item_id, price, address, status) VALUES (:user_id, :item_id, :price, :address, :status)");
+        
         return $stmt->execute([
             'user_id' => $this->user_id,
             'item_id' => $this->item_id,
@@ -36,5 +42,7 @@ class Order
             'address' => $this->address,
             'status' => $this->status
         ]);
+
     }
+
 }

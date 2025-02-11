@@ -16,19 +16,20 @@
         <a href="/" class="logo-link">
             <img src="/assets/images/logo.png" alt="logo">
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarNav">
-			<ul class="navbar-nav">
-				<li class="nav-item">
-					<a class="nav-link" href="/">Главная</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="/">Продукты</a>
-				</li>
-			</ul>
-		</div>
+<!--        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">-->
+<!--			<span class="navbar-toggler-icon"></span>-->
+<!--		</button>-->
+        <div class="fixed-top-row">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mx-3 flex-grow-1">
+                    <input type="text" class="form-control" placeholder="Поиск товаров..."
+                    value="<?= htmlspecialchars($search_query ?? ''); ?>">
+                </div>
+                <div>
+                    <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
+                </div>
+            </div>
+        </div>
 	</div>
 </nav>
 
