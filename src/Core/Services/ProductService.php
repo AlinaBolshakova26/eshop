@@ -56,6 +56,13 @@ class ProductService
 
     }
 
+    public function adminGetProductByid(int $id)
+    {
+
+        return $this->repository->findProductById($id, true);
+
+    }
+
     public function adminToggleStatus(array $productIds, bool $newStatus): void
     {
 

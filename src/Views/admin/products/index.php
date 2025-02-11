@@ -36,7 +36,7 @@
                     <td><?php echo htmlspecialchars($product->getName()); ?></td>
                     <td><?php echo $product->getIsActive() ? 'true' : 'false'; ?></td>
                     <td>
-                        <a href="/admin/products/<?php echo $product->getId(); ?>" class="btn btn-sm btn-warning btn-edit">
+                        <a href="/admin/products/edit/<?php echo $product->getId(); ?>" class="btn btn-sm btn-warning btn-edit">
                             Редактировать
                         </a>
                     </td>

@@ -88,14 +88,19 @@ class ProductRepository
         
     }
 
-    public function findProductById(int $id): ?Product
+    public function findProductById(int $id, bool $isAdmin = false): ?Product
     {
 
+        $fields = $isAdmin
+        ? "i.id, i.name, i.description, i.desc_short, i.price, i.is_active, i.created_at, i.updated_at, img.path AS main_image_path"
+        : "i.id, i.name, i.price, i.description, img.path AS main_image_path";
+
         $stmt = $this->pdo->prepare("
-            SELECT i.id, i.name, i.price, i.description, img.path AS main_image_path
+            SELECT {$fields}
             FROM up_item i 
             LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
             WHERE i.id = :id
+            LIMIT 1
         ");
 
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
