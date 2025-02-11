@@ -1,10 +1,12 @@
 <div class="row">
     <div class="col-md-8 mx-auto">
-        <h2 class="mb-4">Детали заказа</h2>
-
+        <div class="row mb-4 order-form">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold">Оформление заказа</h2>
+            </div>
+        </div>
         <div class="card mb-4">
             <div class="card-body">
-                <h5 class="card-title">Описание заказа</h5>
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <img src="<?php echo htmlspecialchars($product['main_image'] ?? '/assets/images/default.jpg'); ?>"
@@ -12,8 +14,7 @@
                              alt="<?php echo htmlspecialchars($product['name'] ?? 'Товар'); ?>">
                     </div>
                     <div class="col-md-9">
-                        <p class="h4"><?php echo htmlspecialchars($product['name'] ?? 'Название не указано'); ?></p>
-                        <!-- Добавляем описание товара -->
+                        <p class="order-form-name"><?php echo htmlspecialchars($product['name'] ?? 'Название не указано'); ?></p>
                         <p><?php echo nl2br(htmlspecialchars($product['description'] ?? 'Описание отсутствует')); ?></p>
                         <p class="mb-1">Количество: <?php echo intval($quantity); ?></p>
                         <p>Цена за единицу: &#8381; <?php echo number_format($product['price']); ?></p>
