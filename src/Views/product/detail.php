@@ -32,4 +32,16 @@
             <button type="submit" class="btn btn-success w-50">Купить</button>
         </form>
     </div>
+    <div id="imageModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modalImage" src="" alt="Enlarged Image" class="img-fluid">
+            <div class="modal-navigation">
+                <button class="modal-prev btn btn-outline-secondary">&larr;</button>
+                <button class="modal-next btn btn-outline-secondary">&rarr;</button>
+            </div>
+        </div>
+    </div>
+
+
 </div>
