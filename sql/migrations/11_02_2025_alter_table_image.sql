@@ -1,0 +1,9 @@
+
+ALTER TABLE up_order
+    ADD COLUMN city VARCHAR(255) NOT NULL AFTER price,
+    ADD COLUMN street VARCHAR(255) NOT NULL AFTER city,
+    ADD COLUMN house VARCHAR(50) NOT NULL AFTER street,
+    ADD COLUMN apartment VARCHAR(50) DEFAULT NULL AFTER house;
+
+ALTER TABLE up_order
+    DROP COLUMN address;

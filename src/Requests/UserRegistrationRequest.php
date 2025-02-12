@@ -31,6 +31,10 @@ class UserRegistrationRequest
         if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException("Неверный формат email.");
         }
+
+        if (!preg_match('/^\+?[0-9]{10,15}$/', $this->phone)) {
+            throw new \InvalidArgumentException("Некорректный формат телефона. Пример: +79991234567.");
+        }
     }
 
     public function getData(): array

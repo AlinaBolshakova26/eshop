@@ -43,23 +43,20 @@ class OrderRepository
         $stmt->execute();
         $totalOrders = $stmt->fetchColumn();
 
-        return (int) ceil($totalOrders / $itemsPerPage);
+        return (int)ceil($totalOrders / $itemsPerPage);
 
     }
 
     public function changeOrderStatus(int $orderId, string $status): bool
     {
 
-        try
-        {
+        try {
             $stmt = $this->pdo->prepare("UPDATE up_order SET status = :status WHERE id = :id");
 
             $stmt->execute(['id' => $orderId, 'status' => $status]);
 
             return $stmt->rowCount() > 0;
-        }
-        catch (PDOException $e)
-        {
+        } catch (PDOException $e) {
             error_log("Ошибка изменения статуса: " . $e->getMessage());
 
             return false;
@@ -70,10 +67,8 @@ class OrderRepository
     public function cancelOrders(array $orderIds): bool
     {
 
-        try
-        {
-            if (empty($orderIds))
-            {
+        try {
+            if (empty($orderIds)) {
                 throw new \InvalidArgumentException("Не выбраны заказы для отмены");
             }
 
@@ -86,9 +81,7 @@ class OrderRepository
             ");
 
             return $stmt->execute($orderIds);
-        }
-        catch (PDOException $e)
-        {
+        } catch (PDOException $e) {
             error_log("Ошибка отмены заказов: " . $e->getMessage());
 
             return false;
@@ -106,7 +99,7 @@ class OrderRepository
         WHERE o.id = :id LIMIT 1");
 
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        
+
         $stmt->execute();
         $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -114,4 +107,66 @@ class OrderRepository
 
     }
 
+    public function getProductById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT i.*, im.path AS main_image 
+            FROM up_item i 
+            LEFT JOIN up_image im ON i.id = im.item_id AND im.is_main = 1 
+            WHERE i.id = :id
+        ");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getUserByData(string $phone, string $email): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM up_user WHERE phone = :phone OR email = :email
+        ");
+        $stmt->execute(['phone' => $phone, 'email' => $email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function createNewUser(string $name, string $phone, string $email): int
+    {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO up_user (name, phone, email, role) VALUES (:name, :phone, :email, 'customer')
+        ");
+        $stmt->execute(['name' => $name, 'phone' => $phone, 'email' => $email]);
+        return (int)$this->pdo->lastInsertId();
+    }
+
+    public function getPrice(int $productId): float
+    {
+        $stmt = $this->pdo->prepare("SELECT price FROM up_item WHERE id = :id");
+        $stmt->execute(['id' => $productId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? (float)$result['price'] : 0.0;
+    }
+
+    public function saveOrder(int $user_id, int $item_id, float $price, string $city, string $street, string $house, ?string $apartment): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO up_order (user_id, item_id, price, city, street, house, apartment, status) 
+                VALUES (:user_id, :item_id, :price, :city, :street, :house, :apartment, 'Создан')
+            ");
+            return $stmt->execute([
+                'user_id' => $user_id,
+                'item_id' => $item_id,
+                'price' => $price,
+                'city' => $city,
+                'street' => $street,
+                'house' => $house,
+                'apartment' => $apartment
+            ]);
+        } catch (PDOException $e) {
+            error_log("Ошибка сохранения заказа: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
 }
+

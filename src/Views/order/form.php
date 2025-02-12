@@ -23,11 +23,11 @@
                 </div>
             </div>
         </div>
-
         <form action="/order/submit" method="POST" id="orderForm">
             <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
             <input type="hidden" name="quantity" value="<?php echo $quantity; ?>">
 
+            <!-- ФИО -->
             <div class="mb-3">
                 <label for="customer_name" class="form-label">ФИО *</label>
                 <input type="text"
@@ -41,6 +41,7 @@
                 <?php endif; ?>
             </div>
 
+            <!-- Телефон -->
             <div class="mb-3">
                 <label for="phone" class="form-label">Номер телефона *</label>
                 <input type="tel" class="form-control <?php echo isset($errors['phone']) ? 'is-invalid' : ''; ?>"
@@ -53,6 +54,7 @@
                 <?php endif; ?>
             </div>
 
+            <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">Электронная почта *</label>
                 <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>"
@@ -65,19 +67,57 @@
                 <?php endif; ?>
             </div>
 
+            <!-- Город -->
             <div class="mb-3">
-                <label for="address" class="form-label">Адрес доставки *</label>
-                <textarea class="form-control <?php echo isset($errors['address']) ? 'is-invalid' : ''; ?>"
-                          id="address" name="address" rows="3" required><?php
-                    echo isset($user['address'])
-                        ? htmlspecialchars($user['address'])
-                        : (isset($_POST['address']) ? htmlspecialchars($_POST['address']) : '');
-                    ?></textarea>
-                <?php if (isset($errors['address'])): ?>
-                    <div class="invalid-feedback"><?php echo $errors['address']; ?></div>
+                <label for="city" class="form-label">Город *</label>
+                <input type="text"
+                       class="form-control address-input <?php echo isset($errors['city']) ? 'is-invalid' : ''; ?>"
+                       id="city" name="city" required
+                       value="<?php echo isset($user['city']) ? htmlspecialchars($user['city']) : (isset($_POST['city']) ? htmlspecialchars($_POST['city']) : ''); ?>">
+                <?php if (isset($errors['city'])): ?>
+                    <div class="invalid-feedback"><?php echo $errors['city']; ?></div>
+                <?php endif; ?>
+                <div id="city-dropdown" class="address-dropdown"></div>
+            </div>
+
+            <!-- Улица -->
+            <div class="mb-3">
+                <label for="street" class="form-label">Улица *</label>
+                <input type="text"
+                       class="form-control address-input <?php echo isset($errors['street']) ? 'is-invalid' : ''; ?>"
+                       id="street" name="street" required
+                       value="<?php echo isset($user['street']) ? htmlspecialchars($user['street']) : (isset($_POST['street']) ? htmlspecialchars($_POST['street']) : ''); ?>">
+                <?php if (isset($errors['street'])): ?>
+                    <div class="invalid-feedback"><?php echo $errors['street']; ?></div>
+                <?php endif; ?>
+                <div id="street-dropdown" class="address-dropdown"></div>
+            </div>
+
+            <!-- Дом -->
+            <div class="mb-3">
+                <label for="house" class="form-label">Дом *</label>
+                <input type="text"
+                       class="form-control address-input <?php echo isset($errors['house']) ? 'is-invalid' : ''; ?>"
+                       id="house" name="house" required
+                       value="<?php echo isset($user['house']) ? htmlspecialchars($user['house']) : (isset($_POST['house']) ? htmlspecialchars($_POST['house']) : ''); ?>">
+                <?php if (isset($errors['house'])): ?>
+                    <div class="invalid-feedback"><?php echo $errors['house']; ?></div>
+                <?php endif; ?>
+                <div id="house-dropdown" class="address-dropdown"></div>
+            </div>
+
+            <!-- Квартира -->
+            <div class="mb-3">
+                <label for="apartment" class="form-label">Квартира</label>
+                <input type="text" class="form-control <?php echo isset($errors['apartment']) ? 'is-invalid' : ''; ?>"
+                       id="apartment" name="apartment"
+                       value="<?php echo isset($user['apartment']) ? htmlspecialchars($user['apartment']) : (isset($_POST['apartment']) ? htmlspecialchars($_POST['apartment']) : ''); ?>">
+                <?php if (isset($errors['apartment'])): ?>
+                    <div class="invalid-feedback"><?php echo $errors['apartment']; ?></div>
                 <?php endif; ?>
             </div>
 
+            <!-- Кнопка отправки -->
             <button type="submit" class="btn btn-success">Подтвердить заказ</button>
         </form>
     </div>
