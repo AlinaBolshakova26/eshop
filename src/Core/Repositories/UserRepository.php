@@ -15,7 +15,7 @@ class UserRepository
     public function findById(int $userId)
     {
         $stmt = $this->pdo->prepare(
-            "SELECT id, name, email, phone, role, password, created_at, updated_at 
+            "SELECT id, name, email, phone, role, password, avatar, created_at, updated_at 
              FROM up_user 
              WHERE id = :id"
         );
@@ -26,7 +26,7 @@ class UserRepository
     public function findByEmail(string $email): ?array
     {
         $stmt = $this->pdo->prepare(
-            "SELECT id, name, email, phone, role, password, created_at, updated_at 
+            "SELECT id, name, email, phone, role, password, avatar, created_at, updated_at 
              FROM up_user 
              WHERE email = :email"
         );
@@ -60,16 +60,18 @@ class UserRepository
 
     public function create(array $data): bool
     {
-        $sql = "INSERT INTO up_user (name, phone, email, password, role)
-                VALUES (:name, :phone, :email, :password, :role)";
+        $sql = "INSERT INTO up_user (name, phone, email, password, role, avatar)
+                VALUES (:name, :phone, :email, :password, :role, :avatar)";
         $stmt = $this->pdo->prepare($sql);
         $role = $data['role'] ?? 'customer';
+        $avatar = $data['avatar'] ?? 'default.png';
         return $stmt->execute([
             ':name'  => $data['name'],
             ':phone' => $data['phone'],
             ':email' => $data['email'],
             ':password' => $data['password'],
             ':role'  => $role,
+            ':avatar' => $avatar,
         ]);
     }
 }

@@ -6,13 +6,11 @@ $(document).ready(function() {
         var currentIndex = 0;
         updateImage();
 
-        // Обработка клика по правой стрелке
         $slider.find('.right-arrow').click(function() {
             currentIndex = (currentIndex + 1) % $images.length;
             updateImage();
         });
 
-        // Обработка клика по левой стрелке
         $slider.find('.left-arrow').click(function() {
             currentIndex = (currentIndex - 1 + $images.length) % $images.length;
             updateImage();
@@ -24,7 +22,6 @@ $(document).ready(function() {
         }
     });
 
-
     if ($('.product-gallery').length) {
         $('.thumbnail-images img').click(function() {
             const newSrc = $(this).attr('src');
@@ -34,20 +31,18 @@ $(document).ready(function() {
         });
     }
 
-
     $('form input, form textarea').on('input', function() {
         if ($(this).hasClass('is-invalid')) {
             $(this).removeClass('is-invalid');
         }
     });
 
-
     $('.add-to-cart').click(function(e) {
         e.preventDefault();
         const $btn = $(this);
-        $btn.prop('disabled', true);
+        if ($btn.prop('disabled')) return;
 
-        $btn.html('<i class="fas fa-check"></i> Added!');
+        $btn.prop('disabled', true).html('<i class="fas fa-check"></i> Added!');
 
         setTimeout(function() {
             $btn.html('Add to Cart').prop('disabled', false);
@@ -58,12 +53,10 @@ $(document).ready(function() {
         $('.navbar-collapse').slideToggle();
     });
 
-
     $('.back-to-top').click(function(e) {
         e.preventDefault();
         $('html, body').animate({scrollTop: 0}, 'slow');
     });
-
 
     $('.product-card').dblclick(function() {
         const productLink = $(this).find('.btn-primary').attr('href');
@@ -71,8 +64,6 @@ $(document).ready(function() {
             window.location.href = productLink;
         }
     });
-
-
 
     var modalImages = [];
     $('.product-gallery img').each(function() {
@@ -86,7 +77,6 @@ $(document).ready(function() {
     var $imageModal = $('#imageModal');
     var $modalImage = $('#modalImage');
 
-
     $('.product-gallery img').click(function() {
         var src = $(this).attr('src');
         modalCurrentIndex = modalImages.indexOf(src);
@@ -94,18 +84,15 @@ $(document).ready(function() {
         $imageModal.fadeIn(300);
     });
 
-
     $('.modal-close').click(function() {
         $imageModal.fadeOut(300);
     });
 
-
     $imageModal.click(function(e) {
-        if ($(e.target).is('#imageModal')) {
+        if (!$(e.target).closest('.modal-content').length) {
             $imageModal.fadeOut(300);
         }
     });
-
 
     $('.modal-next').click(function(e) {
         e.stopPropagation();
@@ -121,5 +108,38 @@ $(document).ready(function() {
         $modalImage.fadeOut(200, function() {
             $modalImage.attr('src', modalImages[modalCurrentIndex]).fadeIn(200);
         });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const avatarPickerModal = document.getElementById("avatar-picker-modal");
+    const openAvatarPickerBtn = document.getElementById("open-avatar-picker");
+    const closeAvatarPicker = document.querySelector(".avatar-picker-close");
+    const avatarPickerOptions = document.querySelectorAll(".avatar-picker-option");
+    const selectedAvatarInput = document.getElementById("selected-avatar");
+    const currentAvatar = document.getElementById("current-avatar");
+
+    openAvatarPickerBtn.addEventListener("click", function () {
+        avatarPickerModal.style.display = "flex";
+    });
+
+    closeAvatarPicker.addEventListener("click", function () {
+        avatarPickerModal.style.display = "none";
+    });
+
+    avatarPickerOptions.forEach(avatar => {
+        avatar.addEventListener("click", function () {
+            avatarPickerOptions.forEach(img => img.classList.remove("selected"));
+            this.classList.add("selected");
+            selectedAvatarInput.value = this.getAttribute("data-avatar");
+            currentAvatar.src = "/assets/images/avatars/" + this.getAttribute("data-avatar");
+            avatarPickerModal.style.display = "none";
+        });
+    });
+
+    window.addEventListener("click", function (e) {
+        if (e.target === avatarPickerModal) {
+            avatarPickerModal.style.display = "none";
+        }
     });
 });

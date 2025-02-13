@@ -66,4 +66,19 @@ class UserService
 
         return $this->userRepository->create($data);
     }
+
+    public function getAvatars(): array
+    {
+        $avatarPath = "/assets/images/avatars/";
+        $fullPath = __DIR__ . "/../../../public" . $avatarPath;
+        if (!is_dir($fullPath))
+        {
+            return [];
+        }
+        $avatars = scandir($fullPath);
+        return array_filter($avatars, function($avatar)
+        {
+            return $avatar !== "." && $avatar !== "..";
+        });
+    }
 }

@@ -176,5 +176,27 @@ class OrderRepository
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ?: null;
     }
+
+    public function getOrdersByUserId(int $userId): array
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT 
+            o.id AS order_id,
+            o.status,
+            o.created_at,
+            i.id AS product_id,
+            i.name AS product_name,
+            i.price,
+            im.path AS main_image
+        FROM up_order o
+        INNER JOIN up_item i ON o.item_id = i.id
+        LEFT JOIN up_image im ON i.id = im.item_id AND im.is_main = 1
+        WHERE o.user_id = :user_id
+        ORDER BY o.created_at DESC
+    ");
+        $stmt->execute([':user_id' => $userId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+    }
+
 }
 

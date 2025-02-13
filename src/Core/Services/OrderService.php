@@ -56,4 +56,8 @@ class OrderService
         return $this->orderRepository->getOrderById($id);
     }
 
+    public function getOrdersByUserId(int $userId): array
+    {
+        return $this->orderRepository->getOrdersByUserId($userId);
+    }
 }
