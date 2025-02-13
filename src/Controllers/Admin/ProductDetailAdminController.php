@@ -3,8 +3,10 @@
 namespace Controllers\Admin;
 
 use Core\Repositories\AdminRepository;
+use Core\Repositories\TagRepository;
 use Core\Services\AdminService;
 use Core\Services\ImageService;
+use Core\Services\TagService;
 use Core\View;
 use Core\Services\ProductService;
 use Core\Database\MySQLDatabase;
@@ -15,6 +17,7 @@ class ProductDetailAdminController
 
     private ProductService $productService;
 	private AdminService $adminService;
+	private TagService $tagService;
 	private ImageService $imageService;
 
     public function __construct()
@@ -25,6 +28,7 @@ class ProductDetailAdminController
 
 		$this->adminService = new AdminService(new AdminRepository($pdo));
         $this->productService = new ProductService(new ProductRepository($pdo));
+		$this->tagService = new TagService(new TagRepository($pdo));
 		$this->imageService = new ImageService($pdo);
     }
 
@@ -37,6 +41,8 @@ class ProductDetailAdminController
 		}
 
         $product = $this->productService->adminGetProductByid($id);
+		$allTags = $this->tagService->getAllTags();
+		$productTags = $this->tagService->getTagsByProductId($id);
                 
         if (!$product)
         {
@@ -46,7 +52,9 @@ class ProductDetailAdminController
 
         $content = View::make(__DIR__ . '/../../Views/admin/products/detail.php', 
     		[
-                'product' => $product
+                'product' => $product,
+				'allTags' => $allTags,
+				'productTags' => $productTags,
             ]
         );
 
@@ -65,6 +73,7 @@ class ProductDetailAdminController
 			exit;
 		}
 
+		$selectedTagIds = $_POST['tags'] ?? [];
 		$main_image = $_FILES['main_image'] ?? null;
 		$additional_images = $_FILES['additional_images'] ?? [];
 		$imagesToDelete = $_POST['images_to_delete'] ?? [];
@@ -77,6 +86,7 @@ class ProductDetailAdminController
 			'is_active' => $_POST['is_active'],
 		]);
 
+		$this->tagService->updateProductTags($id, $selectedTagIds);
 
 		if (!empty($main_image))
 		{

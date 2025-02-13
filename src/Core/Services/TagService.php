@@ -27,4 +27,26 @@ class TagService
 			$this->tagRepository->addTagToProduct($productId, $tagId);
 		}
 	}
+
+	public function updateProductTags(int $productId, array $selectedTagIds): void
+	{
+		$currentTagIds = $this->tagRepository->getTagsByProductId($productId);
+
+		foreach ($currentTagIds as $tagId) {
+			if (!in_array($tagId, $selectedTagIds)) {
+				$this->tagRepository->removeTagFromProduct($productId, $tagId);
+			}
+		}
+
+		foreach ($selectedTagIds as $tagId) {
+			if (!in_array($tagId, $currentTagIds)) {
+				$this->tagRepository->addTagToProduct($productId, $tagId);
+			}
+		}
+	}
+
+	public function getTagsByProductId(int $productId): array
+	{
+		return $this->tagRepository->getTagsByProductId($productId);
+	}
 }
