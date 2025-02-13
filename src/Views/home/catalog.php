@@ -16,7 +16,7 @@
     <?php if (!empty($products)): ?>
         <?php foreach ($products as $product): ?>
             <div class="col-md-4 mb-4">
-                <div class="card product-card">
+                <div class="card product-card h-100">
                     <div class="product-images-slider position-relative">
                         <div class="image-container">
                             <?php if (!empty($product->main_image_path)): ?>
@@ -39,11 +39,11 @@
                         <button class="btn btn-secondary left-arrow position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%);">❮</button>
                         <button class="btn btn-secondary right-arrow position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%);">❯</button>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body  d-flex flex-column">
                         <h5 class="card-title"><?php echo htmlspecialchars($product->name); ?></h5>
                         <p class="card-text"><?php echo nl2br(htmlspecialchars($product->desc_short)); ?></p>
                         <p class="card-text"><strong>&#8381; <?php echo number_format($product->price); ?></strong></p>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between mt-auto">
                             <a href="/product/<?php echo $product->id; ?>" class="btn btn-primary">Подробнее</a>
                             <a href="/order/create/<?php echo $product->id; ?>" class="btn btn-success ml-auto">Купить</a>
                         </div>
