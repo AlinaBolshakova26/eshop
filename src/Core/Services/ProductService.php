@@ -3,6 +3,7 @@
 namespace Core\Services;
 
 use Core\Repositories\ProductRepository;
+use Core\Repositories\TagRepository;
 class ProductService
 {
 
@@ -74,5 +75,48 @@ class ProductService
         $this->repository->updateStatus($productIds, $newStatus);
         
     }
+
+	public function createProduct(array $data): int
+	{
+		return $this->repository->create($data);
+	}
+
+	public function updateProduct(int $id, array $data): void
+	{
+		$product = $this->repository->findProductById($id, true);
+
+		if (!$product)
+		{
+			throw new \InvalidArgumentException('Product not found');
+		}
+
+		$changedFields = [];
+		if ($data['name'] !== $product->getName())
+		{
+			$changedFields['name'] = $data['name'];
+		}
+		if ($data['description'] !== $product->getDescription())
+		{
+			$changedFields['description'] = $data['description'];
+		}
+		if ($data['desc_short'] !== $product->getDescShort())
+		{
+			$changedFields['desc_short'] = $data['desc_short'];
+		}
+		if ($data['price'] !== $product->getPrice())
+		{
+			$changedFields['price'] = $data['price'];
+		}
+		if ($data['is_active'] !== $product->getIsActive())
+		{
+			$changedFields['is_active'] = $data['is_active'];
+		}
+
+		if (!empty($changedFields))
+		{
+			$this->repository->updateProduct($product, $changedFields);
+		}
+
+	}
 
 }

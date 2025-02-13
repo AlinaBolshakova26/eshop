@@ -13,7 +13,7 @@
     <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
         <button type="submit" name="action" value="deactivate" class="btn btn-danger">Деактивировать</button>
         <button type="submit" name="action" value="activate" class="btn btn-success">Активировать</button>
-        <a href="add" class="btn btn-primary">+ Добавить элемент</a>
+        <a href="/admin/products/create" class="btn btn-primary">+ Добавить элемент</a>
     </div>
 
     <div class="mt-5">

@@ -28,11 +28,11 @@ $router->addRoute('GET', '/admin', function()
 );
 
 $router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductsAdminController::class, 'index']);
-$router->addRoute('GET', '/admin/products/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'index']);
 $router->addRoute('POST', '/admin/products/process', [\Controllers\Admin\ProductsAdminController::class, 'process']);
 $router->addRoute('GET', '/admin/products/edit/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'edit']);
-// $router->addRoute('POST', '/admin/products/update/(\d+)', [\Controllers\Admin\ProductAdminController::class, 'update']);
-// $router->addRoute('POST', '/admin/products/delete/(\d+)', [\Controllers\Admin\ProductAdminController::class, 'delete']);
+$router->addRoute('POST', '/admin/products/update/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'update']);
+$router->addRoute('GET', '/admin/products/create', [\Controllers\Admin\ProductCreateController::class, 'create']);
+$router->addRoute('POST', '/admin/products/create', [\Controllers\Admin\ProductCreateController::class, 'store']);
 
 $router->addRoute('GET', '/admin/orders', [\Controllers\Admin\OrdersAdminController::class, 'index']);
 $router->addRoute('POST', '/admin/orders', [\Controllers\Admin\OrdersAdminController::class, 'handlePost']);

@@ -20,4 +20,11 @@ class TagService
     {
         return $this->tagRepository->getAll();
     }
+
+	public function addTagsToProduct(int $productId, array $tagIds): void
+	{
+		foreach ($tagIds as $tagId) {
+			$this->tagRepository->addTagToProduct($productId, $tagId);
+		}
+	}
 }

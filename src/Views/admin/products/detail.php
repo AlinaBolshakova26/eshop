@@ -1,49 +1,88 @@
 <div class="main-content-detail">
     <div class="container">
         <div class="card shadow mt-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h2 class="mb-0">Продукт #<?= htmlspecialchars($product->getId()) ?></h2>
                 <span class="badge bg-success"><?= htmlspecialchars($product->getId()) ?></span>
             </div>
             <div class="card-body">
-                
-                <h4><i class="fas fa-product"></i> Данные</h4>
-                
-                <p><strong>Название:</strong> <?= htmlspecialchars($product->getName()) ?></p>
-                <p><strong>Описание:</strong> <?= htmlspecialchars($product->getDescription()) ?></p>
-                <p><strong>Короткое описание:</strong> <?= htmlspecialchars($product->getDescShort()) ?></p>
-                <p><strong>Цена:</strong> <?= htmlspecialchars($product->getPrice()) ?></p>
-                <p><strong>Статус:</strong> <?php echo $product->getIsActive() ? 'true' : 'false'; ?></p>
+                <form action="/admin/products/update/<?= htmlspecialchars($product->getId()) ?>" enctype="multipart/form-data" method="POST">
+                    <h4><i class="fas fa-product"></i> Данные</h4>
 
-                <h4 class="mt-3"><i class="fas fa-images"></i> Картинки</h4>
-                <p>
-                    <strong>Главная:</strong> 
-                    <img src="<?php echo htmlspecialchars($product->getMainImagePath()); ?>" 
-                    alt="<?php echo htmlspecialchars($product->getName()); ?>" 
-                    class="img-fluid" style="width: 100px; height: auto;">
-                </p>
-                
-                <?php if (!empty($product->getAdditionalImagePaths())): ?>
-                    <div class="thumbnail-images">
-                        <?php foreach ($product->getAdditionalImagePaths() as $id => $path): ?>
-                            <p>
-                            <strong>Дополнительная:<?= $id?></strong>  
-                                <img src="<?php echo htmlspecialchars($path); ?>" 
-                                alt="<?php echo htmlspecialchars($product->getName()); ?>" 
-                                class="img-thumbnail" style="width: 100px; height: auto;">
-                            </p>
-                            <?php endforeach; ?>
+                    <div class="mb-3">
+                        <label for="name" class="form-label"><strong>Название:</strong></label>
+                        <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($product->getName()) ?>">
                     </div>
-                <?php else: ?>
-                    <p>Изображений нет.</p>
-                <?php endif; ?>
 
-                <h4 class="mt-3"><i class="fas fa-clock"></i> Даты</h4>
-                <p><strong>Создан:</strong> <?= htmlspecialchars($product->getCreatedAt()) ?></p>
-                <p><strong>Обновлен:</strong> <?= htmlspecialchars($product->getUpdatedAt()) ?></p>
+                    <div class="mb-3">
+                        <label for="description" class="form-label"><strong>Описание:</strong></label>
+                        <textarea class="form-control" id="description" name="description"><?= htmlspecialchars($product->getDescription()) ?></textarea>
+                    </div>
 
-                <a href="/admin/products" class="btn btn-primary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
-            
+                    <div class="mb-3">
+                        <label for="descShort" class="form-label"><strong>Короткое описание:</strong></label>
+                        <input type="text" class="form-control" id="descShort" name="desc_short" value="<?= htmlspecialchars($product->getDescShort()) ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="price" class="form-label"><strong>Цена:</strong></label>
+                        <input type="number" step="1" class="form-control" id="price" name="price" value="<?= htmlspecialchars($product->getPrice()) ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="isActive" class="form-label"><strong>Статус товара:</strong></label>
+                        <select class="form-control" id="isActive" name="is_active">
+                            <option value="1" <?= $product->getIsActive() ? 'selected' : '' ?>>Активен</option>
+                            <option value="0" <?= !$product->getIsActive() ? 'selected' : '' ?>>Неактивен</option>
+                        </select>
+                    </div>
+
+                    <h4 class="mt-3"><i class="fas fa-images"></i> Картинки</h4>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Главная картинка:</strong></label>
+                        <div>
+                            <img id="mainImagePreview"
+                                 src="<?= htmlspecialchars($product->getMainImagePath()) ?>"
+                                 alt="<?= htmlspecialchars($product->getName()) ?>"
+                                 class="img-thumbnail mt-2" style="width: 150px; height: auto;">
+                            <button type="button" class="btn btn-primary btn-sm mt-2" onclick="document.getElementById('mainImageInput').click()">
+                                Изменить
+                            </button>
+                            <input type="file" id="mainImageInput" name="main_image" style="display: none;" accept="image/*" onchange="previewMainImage(event)">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Дополнительные картинки:</strong></label>
+                        <div id="additionalImagesContainer">
+                            <?php if (!empty($product->getAdditionalImagePaths())): ?>
+
+                                <?php foreach ($product->getAdditionalImagePaths() as $imageId => $imagePath): ?>
+                                    <div class="mb-2">
+                                        <img src="<?= htmlspecialchars($imagePath) ?>"
+                                             alt="<?= htmlspecialchars($product->getName()) ?>"
+                                             id="<?= $imageId ?>"
+                                             class="img-thumbnail mt-2" style="width: 150px; height: auto;">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteImage(<?= $imageId ?>)">
+                                            Удалить
+                                        </button>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <div class="additional-image-input-container">
+                            <input type="file" id="additionalImagesInput" class="additional-image-input" name="additional_images[]" accept="image/*" onchange="handleAdditionalImageUpload(event)">
+                            <label for="additionalImagesInput" class="additional-image-input-label">
+                                <i class="fas fa-image"></i> + Добавить изображение
+                            </label>
+                        </div>
+                    </div>
+                    <h4 class="mt-3"><i class="fas fa-clock"></i> Даты</h4>
+                    <p><strong>Создан:</strong> <?= htmlspecialchars($product->getCreatedAt()) ?></p>
+                    <p><strong>Обновлен:</strong> <?= htmlspecialchars($product->getUpdatedAt()) ?></p>
+
+                    <button type="submit" class="btn btn-success mt-3"><i class="fas fa-save"></i> Сохранить изменения</button>
+                    <a href="/admin/products" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
+                </form>
             </div>
         </div>
     </div>

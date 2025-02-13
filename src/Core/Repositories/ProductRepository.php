@@ -124,7 +124,7 @@ class ProductRepository
     {
 
         $stmt = $this->pdo->prepare("
-            SELECT path FROM up_image	
+            SELECT id, path FROM up_image	
             WHERE item_id = :id AND is_main = 0
             ORDER BY id
         ");
@@ -133,7 +133,7 @@ class ProductRepository
 
         $stmt->execute();
 
-        return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'path');
+		return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
     }
 
@@ -191,5 +191,63 @@ class ProductRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     }
-    
+
+	public function create(array $data): int
+	{
+		$stmt = $this->pdo->prepare("
+            INSERT INTO up_item (name, description, desc_short, price, is_active, created_at, updated_at)
+            VALUES (:name, :description, :desc_short, :price, 1, NOW(), NOW())
+        ");
+		$stmt->execute([
+			':name' => $data['name'],
+			':description' => $data['description'],
+			':desc_short' => $data['desc_short'],
+			':price' => $data['price'],
+		]);
+
+		return $this->pdo->lastInsertId();
+	}
+
+	public function updateProduct(Product $product, array $changedFields): void
+	{
+		if (empty($changedFields)) {
+			return;
+		}
+
+		$sql = "UPDATE up_item SET ";
+		$updates = [];
+		$params = [':id' => $product->getId()];
+
+		if (array_key_exists('name', $changedFields)) {
+			$updates[] = "name = :name";
+			$params[':name'] = $changedFields['name'];
+		}
+
+		if (array_key_exists('description', $changedFields)) {
+			$updates[] = "description = :description";
+			$params[':description'] = $changedFields['description'];
+		}
+
+		if (array_key_exists('desc_short', $changedFields)) {
+			$updates[] = "desc_short = :desc_short";
+			$params[':desc_short'] = $changedFields['desc_short'];
+		}
+
+		if (array_key_exists('price', $changedFields)) {
+			$updates[] = "price = :price";
+			$params[':price'] = $changedFields['price'];
+		}
+
+		if (array_key_exists('is_active', $changedFields)) {
+			$updates[] = "is_active = :is_active";
+			$params[':is_active'] = $changedFields['is_active'] ? 1 : 0;
+		}
+
+		$updates[] = "updated_at = NOW()";
+
+		$sql .= implode(', ', $updates) . " WHERE id = :id";
+
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->execute($params);
+	}
 }

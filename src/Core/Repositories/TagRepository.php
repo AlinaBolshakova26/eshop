@@ -88,4 +88,15 @@ class TagRepository
 		
     }
 
+	public function addTagToProduct(int $productId, int $tagId): void
+	{
+		$stmt = $this->pdo->prepare("
+            INSERT INTO up_item_tag (item_id, tag_id, created_at, updated_at)
+            VALUES (:item_id, :tag_id, NOW(), NOW())
+        ");
+		$stmt->execute([
+			':item_id' => $productId,
+			':tag_id' => $tagId,
+		]);
+	}
 }

@@ -2,12 +2,20 @@
     <div class="col-md-6">
         <div class="product-gallery">
                 <div class="main-image mb-3">
-                    <img src="<?php echo htmlspecialchars($product->main_image_path); ?>" alt="<?php echo htmlspecialchars($product->name); ?>" class="img-fluid">
+                    <img src="<?php echo htmlspecialchars($product->main_image_path); ?>" 
+                    alt="<?php echo htmlspecialchars($product->name); ?>" 
+                    class="img-fluid">
                 </div>
-                <?php if (!empty($product->getAdditionalImagePaths())): ?>
+                <?php if (!empty($product->additional_image_paths)): ?>
                     <div class="thumbnail-images">
-
-
+                        <?php foreach ($product->additional_image_paths as $image): ?>
+                            <img src="<?php echo htmlspecialchars($image); ?>" 
+                            alt="<?php echo htmlspecialchars($product->name); ?>" 
+                            class="img-thumbnail" style="width: 100px; height: auto;">
+                        <?php endforeach; ?>
+                        <img src="<?php echo htmlspecialchars($product->main_image_path); ?>" 
+                        alt="<?php echo htmlspecialchars($product->name); ?>" 
+                        class="img-fluid" style="width: 100px; height: auto;">
                     </div>
                 <?php else: ?>
                     <p>Изображений нет.</p>
