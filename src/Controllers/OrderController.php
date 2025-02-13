@@ -32,25 +32,27 @@ class OrderController
         $quantity = isset($_GET['quantity']) ? max(1, (int)$_GET['quantity']) : 1;
         $userData = null;
 
-        if (isset($_SESSION['user_id'])) {
+        if (isset($_SESSION['user_id']))
+        {
             $userData = $controller->orderRepository->getUserById($_SESSION['user_id']);
         }
 
-        $content = \Core\View::make(__DIR__ . '/../Views/order/form.php', [
+        $content = View::make(__DIR__ . '/../Views/order/form.php', [
             'product' => $product,
             'quantity' => $quantity,
             'errors' => [],
             'user' => $userData,
         ]);
 
-        echo \Core\View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+        echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
             'content' => $content
         ]);
     }
 
     public static function store()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
+        {
             return;
         }
 
@@ -68,26 +70,33 @@ class OrderController
         $email = trim($_POST['email'] ?? '');
 
         // Валидация данных
-        if (!preg_match('/^(?:[А-ЯЁ][а-яё]+(?:\s+[А-ЯЁ][а-яё]+)+)$/u', $customer_name)) {
+        if (!preg_match('/^(?:[А-ЯЁ][а-яё]+(?:\s+[А-ЯЁ][а-яё]+)+)$/u', $customer_name))
+        {
             $errors['customer_name'] = 'ФИО должно содержать минимум два слова с заглавной буквы. (на русском языке)';
         }
-        if (strlen($city) < 3) {
+        if (strlen($city) < 3)
+        {
             $errors['city'] = 'Город должен содержать минимум 3 символа.';
         }
-        if (strlen($street) < 3) {
+        if (strlen($street) < 3)
+        {
             $errors['street'] = 'Улица должна содержать минимум 3 символа.';
         }
-        if (strlen($house) < 1) {
+        if (strlen($house) < 1)
+        {
             $errors['house'] = 'Поле "Дом" обязательно для заполнения.';
         }
-        if (!preg_match('/^(\+7|8)\d{10}$/', $phone)) {
+        if (!preg_match('/^(\+7|8)\d{10}$/', $phone))
+        {
             $errors['phone'] = 'Телефон должен быть в формате +7XXXXXXXXXX или 8XXXXXXXXXX.';
         }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+        {
             $errors['email'] = 'Неверный формат электронной почты.';
         }
 
-        if (!empty($errors)) {
+        if (!empty($errors))
+        {
             $product = $controller->orderRepository->getProductById($product_id);
             $content = View::make(__DIR__ . '/../Views/order/form.php', [
                 'product' => $product,
@@ -103,22 +112,26 @@ class OrderController
 
         $user = $controller->orderRepository->getUserByData($phone, $email);
 
-        if (!$user) {
+        if (!$user)
+        {
             $user_id = $controller->orderRepository->createNewUser($customer_name, $phone, $email);
-        } else {
+        }
+        else
+        {
             $user_id = $user['id'];
         }
 
-        // Получение цены товара
         $price = $controller->orderRepository->getPrice($product_id);
         $total_price = $price * $quantity;
 
-        // Создание заказа
         $order = new Order($user_id, $product_id, $total_price, $city, $street, $house, $apartment);
-        if ($order->saveInDb()) {
+        if ($order->saveInDb())
+        {
             header("Location: /order/success");
             exit;
-        } else {
+        }
+        else
+        {
             echo "<script>alert('Ошибка при оформлении заказа. Пожалуйста, попробуйте ещё раз.'); window.location.href='/order/create/{$product_id}';</script>";
         }
     }

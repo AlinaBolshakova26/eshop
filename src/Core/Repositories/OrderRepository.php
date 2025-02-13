@@ -161,12 +161,20 @@ class OrderRepository
                 'house' => $house,
                 'apartment' => $apartment
             ]);
-        } catch (PDOException $e) {
+        }
+        catch (PDOException $e)
+        {
             error_log("Ошибка сохранения заказа: " . $e->getMessage());
             return false;
         }
     }
 
-
+    public function getUserById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare("SELECT name, phone, email FROM up_user WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ?: null;
+    }
 }
 
