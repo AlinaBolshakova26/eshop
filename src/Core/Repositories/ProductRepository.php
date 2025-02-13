@@ -17,7 +17,7 @@ class ProductRepository
 
     }
 
-    public function findAllPaginated(int $limit, int $offset, ?int $tagId = null, bool $showOnlyActive = true): array
+    public function findAllPaginated(int $limit, int $offset, ?string $query, ?int $tagId = null, bool $showOnlyActive = true): array
     {
 
         $sql = "
@@ -45,6 +45,11 @@ class ProductRepository
             $sql .= "AND it.tag_id = :tagId ";
         }
 
+        if ($query)
+        {
+            $sql .= "AND LOWER(i.name) LIKE LOWER(:query)";
+        }
+
         $sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->pdo->prepare($sql);
@@ -52,6 +57,11 @@ class ProductRepository
         if ($tagId)
         {
             $stmt->bindParam(':tagId', $tagId, PDO::PARAM_INT);
+        }
+
+        if ($query)
+        {
+            $stmt->bindParam(':query', $query, PDO::PARAM_STR);
         }
 
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -137,23 +147,29 @@ class ProductRepository
 
     }
 
-    public function getTotalCount(?int $tagId = null): int
+    public function getTotalCount(?int $tagId = null, ?string $query = null): int
     {
+
+        $sql = "SELECT COUNT(*) FROM up_item i ";
+        $params = [];
 
         if ($tagId) 
         {
-            $stmt = $this->pdo->prepare("
-                SELECT COUNT(*) 
-                FROM up_item i
-                JOIN up_item_tag it ON i.id = it.item_id
-                WHERE it.tag_id = :tagId
-            ");
+            $sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
+            $sql .= "WHERE it.tag_id = :tagId ";
+            $params[':tagId'] = $tagId;
+        }
 
-            $stmt->bindValue(':tagId', $tagId, PDO::PARAM_INT);
-        } 
-        else 
+        if ($query)
         {
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM up_item");
+            $sql .= ($tagId ? "AND" : "WHERE") . " LOWER(i.name) LIKE LOWER(:query) ";
+            $params[':query'] = $query;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
         }
 
         $stmt->execute();

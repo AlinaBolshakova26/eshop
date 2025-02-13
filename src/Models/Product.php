@@ -59,8 +59,6 @@ class Product
         $product->price = $row['price'];
         $product->is_active = $row['is_active'] ?? '';
         $product->main_image_path = $row['main_image_path'] ?? null;
-        // $product->created_at = $row['created_at'] ?? 'Y-m-d H:i:s';
-        // $product->updated_at = $row['updated_at'] ?? 'Y-m-d H:i:s';
         $product->created_at = $row['created_at'] ?? date('Y-m-d H:i:s');
         $product->updated_at = $row['updated_at'] ?? date('Y-m-d H:i:s');
         $product->additional_image_paths = $row['additional_image_paths'] ?? null;

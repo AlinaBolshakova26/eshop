@@ -25,20 +25,17 @@ class AdminService
 
         if ($user && $user->verifyPassword($password) && $user->getRole() === 'admin')
         {
-            Session::start();
             Session::set('admin', $user->getId());
 
             return true;
         }
 
         return false;
-        
+
     }
 
     public function isAdminLoggedIn(): bool
     {
-
-        Session::start();
 
         return Session::has('admin');
 

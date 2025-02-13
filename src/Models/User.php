@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Models;
 
 final class UserListDTO
 {
-
     public function __construct(
         public readonly int $id,
         public readonly string $name,
@@ -12,37 +12,41 @@ final class UserListDTO
         public readonly string $email,
         public readonly string $role
     ) {}
-
 }
 
 class User
 {
-
     private int $id;
     private string $name;
     private string $phone;
     private string $email;
-    private ?string $password;
+    private ?string $password = null;
     private string $role;
-    private string $created_at;
-    private string $updated_at;
+    private string $createdAt;
+    private string $updatedAt;
+    private ?string $address;
+
+    private function __construct() {}
 
     public static function fromDatabase(array $row): self
     {
-
         $user = new self();
 
-        $user->id = $row['id'];
-        $user->name = $row['name'];
-        $user->phone = $row['phone'];
-        $user->email = $row['email'];
-        $user->password = $row['password'] ?? null;
-        $user->role = $row['role'];
-        $user->created_at = $row['created_at'] ?? date('Y-m-d H:i:s');
-        $user->updated_at = $row['updated_at'] ?? date('Y-m-d H:i:s');
+        $user->id        = (int)$row['id'];
+        $user->name      = $row['name'];
+        $user->phone     = $row['phone'];
+        $user->email     = $row['email'];
+        $user->password  = $row['password'] ?? null;
+        $user->role      = $row['role'];
+        $user->createdAt = $row['created_at'] ?? date('Y-m-d H:i:s');
+        $user->updatedAt = $row['updated_at'] ?? date('Y-m-d H:i:s');
 
         return $user;
+    }
 
+    public function getAddress(): ?string
+    {
+        return $this->address;
     }
 
     public function getId(): int
@@ -50,70 +54,91 @@ class User
         return $this->id;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getPhone(): string
+    {
+        return $this->phone;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
     public function getRole(): string
     {
         return $this->role;
     }
 
-    public function updateProfile(string $name, string $phone, string $email): void
+    public function getCreatedAt(): string
     {
+        return $this->createdAt;
+    }
 
-        $this->name = $name;
+    public function getUpdatedAt(): string
+    {
+        return $this->updatedAt;
+    }
+
+    public function updateProfile(string $name, string $phone, string $email, ?string $address): void
+    {
+        $this->name  = $name;
         $this->phone = $phone;
         $this->email = $email;
-        $this->updated_at = date('Y-m-d H:i:s');
-
+        $this->address = $address;
+        $this->touch();
     }
 
     public function changeRole(string $role): void
     {
-
-        if (!in_array($role, ['admin', 'customer']))
+        if (!in_array($role, ['admin', 'customer'], true))
         {
-            throw new \InvalidArgumentException("Invalid role");
+            throw new \InvalidArgumentException("Недопустимая роль: $role");
         }
 
         $this->role = $role;
-        $this->updated_at = date('Y-m-d H:i:s');
-
+        $this->touch();
     }
 
     public function verifyPassword(string $password): bool
     {
-
         if ($this->password === null)
         {
-            error_log("Stored password is NULL");
-
+            error_log("Пароль не установлен для пользователя с ID {$this->id}");
             return false;
         }
 
-        if (password_verify($password, $this->password))
-        {
-            error_log("Password is correct!");
+        $isValid = password_verify($password, $this->password);
 
-            return true;
+        if ($isValid)
+        {
+            error_log("Пароль корректный для пользователя с ID {$this->id}");
         }
         else
         {
-            error_log("Password is incorrect!");
-
-            return false;
+            error_log("Пароль некорректный для пользователя с ID {$this->id}");
         }
 
+        return $isValid;
     }
 
     public function setPassword(string $password): void
     {
+        $this->password = password_hash($password, PASSWORD_BCRYPT);
+        $this->touch();
+    }
 
-        $this->password = password_hash($password, PASSWORD_DEFAULT);
-        $this->updated_at = date('Y-m-d H:i:s');
-
+    private function touch(): void
+    {
+        $this->updatedAt = date('Y-m-d H:i:s');
     }
 
     public function toListDTO(): UserListDTO
     {
-
         return new UserListDTO(
             $this->id,
             $this->name,
@@ -121,7 +146,5 @@ class User
             $this->email,
             $this->role
         );
-
     }
-    
 }

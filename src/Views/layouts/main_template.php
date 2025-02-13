@@ -8,6 +8,7 @@
 	<link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/assets/css/style.css" rel="stylesheet">
 
+
 </head>
 <body>
 
@@ -16,19 +17,25 @@
         <a href="/" class="logo-link">
             <img src="/assets/images/logo.png" alt="logo">
         </a>
-<!--        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">-->
-<!--			<span class="navbar-toggler-icon"></span>-->
-<!--		</button>-->
+<!--        <h4>Позвольте вашей красоте сиять</h4>-->
         <div class="fixed-top-row">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="mx-3 flex-grow-1">
-                    <input type="text" class="form-control" placeholder="Поиск товаров..."
-                    value="<?= htmlspecialchars($search_query ?? ''); ?>">
-                </div>
-                <div>
-                    <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
-                </div>
-            </div>
+			<form method="GET" action="/search"  class="d-flex justify-content-between align-items-center">
+				<div class="mx-3 flex-grow-1">
+					<input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..."
+					value="<?= htmlspecialchars($search_query ?? ''); ?>">
+				</div>
+				<div>
+					<button type="submit" class="btn btn-primary">Поиск</button>
+				</div>
+			</form>
+        </div>
+        <div class="d-flex align-items-center">
+            <?php if(isset($_SESSION['user_id'])): ?>
+                <a href="/user/profile" class="btn btn-outline-primary me-2">Профиль</a>
+                <a href="/user/logout" class="btn btn-outline-danger">Выйти</a>
+            <?php else: ?>
+                <a href="/user/login" class="btn btn-primary">Войти</a>
+            <?php endif; ?>
         </div>
 	</div>
 </nav>
@@ -40,26 +47,11 @@
 
 <footer class="bg-light py-4 mt-auto">
 	<div class="container">
-		<div class="row">
-			<div class="col-md-4">
-				<h5>Связаться с нами</h5>
+		<div class="row mt-3">
+            <div class="col text-center">
+				<h5>Остались вопросы? Свяжитесь с нами</h5>
 				<p>Email: superprogeri@vasche.com<br>
 					Телефон: +1234567890</p>
-			</div>
-			<div class="col-md-4">
-				<h5>Быстрые ссылки</h5>
-				<ul class="list-unstyled">
-					<li><a href="/privacy-policy">Политика конфиденциальности</a></li>
-					<li><a href="/terms">Условия использования</a></li>
-				</ul>
-			</div>
-			<div class="col-md-4">
-				<h5>Подписаться на нас</h5>
-				<div class="social-links">
-					<a href="#" class="me-2">Telegram</a>
-					<a href="#" class="me-2">ВКонакте</a>
-					<a href="#">Битрикс24</a>
-				</div>
 			</div>
 		</div>
 		<div class="row mt-3">
