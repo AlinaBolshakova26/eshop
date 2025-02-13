@@ -61,10 +61,7 @@
             ?>
             <?php if (!empty($pendingOrders)): ?>
                 <div class="order-carousel-container position-relative">
-                    <!-- Кнопка "влево" -->
                     <button class="carousel-arrow left-arrow"><i class="bi bi-chevron-left"></i></button>
-
-                    <!-- Контейнер с заказами -->
                     <div class="order-carousel">
                         <?php foreach ($pendingOrders as $order): ?>
                             <a href="/product/<?= $order['product_id']; ?>" class="order-card-link">
@@ -87,8 +84,6 @@
                             </a>
                         <?php endforeach; ?>
                     </div>
-
-                    <!-- Кнопка "вправо" -->
                     <button class="carousel-arrow right-arrow"><i class="bi bi-chevron-right"></i></button>
                 </div>
             <?php else: ?>

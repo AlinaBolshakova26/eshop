@@ -64,7 +64,7 @@ class UserRepository
                 VALUES (:name, :phone, :email, :password, :role, :avatar)";
         $stmt = $this->pdo->prepare($sql);
         $role = $data['role'] ?? 'customer';
-        $avatar = $data['avatar'] ?? 'default.png';
+        $avatar = $data['avatar'] ?? 'default.jpg';
         return $stmt->execute([
             ':name'  => $data['name'],
             ':phone' => $data['phone'],
