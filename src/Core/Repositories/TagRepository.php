@@ -99,4 +99,27 @@ class TagRepository
 			':tag_id' => $tagId,
 		]);
 	}
+
+	public function removeTagFromProduct(int $productId, int $tagId): void
+	{
+		$stmt = $this->pdo->prepare("
+        DELETE FROM up_item_tag 
+        WHERE item_id = :item_id AND tag_id = :tag_id
+    ");
+		$stmt->execute([
+			':item_id' => $productId,
+			':tag_id' => $tagId,
+		]);
+	}
+
+	public function getTagsByProductId(int $productId): array
+	{
+		$stmt = $this->pdo->prepare("
+        SELECT tag_id 
+        FROM up_item_tag 
+        WHERE item_id = :item_id
+    ");
+		$stmt->execute([':item_id' => $productId]);
+		return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+	}
 }

@@ -1,3 +1,27 @@
+<!--<style>-->
+<!--    .tags-container {-->
+<!--        display: flex;-->
+<!--        flex-wrap: wrap;-->
+<!--        gap: 8px;-->
+<!--    }-->
+<!---->
+<!--    .tag {-->
+<!--        display: inline-block;-->
+<!--        padding: 4px 8px;-->
+<!--        background-color: #e9ecef;-->
+<!--        border-radius: 4px;-->
+<!--        cursor: pointer;-->
+<!--    }-->
+<!---->
+<!--    .tag input[type="checkbox"] {-->
+<!--        display: none;-->
+<!--    }-->
+<!---->
+<!--    .tag input[type="checkbox"]:checked + span {-->
+<!--        background-color: #0d6efd;-->
+<!--        color: white;-->
+<!--    }-->
+<!--</style>-->
 <div class="main-content-detail">
     <div class="container">
         <div class="card shadow mt-3">
@@ -27,6 +51,22 @@
                     <div class="mb-3">
                         <label for="price" class="form-label"><strong>Цена:</strong></label>
                         <input type="number" step="1" class="form-control" id="price" name="price" value="<?= htmlspecialchars($product->getPrice()) ?>">
+                    </div>
+
+                    <h4 class="mt-3"><i class="fas fa-tags"></i> Теги</h4>
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Теги товара:</strong></label>
+                        <div class="tags-container" id="tags-container">
+							<?php foreach ($allTags as $tag): ?>
+                                <label class="tag <?= in_array($tag->getId(), $productTags) ? 'selected' : '' ?>">
+                                    <input type="checkbox"
+                                           name="tags[]"
+                                           value="<?= htmlspecialchars($tag->getId()) ?>"
+										<?= in_array($tag->getId(), $productTags) ? 'checked' : '' ?>>
+									<?= htmlspecialchars($tag->getName()) ?>
+                                </label>
+							<?php endforeach; ?>
+                        </div>
                     </div>
 
                     <div class="mb-3">
