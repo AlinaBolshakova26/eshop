@@ -93,7 +93,7 @@ class OrderRepository
     {
 
         $stmt = $this->pdo->prepare("SELECT o.id, o.user_id, o.item_id, o.price, o.status, o.created_at,
-        o.updated_at, o.address, u.phone, u.name, u.email, i.name as item_name FROM up_order o 
+        o.updated_at, o.city, o.street, o.house, o.apartment, u.phone, u.name, u.email, i.name as item_name FROM up_order o 
         INNER JOIN up_user u on o.user_id = u.id  
         INNER JOIN up_item i on o.item_id = i.id 
         WHERE o.id = :id LIMIT 1");

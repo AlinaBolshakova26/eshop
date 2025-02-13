@@ -9,7 +9,7 @@
                 <h4><i class="fas fa-user"></i> Клиент</h4>
                 <p><strong>ID пользователя:</strong> <?= htmlspecialchars($order['user_id']) ?></p>
                 <p><strong>Имя:</strong> <?= htmlspecialchars($order['name']) ?></p>
-                <p><strong>Адрес:</strong> <?= htmlspecialchars($order['address']) ?></p>
+                <p><strong>Адрес:</strong> <?= htmlspecialchars($order['city'] . ', ' . $order['street'] . ', ' . $order['house'] . ($order['apartment'] ? ', кв. ' . $order['apartment'] : '')) ?></p>
                 <p><strong>Email:</strong> <?= htmlspecialchars($order['email']) ?></p>
                 <p><strong>Телефон:</strong> <?= htmlspecialchars($order['phone']) ?></p>
 

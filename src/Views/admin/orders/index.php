@@ -29,7 +29,7 @@
                     <td><?= htmlspecialchars($order['user_id']) ?></td>
                     <td><?= htmlspecialchars($order['item_id']) ?></td>
                     <td><?= number_format($order['price'], 2) ?> ₽</td>
-                    <td><?= htmlspecialchars($order['address']) ?></td>
+                    <td><?= htmlspecialchars($order['city'] . ', ' . $order['street'] . ', ' . $order['house'] . ($order['apartment'] ? ', кв. ' . $order['apartment'] : '')) ?></td>
                     <td>
                         <span class="badge bg-<?= match($order['status']) {
                             'Создан' => 'secondary',
