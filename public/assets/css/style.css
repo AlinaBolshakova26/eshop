@@ -676,3 +676,16 @@ footer a:hover {
 .mt-5 {
     margin-top: 0 !important;
 }
+
+.logout-link {
+    max-width: 20%;
+}
+
+.logout-link img{
+    max-width: 80%;
+}
+
+.profile {
+    max-width: 20%;
+    justify-content: flex-end;
+}

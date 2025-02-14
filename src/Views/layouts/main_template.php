@@ -29,10 +29,12 @@
 				</div>
 			</form>
         </div>
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center profile">
             <?php if(isset($_SESSION['user_id'])): ?>
                 <a href="/user/profile" class="btn btn-outline-primary me-2">Профиль</a>
-                <a href="/user/logout" class="btn btn-outline-danger">Выйти</a>
+                <a href="/user/logout" class="logout-link">
+                    <img src="/assets/images/logout.png" alt="logout">
+                </a>
             <?php else: ?>
                 <a href="/user/login" class="btn btn-primary">Войти</a>
             <?php endif; ?>
