@@ -24,13 +24,22 @@
     </div>
     <div class="col-md-6 order-1 order-md-2 desc">
         <h1><?php echo htmlspecialchars($product->name); ?></h1>
-            <p class="price h2 my-4">&#8381; <?php echo number_format($product->price); ?></p>
+        <p class="price h2 my-4">&#8381; <?php echo number_format($product->price); ?></p>
         <div class="description mb-4">
             <?php echo nl2br(htmlspecialchars($product->description)); ?>
         </div>
-        <form action="/order/create/<?php echo $product->id; ?>" method="GET" class="mb-4">
-            <button type="submit" class="btn btn-success w-50">Купить</button>
-        </form>
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <form method="POST" action="/cart/add" class="mb-4">
+                <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($product->id); ?>">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-success w-50">Добавить в корзину</button>
+            </form>
+        <?php else: ?>
+            <div class="mb-4 d-flex gap-2">
+                <a href="/order/create/<?php echo $product->id; ?>" class="btn btn-success w-50">Купить</a>
+                <a href="/user/login?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="btn btn-warning w-50">Добавить в корзину</a>
+            </div>
+        <?php endif; ?>
     </div>
     <div id="imageModal" class="modal-overlay">
         <div class="modal-content">
@@ -42,6 +51,4 @@
             </div>
         </div>
     </div>
-
-
 </div>

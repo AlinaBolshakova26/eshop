@@ -682,10 +682,10 @@ footer a:hover {
 }
 
 .logout-link img{
-    max-width: 80%;
+    max-width: 60%;
 }
 
 .profile {
-    max-width: 20%;
+    max-width: 30%;
     justify-content: flex-end;
 }

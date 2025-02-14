@@ -23,6 +23,10 @@ class Cart
     private string $created_at;
     private string $updated_at;
 
+    public ?string $product_name = null;
+    public ?float $product_price = null;
+    public ?string $product_image = null;
+
     public static function fromDatabase(array $row): self
     {
         $cart = new self();
@@ -32,6 +36,10 @@ class Cart
         $cart->quantity = (int)$row['quantity'];
         $cart->created_at = $row['created_at'] ?? '';
         $cart->updated_at = $row['updated_at'] ?? '';
+        $cart->product_name  = $row['product_name']  ?? null;
+        $cart->product_price = isset($row['product_price']) ? (float)$row['product_price'] : null;
+        $cart->product_image = $row['product_image'] ?? null;
+
         return $cart;
     }
 
@@ -39,14 +47,17 @@ class Cart
     {
         return $this->id;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
     }
+
     public function getItemId(): int
     {
         return $this->item_id;
     }
+
     public function getQuantity(): int
     {
         return $this->quantity;
@@ -57,9 +68,9 @@ class Cart
         $this->quantity = $quantity;
     }
 
-    public function toListDTO(): ClassListDTO
+    public function toListDTO(): CartListDTO
     {
-        return new ClassListDTO(
+        return new CartListDTO(
             $this->id,
             $this->user_id,
             $this->item_id,

@@ -49,9 +49,17 @@
                         <p class="card-text"><strong>&#8381; <?php echo number_format($product->price); ?></strong></p>
                         <div class="d-flex justify-content-between mt-auto">
                             <a href="/product/<?php echo $product->id; ?>" class="btn btn-primary">Подробнее</a>
-                            <a href="/order/create/<?php echo $product->id; ?>"
-                               class="btn btn-success ml-auto">Купить</a>
+                            <?php if (isset($_SESSION['user_id'])): ?>
+                                <form method="POST" action="/cart/add" style="margin:0;">
+                                    <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($product->id); ?>">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-success">Добавить в корзину</button>
+                                </form>
+                            <?php else: ?>
+                                <a href="/order/create/<?php echo $product->id; ?>" class="btn btn-success">Купить</a>
+                            <?php endif; ?>
                         </div>
+
                     </div>
                 </div>
             </div>
