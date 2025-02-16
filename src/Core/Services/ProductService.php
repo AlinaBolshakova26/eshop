@@ -16,7 +16,7 @@ class ProductService
 
     }
 
-    public function getPaginatedProducts(int $page, int $itemsPerPage, ?string $query, ?int $tagId): array
+    public function getPaginatedProducts(int $page, int $itemsPerPage, ?string $query, ?array $tagId): array
     {
         
         $offset = ($page - 1) * $itemsPerPage;
@@ -38,7 +38,7 @@ class ProductService
 
     }
 
-    public function getTotalPages(int $itemsPerPage, ?int $tagId = null, ?string $query = null): int
+    public function getTotalPages(int $itemsPerPage, ?array $tagId = null, ?string $query = null): int
     {
 
         $totalProducts = $this->repository->getTotalCount($tagId, $query);
@@ -53,7 +53,7 @@ class ProductService
 
         $offset = ($currentPage - 1) * $itemsPerPage;
 
-        return $this->repository->findAllPaginated($itemsPerPage, $offset, null, $showOnlyActive);
+        return $this->repository->findAllPaginatedAdmin($itemsPerPage, $offset, null, $showOnlyActive);
 
     }
 

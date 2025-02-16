@@ -2,7 +2,7 @@
 
 namespace Core\Services;
 
-use Models\User;
+use Models\User\User;
 use Core\Repositories\AdminRepository;
 use Core\Session;
 

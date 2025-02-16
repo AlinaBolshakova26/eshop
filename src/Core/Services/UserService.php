@@ -3,7 +3,7 @@
 namespace Core\Services;
 
 use Core\Repositories\UserRepository;
-use Models\User;
+use Models\User\User;
 
 class UserService
 {

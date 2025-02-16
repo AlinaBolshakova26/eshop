@@ -4,7 +4,7 @@ namespace Core\Repositories;
 
 use PDO;
 use PDOException;
-use Models\Cart;
+use Models\Cart\Cart;
 
 class CartRepository
 {

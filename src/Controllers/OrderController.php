@@ -3,7 +3,7 @@
 
 namespace Controllers;
 
-use Models\Order;
+use Models\Order\Order;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\OrderRepository;
 use Core\Repositories\CartRepository;

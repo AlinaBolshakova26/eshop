@@ -3,7 +3,7 @@
 namespace Core\Repositories;
 
 use PDO;
-use Models\User;
+use Models\User\User;
 
 class AdminRepository
 {
