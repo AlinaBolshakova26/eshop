@@ -2,7 +2,7 @@
     <div class="fixed-top-row">
         <div class="d-flex justify-content-between align-items-center">
             <div class="mx-3 flex-grow-1">
-                <input type="text" class="form-control" placeholder="Поиск товаров...">
+                <input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..." value="<?php echo htmlspecialchars(trim($searchQuery, '%')); ?>">
             </div>
             <div>
                 <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
@@ -48,13 +48,28 @@
 </form>
 
 <?php if ($totalPages > 1): ?>
+    <?php
+    $baseUrl = !empty($originalQuery) ? '/admin/products/search/' . $originalQuery : '/admin/products';
+    ?>
     <nav aria-label="Product pagination">
         <ul class="pagination justify-content-center">
+            <?php if ($currentPage > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $currentPage - 1; ?>"><<</a>
+                </li>
+            <?php endif; ?>
+
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?php echo $currentPage == $i ? 'active' : ''; ?>">
-                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                 </li>
             <?php endfor; ?>
+
+            <?php if ($currentPage < $totalPages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $currentPage + 1; ?>">>></a>
+                </li>
+            <?php endif; ?>
         </ul>
     </nav>
 <?php endif; ?>

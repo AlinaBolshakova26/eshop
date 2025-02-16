@@ -17,12 +17,58 @@ class ProductRepository
 
     }
 
+    public function findAll(bool $showOnlyActive = true): array
+    {
+
+        $sql = "
+            SELECT 
+                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
+                img.path AS main_image_path
+            FROM up_item i
+            LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        ";
+
+        if ($showOnlyActive)
+        {
+            $sql .= "AND i.is_active = 1 ";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (!empty($products))
+        {
+            $productIds = array_column($products, 'id');
+            $additionalImages = $this->findAdditionalImages($productIds);
+            $imagesByProduct = [];
+
+            foreach ($additionalImages as $image)
+            {
+                $imagesByProduct[$image['item_id']][] = $image['path'];
+            }
+
+            return array_map(
+                function ($productData) use ($imagesByProduct) {
+                    $product = Product::fromDatabase($productData);
+                    $additionalImages = $imagesByProduct[$productData['id']] ?? [];
+                    $product->setAdditionalImagePaths($additionalImages);
+                    return $product;
+                },
+                $products
+            );  
+        }
+        
+        return [];
+
+    }
+
     public function findAllPaginated(int $limit, int $offset, ?string $query, ?int $tagId = null, bool $showOnlyActive = true): array
     {
 
         $sql = "
             SELECT 
-                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, 
+                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
                 img.path AS main_image_path
             FROM up_item i
             LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
@@ -47,7 +93,7 @@ class ProductRepository
 
         if ($query)
         {
-            $sql .= "AND LOWER(i.name) LIKE LOWER(:query)";
+            $sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
         }
 
         $sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
@@ -74,7 +120,6 @@ class ProductRepository
         {
             $productIds = array_column($products, 'id');
             $additionalImages = $this->findAdditionalImages($productIds);
-
             $imagesByProduct = [];
 
             foreach ($additionalImages as $image)
@@ -87,7 +132,6 @@ class ProductRepository
                     $product = Product::fromDatabase($productData);
                     $additionalImages = $imagesByProduct[$productData['id']] ?? [];
                     $product->setAdditionalImagePaths($additionalImages);
-
                     return $product;
                 },
                 $products
@@ -95,7 +139,7 @@ class ProductRepository
         }
         
         return [];
-        
+
     }
 
     public function findProductById(int $id, bool $isAdmin = false): ?Product
@@ -114,7 +158,6 @@ class ProductRepository
         ");
 
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-
         $stmt->execute();
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -140,10 +183,9 @@ class ProductRepository
         ");
 
         $stmt->bindValue(':id', $productId, PDO::PARAM_INT);
-
         $stmt->execute();
 
-		return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
     }
 
@@ -168,7 +210,8 @@ class ProductRepository
 
         $stmt = $this->pdo->prepare($sql);
         
-        foreach ($params as $key => $value) {
+        foreach ($params as $key => $value) 
+        {
             $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
         }
 
@@ -204,66 +247,132 @@ class ProductRepository
         ");
 
         $stmt->execute($productIds);
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     }
 
-	public function create(array $data): int
-	{
-		$stmt = $this->pdo->prepare("
+    public function create(array $data): int
+    {
+
+        $stmt = $this->pdo->prepare("
             INSERT INTO up_item (name, description, desc_short, price, is_active, created_at, updated_at)
             VALUES (:name, :description, :desc_short, :price, 1, NOW(), NOW())
         ");
-		$stmt->execute([
-			':name' => $data['name'],
-			':description' => $data['description'],
-			':desc_short' => $data['desc_short'],
-			':price' => $data['price'],
-		]);
+        $stmt->execute([
+            ':name' => $data['name'],
+            ':description' => $data['description'],
+            ':desc_short' => $data['desc_short'],
+            ':price' => $data['price'],
+        ]);
 
-		return $this->pdo->lastInsertId();
-	}
+        return $this->pdo->lastInsertId();
 
-	public function updateProduct(Product $product, array $changedFields): void
-	{
-		if (empty($changedFields)) {
-			return;
-		}
+    }
 
-		$sql = "UPDATE up_item SET ";
-		$updates = [];
-		$params = [':id' => $product->getId()];
+    public function updateProduct(Product $product, array $changedFields): void
+    {
 
-		if (array_key_exists('name', $changedFields)) {
-			$updates[] = "name = :name";
-			$params[':name'] = $changedFields['name'];
-		}
+        if (empty($changedFields)) 
+        {
+            return;
+        }
 
-		if (array_key_exists('description', $changedFields)) {
-			$updates[] = "description = :description";
-			$params[':description'] = $changedFields['description'];
-		}
+        $sql = "UPDATE up_item SET ";
+        $updates = [];
+        $params = [':id' => $product->getId()];
 
-		if (array_key_exists('desc_short', $changedFields)) {
-			$updates[] = "desc_short = :desc_short";
-			$params[':desc_short'] = $changedFields['desc_short'];
-		}
+        if (array_key_exists('name', $changedFields))
+        {
+            $updates[] = "name = :name";
+            $params[':name'] = $changedFields['name'];
+        }
 
-		if (array_key_exists('price', $changedFields)) {
-			$updates[] = "price = :price";
-			$params[':price'] = $changedFields['price'];
-		}
+        if (array_key_exists('description', $changedFields))
+        {
+            $updates[] = "description = :description";
+            $params[':description'] = $changedFields['description'];
+        }
 
-		if (array_key_exists('is_active', $changedFields)) {
-			$updates[] = "is_active = :is_active";
-			$params[':is_active'] = $changedFields['is_active'] ? 1 : 0;
-		}
+        if (array_key_exists('desc_short', $changedFields))
+        {
+            $updates[] = "desc_short = :desc_short";
+            $params[':desc_short'] = $changedFields['desc_short'];
+        }
 
-		$updates[] = "updated_at = NOW()";
+        if (array_key_exists('price', $changedFields))
+        {
+            $updates[] = "price = :price";
+            $params[':price'] = $changedFields['price'];
+        }
 
-		$sql .= implode(', ', $updates) . " WHERE id = :id";
+        if (array_key_exists('is_active', $changedFields))
+        {
+            $updates[] = "is_active = :is_active";
+            $params[':is_active'] = $changedFields['is_active'] ? 1 : 0;
+        }
 
-		$stmt = $this->pdo->prepare($sql);
-		$stmt->execute($params);
-	}
+        $updates[] = "updated_at = NOW()";
+
+        $sql .= implode(', ', $updates) . " WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+    }
+
+    public function findByTagId(int $limit, int $offset, int $tagId, bool $showOnlyActive = true)
+    {
+
+        $sql = "
+        SELECT 
+            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
+            img.path AS main_image_path
+        FROM up_item i 
+        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        LEFT JOIN up_item_tag it ON i.id = it.item_id WHERE it.tag_id = :tagId 
+        ";
+
+        if ($showOnlyActive)
+        {
+            $sql .= "AND i.is_active = 1 ";
+        }
+
+        $sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->bindParam(':tagId', $tagId, PDO::PARAM_INT);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!empty($products))
+        {
+            $productIds = array_column($products, 'id');
+            $additionalImages = $this->findAdditionalImages($productIds);
+            $imagesByProduct = [];
+
+            foreach ($additionalImages as $image)
+            {
+                $imagesByProduct[$image['item_id']][] = $image['path'];
+            }
+
+            return array_map(
+                function ($productData) use ($imagesByProduct) {
+                    $product = Product::fromDatabase($productData);
+                    $additionalImages = $imagesByProduct[$productData['id']] ?? [];
+                    $product->setAdditionalImagePaths($additionalImages);
+                    return $product;
+                },
+                $products
+            );  
+        }
+        
+        return [];
+
+    }
+
 }

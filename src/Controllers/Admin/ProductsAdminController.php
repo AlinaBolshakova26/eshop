@@ -8,6 +8,7 @@ use Core\Services\ProductService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\AdminRepository;
 use Core\Repositories\ProductRepository;
+use Core\Services\TransliterateService;
 
 class ProductsAdminController
 {
@@ -15,16 +16,18 @@ class ProductsAdminController
     private AdminService $adminService;
     private ProductService $productService;
 
-	public function __construct()
-	{
-		$database = new MySQLDatabase();
-		$pdo = $database->getConnection();
+    public function __construct()
+    {
 
-		$this->adminService = new AdminService(new AdminRepository($pdo));
-		$this->productService = new ProductService(new ProductRepository($pdo));
-	}
+        $database = new MySQLDatabase();
+        $pdo = $database->getConnection();
 
-    public function index(): void
+        $this->adminService = new AdminService(new AdminRepository($pdo));
+        $this->productService = new ProductService(new ProductRepository($pdo));
+
+    }
+
+    public function index(?string $query = null): void
     {
 
         if (!$this->adminService->isAdminLoggedIn())
@@ -33,18 +36,51 @@ class ProductsAdminController
             exit;
         }
 
-        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if (isset($_GET['searchInput'])) 
+        {
+            $searchInput = trim(strip_tags($_GET['searchInput']));
+            if ($searchInput !== '') 
+            {
+                header('Location: /admin/products/search/' . urlencode($searchInput));
+                exit;
+            } 
+            else 
+            {
+                header('Location: /admin/products');
+                exit;
+            }
+        }
+
+        $currentPage = max(1, (int)($_GET['page'] ?? 1));
         define("ITEMS_PER_PAGE", 30);
+
+        $searchQuery = '';
+        if ($query)
+        {
+            $searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
+        }
 
         try 
         {
-            $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE, false);
-            $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
+            if ($searchQuery)
+            {
+                $searchResults = $this->productService->searchAdminProducts($currentPage, ITEMS_PER_PAGE, $searchQuery);
+                $products = $searchResults['items'];
+                $totalPages = ceil($searchResults['total'] / ITEMS_PER_PAGE);
+                $originalQuery = $query;
+            }
+            else 
+            {
+                $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE, false);
+                $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
+            }
 
             $content = View::make(__DIR__ . '/../../Views/admin/products/index.php', [
                 'products' => $products,
                 'totalPages' => $totalPages,
                 'currentPage' => $currentPage,
+                'searchQuery' => $searchQuery,
+                'originalQuery' => $originalQuery ?? '',
                 'error' => View::make(__DIR__ . '/../../Views/admin/error_block.php')
             ]);
 
@@ -71,6 +107,18 @@ class ProductsAdminController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
+            if (isset($_POST['action']) && $_POST['action'] === 'search')
+            {
+                $searchInput = trim(strip_tags($_POST['searchInput'] ?? ''));
+                if ($searchInput !== '') 
+                {
+                    header('Location: /admin/products/search/' . urlencode($searchInput));
+                    exit;
+                }
+                header('Location: /admin/products');
+                exit;
+            }
+
             $selectedProducts = $_POST['selected_products'] ?? [];
             $action = $_POST['action'] ?? '';
 
@@ -90,7 +138,7 @@ class ProductsAdminController
                         $this->productService->adminToggleStatus($productIds, false);
                         break;
                     case 'activate':
-                        $this->productService->adminToggleStatus($productIds,  true);
+                        $this->productService->adminToggleStatus($productIds, true);
                         break;
                     default:
                         header('Location: /admin/products?error=invalid_action');
