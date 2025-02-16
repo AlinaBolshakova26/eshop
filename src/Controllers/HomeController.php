@@ -28,95 +28,86 @@ class HomeController
 
     }
 
-    public function index(?int $id = null, ?string $query = null): void
-    {
+    public function index(?string $query = null): void
+	{
+		if (isset($_GET['tags']) && $_GET['tags'] === '') {
+			header('Location: /');
+			exit;
+		}
+		$selectedTagIds = isset($_GET['tags']) ? explode(',', $_GET['tags']) : [];
+		$selectedTagIds = array_slice($selectedTagIds, 0, 3);
+		$currentPage = max(1, (int)($_GET['page'] ?? 1));
 
-        if (isset($_GET['searchInput']) && !empty($_GET['searchInput'])) 
-        {
-            $searchQuery = trim($_GET['searchInput']);
+		define("ITEMS_PER_PAGE", 9);
 
-            if ($searchQuery !== '') 
-            {
-                header('Location: /search/' . urlencode($searchQuery));
-                exit;
-            }
-            else 
-            {
-                header('Location: /');
-                exit;
-            }
-        }
+		$searchValue = null;
+		$searchQuery = null;
+		if ($query) {
+			$searchValue = urldecode($query);
+			$searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
+		}
 
-        $selectedTagId = $id;
-        $currentPage = max(1, (int)($_GET['page'] ?? 1));
-        define("ITEMS_PER_PAGE", 9);
+		try {
+			$tags = $this->tagService->getAllTags();
 
-        $searchValue = null;
-        $searchQuery = null;
-        if ($query)
-        {
-            $searchValue = urldecode($query);
-            $searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
-        }
-        
-        try
-        {
-              
-            $tags = $this->tagService->getAllTags();
-            $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE, $searchQuery, $selectedTagId);
-            $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE, $selectedTagId, $searchQuery);
-            
-            if (empty($products)) 
-            {
-                throw new \Exception("No products found");
-            }
+			$products = $this->productService->getPaginatedProducts(
+				$currentPage,
+				ITEMS_PER_PAGE,
+				$searchQuery,
+				$selectedTagIds
+			);
 
-            $selectedTagName = null;
-            foreach ($tags as $tag)
-            {
-                if ($tag->toListDTO()->id === $selectedTagId)
-                {
-                    $selectedTagName = $tag->toListDTO()->name;
-                    break;
-                }
-            }
+			$totalPages = $this->productService->getTotalPages(
+				ITEMS_PER_PAGE,
+				$selectedTagIds,
+				$searchQuery
+			);
 
-            $content = View::make(__DIR__ . "/../Views/home/catalog.php", [
-                'products' => $products,
-                'tags' => $tags,
-                'selectedTagId' => $selectedTagId,
-                'selectedTagName' => $selectedTagName,
-                'totalPages' => $totalPages,
-                'currentPage' => $currentPage,
-                'searchQuery' => $searchQuery,
-            ]);
+			$selectedTagNames = [];
+			foreach ($tags as $tag) {
+				if (in_array($tag->toListDTO()->id, $selectedTagIds)) {
+					$selectedTagNames[] = $tag->toListDTO()->name;
+				}
+			}
 
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-                'content' => $content,
-            ]);
-        }
-        catch (\PDOException $e)
-        {
-            error_log("Database error: " . $e->getMessage());
-            echo "Произошла ошибка при загрузке товаров.";
-        }
-        catch (\Exception $e) 
-        {
-            $content = View::make(__DIR__ . "/../Views/home/catalog.php", [
-                'products' => [],
-                'tags' => $tags,
-                'selectedTagId' => $selectedTagId,
-                'selectedTagName' => '',
-                'error' => 'Товары не найдены',
-                'totalPages' => 0,
-                'currentPage' => 1,
-                'searchQuery' => $searchQuery,
-            ]);
-         
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-                'content' => $content
-            ]);
-         }
-    }
+			$selectedTagName = !empty($selectedTagNames) ? implode(', ', $selectedTagNames) : null;
+
+			if (empty($products)) {
+				throw new \Exception("No products found");
+			}
+
+			$content = View::make(__DIR__ . "/../Views/home/catalog.php", [
+				'products' => $products,
+				'tags' => $tags,
+				'selectedTagIds' => $selectedTagIds, // Передаем массив выбранных тегов
+				'selectedTagName' => $selectedTagName,
+				'totalPages' => $totalPages,
+				'currentPage' => $currentPage,
+				'searchQuery' => $searchQuery,
+			]);
+
+			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+				'content' => $content,
+			]);
+		} catch (\PDOException $e) {
+			error_log("Database error: " . $e->getMessage());
+			echo "Произошла ошибка при загрузке товаров.";
+		} catch (\Exception $e) {
+			$content = View::make(__DIR__ . "/../Views/home/catalog.php", [
+				'products' => [],
+				'tags' => $tags,
+				'selectedTagIds' => [],
+				'selectedTagName' => '',
+				'error' => 'Товары не найдены',
+				'totalPages' => 0,
+				'currentPage' => 1,
+				'searchQuery' => $searchQuery,
+			]);
+
+			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+				'content' => $content,
+			]);
+		}
+	}
     
 }

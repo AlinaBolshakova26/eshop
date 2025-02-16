@@ -3,7 +3,7 @@
 namespace Core\Repositories;
 
 use PDO;
-use Models\Product;
+use Models\Product\Product;
 
 class ProductRepository
 {
@@ -17,84 +17,164 @@ class ProductRepository
 
     }
 
-    public function findAllPaginated(int $limit, int $offset, ?string $query, ?int $tagId = null, bool $showOnlyActive = true): array
-    {
+	public function findAllPaginatedAdmin(int $limit, int $offset, ?string $query, ?int $tagId = null, bool $showOnlyActive = true): array
+	{
 
-        $sql = "
+		$sql = "
             SELECT 
-                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, 
+                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
                 img.path AS main_image_path
             FROM up_item i
             LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
         ";
 
-        if ($tagId)
-        {
-            $sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
-        }
+		if ($tagId)
+		{
+			$sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
+		}
 
-        $sql .= "WHERE 1=1 ";
+		$sql .= "WHERE 1=1 ";
 
-        if ($showOnlyActive)
-        {
-            $sql .= "AND i.is_active = 1 ";
-        }
+		if ($showOnlyActive)
+		{
+			$sql .= "AND i.is_active = 1 ";
+		}
 
-        if ($tagId) 
-        {
-            $sql .= "AND it.tag_id = :tagId ";
-        }
+		if ($tagId)
+		{
+			$sql .= "AND it.tag_id = :tagId ";
+		}
 
-        if ($query)
-        {
-            $sql .= "AND LOWER(i.name) LIKE LOWER(:query)";
-        }
+		if ($query)
+		{
+			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
+		}
 
-        $sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+		$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
 
-        $stmt = $this->pdo->prepare($sql);
+		$stmt = $this->pdo->prepare($sql);
 
-        if ($tagId)
-        {
-            $stmt->bindParam(':tagId', $tagId, PDO::PARAM_INT);
-        }
+		if ($tagId)
+		{
+			$stmt->bindParam(':tagId', $tagId, PDO::PARAM_INT);
+		}
 
-        if ($query)
-        {
-            $stmt->bindParam(':query', $query, PDO::PARAM_STR);
-        }
+		if ($query)
+		{
+			$stmt->bindParam(':query', $query, PDO::PARAM_STR);
+		}
 
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+		$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+		$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
-        $stmt->execute();
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        if (!empty($products))
-        {
-            $productIds = array_column($products, 'id');
-            $additionalImages = $this->findAdditionalImages($productIds);
+		$stmt->execute();
+		$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $imagesByProduct = [];
+		if (!empty($products))
+		{
+			$productIds = array_column($products, 'id');
+			$additionalImages = $this->findAdditionalImages($productIds);
+			$imagesByProduct = [];
 
-            foreach ($additionalImages as $image)
-            {
-                $imagesByProduct[$image['item_id']][] = $image['path'];
-            }
+			foreach ($additionalImages as $image)
+			{
+				$imagesByProduct[$image['item_id']][] = $image['path'];
+			}
 
-            return array_map(
-                function ($productData) use ($imagesByProduct) {
-                    $product = Product::fromDatabase($productData);
-                    $additionalImages = $imagesByProduct[$productData['id']] ?? [];
-                    $product->setAdditionalImagePaths($additionalImages);
+			return array_map(
+				function ($productData) use ($imagesByProduct) {
+					$product = Product::fromDatabase($productData);
+					$additionalImages = $imagesByProduct[$productData['id']] ?? [];
+					$product->setAdditionalImagePaths($additionalImages);
+					return $product;
+				},
+				$products
+			);
+		}
 
-                    return $product;
-                },
-                $products
-            );  
-        }
-        
-        return [];
+		return [];
+
+	}
+
+	public function findAllPaginated(int $limit, int $offset, ?string $query, ?array $tagIds = null, bool $showOnlyActive = true): array
+    {
+		$tagIds = $tagIds ? array_slice($tagIds, 0, 3) : [];
+
+        $sql = "
+        SELECT DISTINCT
+            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, 
+            img.path AS main_image_path
+        FROM up_item i
+        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+    ";
+
+		if ($tagIds) {
+			$sql .= " JOIN up_item_tag it ON i.id = it.item_id ";
+		}
+
+		$sql .= "WHERE 1=1 ";
+
+		if ($showOnlyActive) {
+			$sql .= "AND i.is_active = 1 ";
+		}
+
+		if ($tagIds) {
+			$placeholders = implode(',', array_map(fn($index) => ":tagId$index", range(0, count($tagIds) - 1)));
+			$sql .= "AND i.id IN (
+            SELECT item_id
+            FROM up_item_tag
+            WHERE tag_id IN ($placeholders)
+            GROUP BY item_id
+        ) ";
+		}
+
+		if ($query) {
+			$sql .= "AND LOWER(i.name) LIKE LOWER(:query)";
+		}
+
+		$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+
+		$stmt = $this->pdo->prepare($sql);
+
+		$params = [];
+		if ($tagIds) {
+			foreach ($tagIds as $index => $tagId) {
+				$placeholder = ":tagId$index";
+				$params[$placeholder] = $tagId;
+			}
+		}
+
+		if ($query) {
+			$params[':query'] = "%$query%";
+		}
+
+		$params[':limit'] = $limit;
+		$params[':offset'] = $offset;
+
+		$stmt->execute($params);
+
+		$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		if (!empty($products)) {
+			$productIds = array_column($products, 'id');
+			$additionalImages = $this->findAdditionalImages($productIds);
+			$imagesByProduct = [];
+			foreach ($additionalImages as $image) {
+				$imagesByProduct[$image['item_id']][] = $image['path'];
+			}
+
+			return array_map(
+				function ($productData) use ($imagesByProduct) {
+					$product = Product::fromDatabase($productData);
+					$additionalImages = $imagesByProduct[$productData['id']] ?? [];
+					$product->setAdditionalImagePaths($additionalImages);
+					return $product;
+				},
+				$products
+			);
+		}
+
+		return [];
         
     }
 
@@ -147,34 +227,52 @@ class ProductRepository
 
     }
 
-    public function getTotalCount(?int $tagId = null, ?string $query = null): int
+    public function getTotalCount(?array $tagIds = null, ?string $query = null): int
     {
 
-        $sql = "SELECT COUNT(*) FROM up_item i ";
-        $params = [];
+		$sql = "SELECT COUNT(DISTINCT i.id) FROM up_item i ";
 
-        if ($tagId) 
-        {
-            $sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
-            $sql .= "WHERE it.tag_id = :tagId ";
-            $params[':tagId'] = $tagId;
-        }
+		if ($tagIds) {
+			$sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
+		}
 
-        if ($query)
-        {
-            $sql .= ($tagId ? "AND" : "WHERE") . " LOWER(i.name) LIKE LOWER(:query) ";
-            $params[':query'] = $query;
-        }
+		$sql .= "WHERE 1=1 ";
 
-        $stmt = $this->pdo->prepare($sql);
-        
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
-        }
+		if ($tagIds) {
+			$placeholders = implode(',', array_map(fn($index) => ":tagId$index", range(0, count($tagIds) - 1)));
+			$sql .= "AND i.id IN (
+            SELECT item_id
+            FROM up_item_tag
+            WHERE tag_id IN ($placeholders)
+            GROUP BY item_id
+        ) ";
+		}
 
-        $stmt->execute();
+		if ($query) {
+			$sql .= ($tagIds ? "AND" : "WHERE") . " LOWER(i.name) LIKE LOWER(:query)";
+		}
 
-        return (int) $stmt->fetchColumn();
+		$stmt = $this->pdo->prepare($sql);
+
+		$params = [];
+		if ($tagIds) {
+			foreach ($tagIds as $index => $tagId) {
+				$placeholder = ":tagId$index";
+				$params[$placeholder] = $tagId;
+			}
+		}
+
+		if ($query) {
+			$params[':query'] = "%$query%";
+		}
+
+		foreach ($params as $key => $value) {
+			$stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+		}
+
+		$stmt->execute();
+
+		return (int) $stmt->fetchColumn();
 
     }
 
