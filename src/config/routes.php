@@ -17,6 +17,9 @@ $router->addRoute('GET', '/product/{id:\d+}', [\Controllers\ProductController::c
 $router->addRoute('GET', '/order/create/{id:\d+}', [\Controllers\OrderController::class, 'create']);
 $router->addRoute('POST', '/order/submit', [\Controllers\OrderController::class, 'store']);
 $router->addRoute('GET', '/order/success', [\Controllers\OrderController::class, 'success']);
+$router->addRoute('GET', '/order/checkout-cart', [\Controllers\OrderController::class, 'createCartOrder']);
+$router->addRoute('POST', '/order/submit-cart', [\Controllers\OrderController::class, 'storeCartOrder']);
+
 
 $router->addRoute('GET', '/user/login', [\Controllers\UserController::class, 'index']);
 $router->addRoute('POST', '/user/login', [\Controllers\UserController::class, 'authenticate']);
@@ -25,6 +28,13 @@ $router->addRoute('POST', '/user/register', [\Controllers\UserController::class,
 $router->addRoute('GET', '/user/profile', [\Controllers\UserProfileController::class, 'profile']);
 $router->addRoute('POST', '/user/update', [\Controllers\UserProfileController::class, 'update']);
 $router->addRoute('GET', '/user/logout', [\Controllers\UserController::class, 'logout']);
+
+$router->addRoute('GET', '/cart', [\Controllers\CartController::class, 'index']);
+$router->addRoute('POST', '/cart/add', [\Controllers\CartController::class, 'add']);
+$router->addRoute('POST', '/cart/update', [\Controllers\CartController::class, 'update']);
+$router->addRoute('POST', '/cart/remove', [\Controllers\CartController::class, 'remove']);
+$router->addRoute('GET', '/cart/checkout', [\Controllers\CartController::class, 'checkout']);
+$router->addRoute('POST', '/cart/checkout', [\Controllers\CartController::class, 'processCheckout']);
 
 $router->addRoute('GET', '/admin/login', [\Controllers\Admin\AdminController::class, 'login']);
 $router->addRoute('POST', '/admin/login', [\Controllers\Admin\AdminController::class, 'authenticate']);
