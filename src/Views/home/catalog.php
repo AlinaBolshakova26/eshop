@@ -43,7 +43,7 @@
                                 style="right: 10px; top: 50%; transform: translateY(-50%);">❯
                         </button>
                     </div>
-                    <div class="card-body  d-flex flex-column">
+                    <div class="card-body d-flex flex-column">
                         <h5 class="card-title"><?php echo htmlspecialchars($product->name); ?></h5>
                         <p class="card-text"><?php echo nl2br(htmlspecialchars($product->desc_short)); ?></p>
                         <p class="card-text"><strong>&#8381; <?php echo number_format($product->price); ?></strong></p>
@@ -63,6 +63,15 @@
 
 <?php if ($totalPages > 1): ?>
     <?php
+    $baseUrl = '';
+    if (!empty($originalQuery)) {
+        $baseUrl = '/search/' . $originalQuery;
+    } elseif ($selectedTagId) {
+        $baseUrl = '/tag/' . $selectedTagId;
+    } else {
+        $baseUrl = '/';
+    }
+
     if ($totalPages <= 4) {
         $pages = range(1, $totalPages);
     } else {
@@ -73,7 +82,7 @@
             $pages = range($totalPages - 3, $totalPages);
         }
         else {
-            $pages = [1, 2, $currentPage - 1, $currentPage];
+            $pages = [$currentPage - 1, $currentPage, $currentPage + 1, $totalPages];
         }
     }
     ?>
@@ -81,25 +90,22 @@
         <ul class="pagination justify-content-center">
             <?php if ($currentPage > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="/tag/<?php echo $selectedTagId; ?>?page=<?php echo $currentPage - 1; ?>"><<</a>
+                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $currentPage - 1; ?>"><<</a>
                 </li>
             <?php endif; ?>
 
             <?php foreach ($pages as $index => $page): ?>
-                <?php
-                if ($index === 2 && $pages[2] > 3) {
-                    echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
-                }
-                ?>
+                <?php if ($index > 0 && $pages[$index] - $pages[$index-1] > 1): ?>
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                <?php endif; ?>
                 <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
-                    <a class="page-link"
-                       href="/tag/<?php echo $selectedTagId; ?>?page=<?php echo $page; ?>"><?php echo $page; ?></a>
+                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $page; ?>"><?php echo $page; ?></a>
                 </li>
             <?php endforeach; ?>
 
             <?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="/tag/<?php echo $selectedTagId; ?>?page=<?php echo $currentPage + 1; ?>">>></a>
+                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $currentPage + 1; ?>">>></a>
                 </li>
             <?php endif; ?>
         </ul>

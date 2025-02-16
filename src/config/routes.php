@@ -6,7 +6,7 @@ $router = new Router();
 
 
 $router->addRoute('GET', '/', [\Controllers\HomeController::class, 'index']);
-$router->addRoute('GET', '/tag/', [\Controllers\HomeController::class, 'index']);
+$router->addRoute('GET', '/tag', [\Controllers\HomeController::class, 'index']);
 $router->addRoute('GET', '/tag/{id:\d+}', [\Controllers\HomeController::class, 'index'])
 ;$router->addRoute('GET', '/search', [\Controllers\HomeController::class, 'index']);
 $router->addRoute('GET', '/search/{query:[^/]+}', [\Controllers\HomeController::class, 'index']);
