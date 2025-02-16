@@ -187,4 +187,50 @@ class ProductService
 
     }
 
+    public function searchAdminProducts(int $page, int $itemsPerPage, string $query): array 
+    {
+
+        $offset = ($page - 1) * $itemsPerPage;
+        $query = trim($query, '%');
+        
+        if ($query === '')
+        {
+            return [];
+        }
+
+        $pattern = '/' . preg_quote($query, '/') . '/ui';
+        $results = [];
+        $addedProductIds = [];
+        $allProducts = $this->repository->findAll(false);
+
+        foreach ($allProducts as $product) 
+        {
+            if (preg_match($pattern, $product->getName())) 
+            {
+                if (!in_array($product->getId(), $addedProductIds)) 
+                {
+                    $results[] = $product;
+                    $addedProductIds[] = $product->getId();
+                }
+            }
+            elseif (preg_match($pattern, $product->getDescription())) 
+            {
+                if (!in_array($product->getId(), $addedProductIds)) 
+                {
+                    $results[] = $product;
+                    $addedProductIds[] = $product->getId();
+                }
+            }
+        }
+
+        $totalResults = count($results);
+        $paginatedResults = array_slice($results, $offset, $itemsPerPage);
+
+        return [
+            'items' => $paginatedResults,
+            'total' => $totalResults
+        ];
+
+    }
+
 }
