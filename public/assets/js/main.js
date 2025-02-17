@@ -159,3 +159,95 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const tagButtons = document.querySelectorAll(".tag-btn");
+    const resultsContainer = document.getElementById("results-container");
+    const selectedTagsQueue = [];
+
+    function updateUrl() {
+        const selectedTags = Array.from(selectedTagsQueue)
+            .map(button => button.getAttribute("data-tag-id"))
+            .filter(id => id !== "all");
+
+        let url = "/tag";
+        if (selectedTags.length > 0) {
+            url += `?tags=${selectedTags.join(',')}`;
+        }
+
+        history.pushState(null, null, url);
+    }
+
+    tagButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const isAllButton = button.getAttribute("data-tag-id") === "all";
+
+            if (isAllButton) {
+                clearFilters();
+                return;
+            }
+
+            if (button.classList.contains("active")) {
+                const index = selectedTagsQueue.indexOf(button);
+                if (index !== -1) {
+                    selectedTagsQueue.splice(index, 1);
+                    button.classList.remove("active");
+                }
+            } else {
+                button.classList.add("active");
+                selectedTagsQueue.push(button);
+
+                if (selectedTagsQueue.length > 3) {
+                    const firstTag = selectedTagsQueue.shift();
+                    firstTag.classList.remove("active");
+                }
+            }
+            updateUrl();
+            fetchResults();
+        });
+    });
+
+    function clearFilters() {
+        tagButtons.forEach(btn => btn.classList.remove("active"));
+        document.querySelector('.tag-btn[data-tag-id="all"]').classList.add("active");
+        selectedTagsQueue.length = 0;
+
+        window.location.href = "/";
+    }
+
+    function fetchResults() {
+        const selectedTags = Array.from(selectedTagsQueue)
+            .map(button => button.getAttribute("data-tag-id"))
+            .filter(id => id !== "all");
+
+        let url = "/tag";
+        if (selectedTags.length > 0) {
+            url += `?tags=${selectedTags.join(',')}`;
+        }
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                resultsContainer.innerHTML = html; // Заменяем содержимое контейнера
+            })
+            .catch(error => console.error("Ошибка при загрузке данных:", error));
+    }
+
+    function restoreSelectedTagsFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tagsParam = urlParams.get('tags');
+
+        if (tagsParam) {
+            const tagIds = tagsParam.split(',').map(id => parseInt(id, 10));
+
+            tagButtons.forEach(button => {
+                const tagId = parseInt(button.getAttribute("data-tag-id"), 10);
+                if (tagIds.includes(tagId)) {
+                    button.classList.add("active");
+                    selectedTagsQueue.push(button);
+                }
+            });
+        }
+    }
+    restoreSelectedTagsFromUrl();
+});

@@ -3,7 +3,7 @@
 namespace Core\Repositories;
 
 use PDO;
-use Models\Tag;
+use Models\Tag\Tag;
 
 
 class TagRepository

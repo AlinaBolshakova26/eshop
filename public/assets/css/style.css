@@ -689,3 +689,8 @@ footer a:hover {
     max-width: 30%;
     justify-content: flex-end;
 }
+
+.tag-cloud .btn.active {
+    background-color: #f493bc; /* Розовый */
+    color: white;
+}
