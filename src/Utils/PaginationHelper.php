@@ -11,7 +11,7 @@ class PaginationHelper
 		if ($page > 1) {
 			$url .= ($url === "/tag" ? "?" : "&") . "page=$page";
 		} else {
-			$url .= ($url === "/tag" ? "" : "&") . "page=1";
+			$url .= ($url === "/tag" ? "?" : "&") . "page=1";
 		}
 		return $url;
 	}
@@ -28,10 +28,8 @@ class PaginationHelper
 
 	public static function buildTagParam(?array $selectedTagIds = null, int $tagId, int $maxTags = 3): string {
 		if (in_array($tagId, $selectedTagIds ?? [])) {
-			// Если тег уже выбран, удаляем его
 			$newTagIds = array_diff($selectedTagIds, [$tagId]);
 		} else {
-			// Если тег не выбран, добавляем его
 			$newTagIds = array_slice(array_merge($selectedTagIds ?? [], [$tagId]), -3);
 		}
 		return htmlspecialchars(implode(',', $newTagIds));
