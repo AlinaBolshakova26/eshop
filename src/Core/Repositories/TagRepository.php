@@ -44,7 +44,7 @@ class TagRepository
 		{
 			$id = $this->pdo->lastInsertId();
 
-			return new Tag($id, $name, date('Y-m-d H:i:s'), date('Y-m-d H:i:s'));
+			return new Tag ($id, $name, date('Y-m-d H:i:s'), date('Y-m-d H:i:s'));
 		}
 
 		return null;

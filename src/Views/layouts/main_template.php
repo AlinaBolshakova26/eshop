@@ -15,16 +15,16 @@
         <a href="/" class="logo-link me-3">
             <img src="/assets/images/logo.png" alt="logo">
         </a>
-        <div class="fixed-top-row flex-grow-1">
-            <form method="GET" action="/search"  class="d-flex justify-content-between align-items-center">
-                <div class="mx-3 flex-grow-1">
-                    <input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..."
-                           value="<?= htmlspecialchars($search_query ?? ''); ?>">
-                </div>
-                <div>
-                    <button type="submit" class="btn btn-primary">Поиск</button>
-                </div>
-            </form>
+<!--        <h4>Позвольте вашей красоте сиять</h4>-->
+        <div class="fixed-top-row">
+			<form method="GET" action="/search"  class="d-flex justify-content-between align-items-center">
+				<div class="mx-3 flex-grow-1">
+					<input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров...">
+				</div>
+				<div>
+					<button type="submit" class="btn btn-primary">Поиск</button>
+				</div>
+			</form>
         </div>
         <div class="d-flex align-items-center profile">
             <?php if(isset($_SESSION['user_id'])): ?>
