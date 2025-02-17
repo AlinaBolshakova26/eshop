@@ -28,6 +28,7 @@ $router->addRoute('POST', '/user/register', [\Controllers\UserController::class,
 $router->addRoute('GET', '/user/profile', [\Controllers\UserProfileController::class, 'profile']);
 $router->addRoute('POST', '/user/update', [\Controllers\UserProfileController::class, 'update']);
 $router->addRoute('GET', '/user/logout', [\Controllers\UserController::class, 'logout']);
+$router->addRoute('POST', '/user/update-avatar', [\Controllers\UserProfileController::class, 'updateAvatar']);
 
 $router->addRoute('GET', '/cart', [\Controllers\CartController::class, 'index']);
 $router->addRoute('POST', '/cart/add', [\Controllers\CartController::class, 'add']);

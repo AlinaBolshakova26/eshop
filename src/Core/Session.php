@@ -20,7 +20,6 @@ class Session
 
     public static function destroy(): void
     {
-        session_start();
         $_SESSION = [];
         session_destroy();
     }

@@ -133,6 +133,22 @@ document.addEventListener("DOMContentLoaded", function () {
             this.classList.add("selected");
             selectedAvatarInput.value = this.getAttribute("data-avatar");
             currentAvatar.src = "/assets/images/avatars/" + this.getAttribute("data-avatar");
+
+            fetch("/user/update-avatar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ avatar: this.getAttribute("data-avatar") })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert("Ошибка: " + (data.error || "Не удалось обновить аватар"));
+                    }
+                })
+                .catch(error => console.error("Ошибка сохранения аватара:", error));
+
             avatarPickerModal.style.display = "none";
         });
     });

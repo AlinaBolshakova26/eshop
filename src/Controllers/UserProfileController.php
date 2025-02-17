@@ -9,7 +9,6 @@ use Core\Database\MySQLDatabase;
 use Core\Repositories\UserRepository;
 use Core\Repositories\OrderRepository;
 
-
 class UserProfileController
 {
     private UserService $userService;
@@ -24,12 +23,9 @@ class UserProfileController
         $this->orderService = new OrderService(new OrderRepository($pdo));
     }
 
-    public function profile(?int $userId = null): void
+    public function profile(): void
     {
-        if (!$userId)
-        {
-            $userId = $_SESSION['user_id'] ?? null;
-        }
+        $userId = $_SESSION['user_id'] ?? null;
 
         if (!$userId)
         {
@@ -37,106 +33,71 @@ class UserProfileController
             exit;
         }
 
-        try
-        {
-            $user = $this->userService->getUserById($userId);
-            $orders = $this->orderService->getOrdersByUserId($userId);
-            $avatars = $this->userService->getAvatars();
+        $user = $this->userService->getUserById($userId);
+        $orders = $this->orderService->getOrdersByUserId($userId);
+        $avatars = $this->userService->getAvatars();
 
-            if (!$user) {
-                throw new \Exception("Пользователь не найден");
-            }
-
-            $content = View::make(__DIR__ . "/../Views/user/profile.php", [
+        echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
+            'content' => View::make(__DIR__ . "/../Views/user/profile.php", [
                 'user' => $user,
                 'avatars' => $avatars,
                 'orders' => $orders
-            ]);
-
-            echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
-                'content' => $content,
-            ]);
-        }
-        catch (\PDOException $e)
-        {
-            error_log("Database error in profile: " . $e->getMessage());
-            echo "Произошла ошибка при загрузке данных пользователя.";
-        }
-        catch (\Exception $e)
-        {
-            $content = View::make(__DIR__ . "/../Views/user/profile.php", [
-                'user'  => null,
-                'error' => $e->getMessage(),
-                'orders' => []
-            ]);
-
-            echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
-                'content' => $content,
-            ]);
-        }
+            ]),
+        ]);
     }
 
     public function update(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $userId = $_SESSION['user_id'] ?? null;
 
-        if (!$userId) {
+        if (!$userId)
+        {
             header("Location: /user/login");
             exit;
         }
 
         $data = $_POST;
+        $user = $this->userService->getUserById($userId);
 
-        if (!isset($data['avatar']) || empty($data['avatar']))
-        {
-            $user = $this->userService->getUserById($userId);
-            $data['avatar'] = $user['avatar'] ?? 'default.jpg';
-        }
-        else
-        {
-            $avatarDirectory = $_SERVER['DOCUMENT_ROOT'] . '/assets/images/avatars/';
-            if (!file_exists($avatarDirectory . $data['avatar']))
-            {
-                $data['avatar'] = 'default.jpg';
-            }
-        }
+        $data['avatar'] = !empty($data['avatar']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/avatars/' . $data['avatar'])
+            ? $data['avatar']
+            : ($user['avatar'] ?? 'default.jpg');
 
-        try {
-            $result = $this->userService->updateUser($userId, $data);
+        $result = $this->userService->updateUser($userId, $data);
 
-            $message = $result ? "Профиль успешно обновлён." : "Ошибка обновления профиля.";
-            $user = $this->userService->getUserById($userId);
-            $orders = $this->orderService->getOrdersByUserId($userId);
-            $avatars = $this->userService->getAvatars();
-
-            $content = View::make(__DIR__ . "/../Views/user/profile.php", [
-                'user'    => $user,
-                'message' => $message,
-                'orders'  => $orders,
-                'avatars' => $avatars
-            ]);
-
-            echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
-                'content' => $content,
-            ]);
-        }
-        catch (\PDOException $e) {
-            error_log("Database error in update: " . $e->getMessage());
-            echo "Произошла ошибка при обновлении профиля.";
-        }
-        catch (\Exception $e) {
-            $content = View::make(__DIR__ . "/../Views/user/profile.php", [
-                'user'  => $this->userService->getUserById($userId),
+        echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
+            'content' => View::make(__DIR__ . "/../Views/user/profile.php", [
+                'user' => $this->userService->getUserById($userId),
+                'message' => $result ? "Профиль успешно обновлён." : "Ошибка обновления профиля.",
                 'orders' => $this->orderService->getOrdersByUserId($userId),
-                'error' => $e->getMessage(),
-            ]);
+                'avatars' => $this->userService->getAvatars(),
+            ]),
+        ]);
+    }
 
-            echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
-                'content' => $content,
-            ]);
+    public function updateAvatar(): void
+    {
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (!$userId)
+        {
+            http_response_code(403);
+            echo json_encode(["success" => false, "error" => "Пользователь не авторизован"]);
+            exit;
         }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+        $avatar = $data['avatar'] ?? 'default.jpg';
+
+        if (!file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/avatars/' . $avatar))
+        {
+            http_response_code(400);
+            echo json_encode(["success" => false, "error" => "Файл не найден"]);
+            exit;
+        }
+
+        $result = $this->userService->updateUser($userId, ['avatar' => $avatar]);
+
+        echo json_encode(["success" => $result]);
     }
 }
