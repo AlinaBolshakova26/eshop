@@ -9,6 +9,7 @@ final class ProductListDTO
     (
         public readonly int $id,
         public readonly string $name,
+        public readonly string $description,
         public readonly string $desc_short,
         public readonly string $price,
         public readonly int $is_active,
@@ -67,6 +68,27 @@ class Product
 
     }
 
+        public static function fromListDTO(ProductListDTO $dto): self
+        {
+            $product = new self();
+            
+            $product->id = $dto->id;
+            $product->name = $dto->name;
+            $product->description = $dto->description;
+            $product->desc_short = $dto->desc_short;
+            $product->price = $dto->price;
+            $product->is_active = (bool)$dto->is_active;
+            $product->main_image_path = $dto->main_image_path;
+            $product->additional_image_paths = $dto->additional_image_paths;
+            
+            // Устанавливаем значения по умолчанию для полей, которых нет в ListDTO
+            $product->created_at = date('Y-m-d H:i:s');
+            $product->updated_at = date('Y-m-d H:i:s');
+            
+            return $product;
+
+        }
+
     public function setAdditionalImagePaths(?array $additional_image_paths)
     {
         $this->additional_image_paths = $additional_image_paths;
@@ -95,6 +117,7 @@ class Product
         (
             $this->id,
             $this->name,
+            $this->description,
             $this->desc_short,
             $this->price,
             $this->is_active,

@@ -8,7 +8,6 @@ use Core\Services\TagService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\ProductRepository;
 use Core\Repositories\TagRepository;
-
 use Core\Services\TransliterateService;
 
 class HomeController
@@ -31,15 +30,14 @@ class HomeController
     public function index(?int $id = null, ?string $query = null): void
     {
 
-        if (isset($_GET['searchInput']) && !empty($_GET['searchInput'])) 
+        if (isset($_GET['searchInput'])) 
         {
-            $searchQuery = trim($_GET['searchInput']);
-
-            if ($searchQuery !== '') 
+            $searchInput = trim(strip_tags($_GET['searchInput']));
+            if ($searchInput !== '') 
             {
-                header('Location: /search/' . urlencode($searchQuery));
+                header('Location: /search/' . urlencode($searchInput));
                 exit;
-            }
+            } 
             else 
             {
                 header('Location: /');
@@ -51,21 +49,29 @@ class HomeController
         $currentPage = max(1, (int)($_GET['page'] ?? 1));
         define("ITEMS_PER_PAGE", 9);
 
-        $searchValue = null;
-        $searchQuery = null;
+        $searchQuery = '';
+
         if ($query)
         {
-            $searchValue = urldecode($query);
             $searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
         }
         
         try
         {
-              
             $tags = $this->tagService->getAllTags();
-            $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE, $searchQuery, $selectedTagId);
-            $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE, $selectedTagId, $searchQuery);
-            
+            if ($searchQuery)
+            {
+                $searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE, $tags, $searchQuery);
+                $products = $searchResults['items'];
+                $totalPages = ceil($searchResults['total'] / ITEMS_PER_PAGE);
+                $originalQuery = $query;
+            }
+            else
+            {
+                $products = $this->productService->getPaginatedProducts($currentPage, ITEMS_PER_PAGE, '', $selectedTagId);
+                $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE, $selectedTagId, query: $searchQuery);
+            }
+
             if (empty($products)) 
             {
                 throw new \Exception("No products found");
@@ -89,6 +95,7 @@ class HomeController
                 'totalPages' => $totalPages,
                 'currentPage' => $currentPage,
                 'searchQuery' => $searchQuery,
+                'originalQuery' => $originalQuery ?? '',
             ]);
 
             echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
@@ -116,7 +123,8 @@ class HomeController
             echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
                 'content' => $content
             ]);
-         }
+        }
+
     }
-    
+
 }

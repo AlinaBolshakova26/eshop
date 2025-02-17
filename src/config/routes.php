@@ -6,7 +6,7 @@ $router = new Router();
 
 
 $router->addRoute('GET', '/', [\Controllers\HomeController::class, 'index']);
-$router->addRoute('GET', '/tag/', [\Controllers\HomeController::class, 'index']);
+$router->addRoute('GET', '/tag', [\Controllers\HomeController::class, 'index']);
 $router->addRoute('GET', '/tag/{id:\d+}', [\Controllers\HomeController::class, 'index'])
 ;$router->addRoute('GET', '/search', [\Controllers\HomeController::class, 'index']);
 $router->addRoute('GET', '/search/{query:[^/]+}', [\Controllers\HomeController::class, 'index']);
@@ -51,6 +51,7 @@ $router->addRoute('GET', '/admin', function()
 
 $router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 $router->addRoute('POST', '/admin/products/process', [\Controllers\Admin\ProductsAdminController::class, 'process']);
+$router->addRoute('GET', '/admin/products/search/{query:[^/]+}', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 $router->addRoute('GET', '/admin/products/edit/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'edit']);
 $router->addRoute('POST', '/admin/products/update/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'update']);
 $router->addRoute('GET', '/admin/products/create', [\Controllers\Admin\ProductCreateController::class, 'create']);
