@@ -20,7 +20,6 @@ class CartController
 
     public function index()
     {
-        
         if (!isset($_SESSION['user_id'])) {
             header("Location: /user/login");
             exit;
@@ -32,7 +31,6 @@ class CartController
         $content = View::make(__DIR__ . '/../Views/cart/index.php', [
             'cartItems' => $cartItems
         ]);
-
         echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
             'content' => $content
         ]);
@@ -40,7 +38,6 @@ class CartController
 
     public function add()
     {
-        
         if (!isset($_SESSION['user_id'])) {
             header("Location: /user/login");
             exit;
@@ -52,7 +49,6 @@ class CartController
 
         if ($itemId > 0) {
             $this->cartService->addToCart($userId, $itemId, $quantity);
-            $_SESSION['flash'] = ['type' => 'success', 'message' => 'Товар добавлен в корзину'];
         }
 
         header("Location: /cart");
@@ -61,7 +57,6 @@ class CartController
 
     public function update()
     {
-        
         if (!isset($_SESSION['user_id'])) {
             header("Location: /user/login");
             exit;
@@ -73,16 +68,21 @@ class CartController
 
         if ($itemId > 0) {
             $this->cartService->updateCartItem($userId, $itemId, $quantity);
-            $_SESSION['flash'] = ['type' => 'success', 'message' => 'Количество товара обновлено'];
+        }
+
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
         }
 
         header("Location: /cart");
         exit;
     }
 
+
     public function remove()
     {
-        
         if (!isset($_SESSION['user_id'])) {
             header("Location: /user/login");
             exit;
@@ -93,16 +93,16 @@ class CartController
 
         if ($itemId > 0) {
             $this->cartService->removeCartItem($userId, $itemId);
-            $_SESSION['flash'] = ['type' => 'success', 'message' => 'Товар удалён из корзины'];
         }
 
-        header("Location: /cart");
-        exit;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: /cart");
+            exit;
+        }
     }
 
     public function checkout()
     {
-        
         if (!isset($_SESSION['user_id'])) {
             header("Location: /user/login");
             exit;
@@ -122,7 +122,6 @@ class CartController
 
     public function processCheckout()
     {
-        
         if (!isset($_SESSION['user_id'])) {
             header("Location: /user/login");
             exit;
@@ -132,10 +131,8 @@ class CartController
         $success = $this->cartService->clearCart($userId);
 
         if ($success) {
-            $_SESSION['flash'] = ['type' => 'success', 'message' => 'Заказ оформлен успешно'];
             header("Location: /order/success");
         } else {
-            $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Ошибка при оформлении заказа'];
             header("Location: /cart/checkout");
         }
         exit;

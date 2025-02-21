@@ -41,7 +41,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Телефон -->
             <div class="mb-3">
                 <label for="phone" class="form-label">Номер телефона *</label>
                 <input type="tel" class="form-control <?php echo isset($errors['phone']) ? 'is-invalid' : ''; ?>"
@@ -54,7 +53,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">Электронная почта *</label>
                 <input type="email" class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>"
@@ -67,7 +65,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Город -->
             <div class="mb-3">
                 <label for="city" class="form-label">Город *</label>
                 <input type="text"
@@ -80,7 +77,6 @@
                 <div id="city-dropdown" class="address-dropdown"></div>
             </div>
 
-            <!-- Улица -->
             <div class="mb-3">
                 <label for="street" class="form-label">Улица *</label>
                 <input type="text"
@@ -93,7 +89,6 @@
                 <div id="street-dropdown" class="address-dropdown"></div>
             </div>
 
-            <!-- Дом -->
             <div class="mb-3">
                 <label for="house" class="form-label">Дом *</label>
                 <input type="text"
@@ -106,7 +101,6 @@
                 <div id="house-dropdown" class="address-dropdown"></div>
             </div>
 
-            <!-- Квартира -->
             <div class="mb-3">
                 <label for="apartment" class="form-label">Квартира</label>
                 <input type="text" class="form-control <?php echo isset($errors['apartment']) ? 'is-invalid' : ''; ?>"
@@ -117,7 +111,6 @@
                 <?php endif; ?>
             </div>
 
-            <!-- Кнопка отправки -->
             <button type="submit" class="btn btn-success">Подтвердить заказ</button>
         </form>
     </div>

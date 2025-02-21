@@ -145,29 +145,39 @@ class OrderRepository
         return $result ? (float)$result['price'] : 0.0;
     }
 
-    public function saveOrder(int $user_id, int $item_id, float $price, string $city, string $street, string $house, ?string $apartment): bool
+
+    public function saveOrder(
+        int     $user_id,
+        int     $item_id,
+        int     $quantity,
+        float   $price,
+        string  $city,
+        string  $street,
+        string  $house,
+        ?string $apartment
+    ): bool
     {
         try {
             $stmt = $this->pdo->prepare("
-                INSERT INTO up_order (user_id, item_id, price, city, street, house, apartment, status) 
-                VALUES (:user_id, :item_id, :price, :city, :street, :house, :apartment, 'Создан')
-            ");
+            INSERT INTO up_order (user_id, item_id, quantity, price, city, street, house, apartment, status) 
+            VALUES (:user_id, :item_id, :quantity, :price, :city, :street, :house, :apartment, 'Создан')
+        ");
             return $stmt->execute([
                 'user_id' => $user_id,
                 'item_id' => $item_id,
+                'quantity' => $quantity,
                 'price' => $price,
                 'city' => $city,
                 'street' => $street,
                 'house' => $house,
-                'apartment' => $apartment
+                'apartment' => $apartment,
             ]);
-        }
-        catch (PDOException $e)
-        {
+        } catch (PDOException $e) {
             error_log("Ошибка сохранения заказа: " . $e->getMessage());
             return false;
         }
     }
+
 
     public function getUserById(int $id): ?array
     {
@@ -186,7 +196,8 @@ class OrderRepository
             o.created_at,
             i.id AS product_id,
             i.name AS product_name,
-            i.price,
+            o.price AS price,       
+            o.quantity,           
             im.path AS main_image
         FROM up_order o
         INNER JOIN up_item i ON o.item_id = i.id
