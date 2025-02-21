@@ -3,20 +3,44 @@ namespace Utils;
 
 class PaginationHelper
 {
-	public static function buildPaginationUrl(?array $tagIds = null, int $page): string {
-		$url = "/tag";
+	public static function buildPaginationUrl(?array  $tagIds = null,
+											  int     $page,
+											  ?float  $minPrice = null,
+											  ?float  $maxPrice = null,
+											  ?string $query = null): string
+	{
+		$url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+		$params = [];
+
 		if ($tagIds && !empty($tagIds)) {
-			$url .= "?tags=" . htmlspecialchars(implode(',', $tagIds));
+			$params['tags'] = implode(',', $tagIds);
 		}
+
+		if ($query) {
+			$params['query'] = $query;
+		}
+
+		if ($minPrice !== null) {
+			$params['minPrice'] = $minPrice;
+		}
+		if ($maxPrice !== null) {
+			$params['maxPrice'] = $maxPrice;
+		}
+
 		if ($page > 1) {
-			$url .= ($url === "/tag" ? "?" : "&") . "page=$page";
-		} else {
-			$url .= ($url === "/tag" ? "?" : "&") . "page=1";
+			$params['page'] = $page;
 		}
+
+		if (!empty($params)) {
+			$url .= '?' . http_build_query($params);
+		}
+
 		return $url;
 	}
 
-	public static function getActiveTags(array $tags, ?array $selectedTagIds = null): array {
+	public static function getActiveTags(array $tags, ?array $selectedTagIds = null): array
+	{
 		$activeTags = [];
 		foreach ($tags as $tag) {
 			if (in_array($tag->toListDTO()->id, $selectedTagIds ?? [])) {
@@ -26,12 +50,20 @@ class PaginationHelper
 		return $activeTags;
 	}
 
-	public static function buildTagParam(?array $selectedTagIds = null, int $tagId, int $maxTags = 3): string {
+	public static function buildTagParam(?array $selectedTagIds = null, int $tagId, int $maxTags = 3): string
+	{
 		if (in_array($tagId, $selectedTagIds ?? [])) {
 			$newTagIds = array_diff($selectedTagIds, [$tagId]);
 		} else {
 			$newTagIds = array_slice(array_merge($selectedTagIds ?? [], [$tagId]), -3);
 		}
 		return htmlspecialchars(implode(',', $newTagIds));
+	}
+
+	public static function getResetUrl(): string
+	{
+		$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+		return $path;
 	}
 }

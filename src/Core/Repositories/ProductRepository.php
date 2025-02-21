@@ -96,7 +96,10 @@ class ProductRepository
 
 	}
 
-	public function findAllPaginated(int $limit, int $offset, ?string $query, ?array $tagIds = null, bool $showOnlyActive = true): array
+	public function findAllPaginated(int $limit, int $offset,
+									 ?string $query, ?array $tagIds = null,
+									 ?float $minPrice = null, ?float $maxPrice = null,
+									 bool $showOnlyActive = true): array
     {
 		$tagIds = $tagIds ? array_slice($tagIds, 0, 3) : [];
 
@@ -128,8 +131,16 @@ class ProductRepository
         ) ";
 		}
 
-		if ($query) {
-			$sql .= "AND LOWER(i.name) LIKE LOWER(:query)";
+		if ($query !== null) {
+			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
+		}
+
+		if ($minPrice !== null) {
+			$sql .= "AND i.price >= :minPrice ";
+		}
+
+		if ($maxPrice !== null) {
+			$sql .= "AND i.price <= :maxPrice ";
 		}
 
 		$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
@@ -144,8 +155,16 @@ class ProductRepository
 			}
 		}
 
-		if ($query) {
-			$params[':query'] = "%$query%";
+		if ($query !== null) {
+			$params[':query'] = '%' . str_replace('%', '\%', $query) . '%';
+		}
+
+		if ($minPrice !== null) {
+			$params[':minPrice'] = $minPrice;
+		}
+
+		if ($maxPrice !== null) {
+			$params[':maxPrice'] = $maxPrice;
 		}
 
 		$params[':limit'] = $limit;
@@ -227,7 +246,8 @@ class ProductRepository
 
     }
 
-    public function getTotalCount(?array $tagIds = null, ?string $query = null): int
+    public function getTotalCount(?array $tagIds = null, ?string $query = null,
+								  ?float $minPrice = null, ?float $maxPrice = null): int
     {
 
 		$sql = "SELECT COUNT(DISTINCT i.id) FROM up_item i ";
@@ -249,7 +269,15 @@ class ProductRepository
 		}
 
 		if ($query) {
-			$sql .= ($tagIds ? "AND" : "WHERE") . " LOWER(i.name) LIKE LOWER(:query)";
+			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
+		}
+
+		if ($minPrice !== null) {
+			$sql .= "AND i.price >= :minPrice ";
+		}
+
+		if ($maxPrice !== null) {
+			$sql .= "AND i.price <= :maxPrice ";
 		}
 
 		$stmt = $this->pdo->prepare($sql);
@@ -263,7 +291,15 @@ class ProductRepository
 		}
 
 		if ($query) {
-			$params[':query'] = "%$query%";
+			$params[':query'] = '%' . str_replace('%', '\%', $query) . '%';
+		}
+
+		if ($minPrice !== null) {
+			$params[':minPrice'] = $minPrice;
+		}
+
+		if ($maxPrice !== null) {
+			$params[':maxPrice'] = $maxPrice;
 		}
 
 		foreach ($params as $key => $value) {

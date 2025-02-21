@@ -28,7 +28,7 @@ class HomeController
 
     }
 
-    public function index(?string $query = null): void
+    public function index(): void
 	{
 		if (isset($_GET['tags']) && $_GET['tags'] === '') {
 			header('Location: /');
@@ -40,12 +40,15 @@ class HomeController
 
 		define("ITEMS_PER_PAGE", 9);
 
-		$searchValue = null;
 		$searchQuery = null;
-		if ($query) {
-			$searchValue = urldecode($query);
-			$searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
+		$searchValue = isset($_GET['searchInput']) ? (string)$_GET['searchInput'] : null;
+
+		if ($searchValue) {
+			$searchQuery = TransliterateService::transliterate(urldecode($searchValue));
 		}
+
+		$minPrice = isset($_GET['minPrice']) ? (float)$_GET['minPrice'] : null;
+		$maxPrice = isset($_GET['maxPrice']) ? (float)$_GET['maxPrice'] : null;
 
 		try {
 			$tags = $this->tagService->getAllTags();
@@ -54,13 +57,17 @@ class HomeController
 				$currentPage,
 				ITEMS_PER_PAGE,
 				$searchQuery,
-				$selectedTagIds
+				$selectedTagIds,
+				$minPrice,
+				$maxPrice
 			);
 
 			$totalPages = $this->productService->getTotalPages(
 				ITEMS_PER_PAGE,
 				$selectedTagIds,
-				$searchQuery
+				$searchQuery,
+				$minPrice,
+				$maxPrice
 			);
 
 			$selectedTagNames = [];
@@ -79,15 +86,18 @@ class HomeController
 			$content = View::make(__DIR__ . "/../Views/home/catalog.php", [
 				'products' => $products,
 				'tags' => $tags,
-				'selectedTagIds' => $selectedTagIds, // Передаем массив выбранных тегов
+				'selectedTagIds' => $selectedTagIds,
 				'selectedTagName' => $selectedTagName,
 				'totalPages' => $totalPages,
 				'currentPage' => $currentPage,
 				'searchQuery' => $searchQuery,
+				'minPrice' => $minPrice,
+				'maxPrice' => $maxPrice,
 			]);
 
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
 				'content' => $content,
+				'searchQuery' => $searchQuery,
 			]);
 		} catch (\PDOException $e) {
 			error_log("Database error: " . $e->getMessage());
@@ -102,10 +112,13 @@ class HomeController
 				'totalPages' => 0,
 				'currentPage' => 1,
 				'searchQuery' => $searchQuery,
+				'minPrice' => $minPrice,
+				'maxPrice' => $maxPrice,
 			]);
 
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
 				'content' => $content,
+				'searchQuery' => $searchQuery,
 			]);
 		}
 	}

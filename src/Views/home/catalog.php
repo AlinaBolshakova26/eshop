@@ -2,7 +2,7 @@
     <div class="tag-cloud">
         <a href="/" class="btn tag-btn <?php echo empty($selectedTagIds) ? 'active' : ''; ?>" data-tag-id="all">Все</a>
 		<?php foreach ($tags as $tag): ?>
-            <a href="/tag?tags=<?php
+            <a href="/?tags=<?php
 			echo Utils\PaginationHelper::buildTagParam($selectedTagIds, $tag->toListDTO()->id);
 			?>"
                class="btn tag-btn <?php echo in_array($tag->toListDTO()->id, $selectedTagIds ?? []) ? 'active' : ''; ?>"
@@ -12,6 +12,25 @@
 		<?php endforeach; ?>
     </div>
 </div>
+<form method="GET" action="">
+    <label for="minPrice">Минимальная цена:</label>
+    <input type="number" id="minPrice" name="minPrice" value="<?= htmlspecialchars($_GET['minPrice'] ?? '') ?>">
+
+    <label for="maxPrice">Максимальная цена:</label>
+    <input type="number" id="maxPrice" name="maxPrice" value="<?= htmlspecialchars($_GET['maxPrice'] ?? '') ?>">
+
+	<?php if (!empty($selectedTagIds)): ?>
+        <input type="hidden" name="tags" value="<?= implode(',', $selectedTagIds) ?>">
+	<?php endif; ?>
+
+	<?php if (!empty($searchQuery)): ?>
+        <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchQuery) ?>">
+	<?php endif; ?>
+
+    <button type="submit">Применить фильтр</button>
+</form>
+<a href="<?php echo Utils\PaginationHelper::getResetUrl(); ?>">Сбросить фильтр</a>
+
 
 <div class="row">
     <h1 class="mb-4">
@@ -95,19 +114,19 @@
         <ul class="pagination justify-content-center">
 			<?php if ($currentPage > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage - 1); ?>"><<</a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage - 1, $minPrice, $maxPrice, $searchQuery); ?>"><<</a>
                 </li>
 			<?php endif; ?>
 
 			<?php foreach ($pages as $page): ?>
                 <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page); ?>"><?php echo $page; ?></a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchQuery); ?>"><?php echo $page; ?></a>
                 </li>
 			<?php endforeach; ?>
 
 			<?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1); ?>">>></a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1, $minPrice, $maxPrice, $searchQuery); ?>">>></a>
                 </li>
 			<?php endif; ?>
         </ul>

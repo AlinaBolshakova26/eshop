@@ -19,11 +19,13 @@ class ProductService
 
     }
 
-    public function getPaginatedProducts(int $page, int $itemsPerPage, ?string $query, ?array $tagId): array
+    public function getPaginatedProducts(int $page, int $itemsPerPage,
+										 ?string $query, ?array $tagId,
+										 ?float $minPrice = null, ?float $maxPrice = null): array
     {
 
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $query, $tagId);
+        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $query, $tagId, $minPrice, $maxPrice);
 
         return array_map(
             fn($product) => $product->toListDTO(), 
@@ -41,10 +43,10 @@ class ProductService
 
     }
 
-    public function getTotalPages(int $itemsPerPage, ?array $tagId = null, ?string $query = null): int
+    public function getTotalPages(int $itemsPerPage, ?array $tagId = null, ?string $query = null, ?float $minPrice = null, ?float $maxPrice = null): int
     {
 
-        $totalProducts = $this->repository->getTotalCount($tagId, $query);
+        $totalProducts = $this->repository->getTotalCount($tagId, $query, $minPrice, $maxPrice);
         
         return ceil($totalProducts / $itemsPerPage);
 
