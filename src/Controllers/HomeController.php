@@ -47,11 +47,32 @@ class HomeController
 			$searchQuery = TransliterateService::transliterate(urldecode($searchValue));
 		}
 
-		$minPrice = isset($_GET['minPrice']) ? (float)$_GET['minPrice'] : null;
-		$maxPrice = isset($_GET['maxPrice']) ? (float)$_GET['maxPrice'] : null;
+		$minPrice = isset($_GET['minPrice']) ? (int)$_GET['minPrice'] : null;
+		$maxPrice = isset($_GET['maxPrice']) ? (int)$_GET['maxPrice'] : null;
+
+		$priceError = null;
+		if ($minPrice !== null || $maxPrice !== null) {
+			if (!is_numeric($minPrice) && $minPrice !== null) {
+				$priceError = "Минимальная цена должна быть числом.";
+			} elseif (!is_numeric($maxPrice) && $maxPrice !== null) {
+				$priceError = "Максимальная цена должна быть числом.";
+			}
+			elseif (($minPrice !== null && $minPrice < 0) || ($maxPrice !== null && $maxPrice < 0)) {
+				$priceError = "Цены не могут быть отрицательными.";
+			}
+			elseif ($minPrice !== null && $maxPrice !== null && $minPrice > $maxPrice) {
+				$priceError = "Минимальная цена не может быть больше максимальной.";
+			}
+		}
+
 
 		try {
 			$tags = $this->tagService->getAllTags();
+
+			if ($priceError) {
+				$minPrice = null;
+				$maxPrice = null;
+			}
 
 			$products = $this->productService->getPaginatedProducts(
 				$currentPage,
@@ -93,6 +114,7 @@ class HomeController
 				'searchQuery' => $searchQuery,
 				'minPrice' => $minPrice,
 				'maxPrice' => $maxPrice,
+				'priceError' => $priceError,
 			]);
 
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
@@ -114,6 +136,7 @@ class HomeController
 				'searchQuery' => $searchQuery,
 				'minPrice' => $minPrice,
 				'maxPrice' => $maxPrice,
+				'priceError' => $priceError,
 			]);
 
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [

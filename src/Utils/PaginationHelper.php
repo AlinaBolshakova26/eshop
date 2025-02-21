@@ -60,10 +60,14 @@ class PaginationHelper
 		return htmlspecialchars(implode(',', $newTagIds));
 	}
 
-	public static function getResetUrl(): string
+	public static function removeQueryParams(array $paramsToRemove): string
 	{
-		$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+		$params = $_GET;
 
-		return $path;
+		foreach ($paramsToRemove as $param) {
+			unset($params[$param]);
+		}
+
+		return '?' . http_build_query($params);
 	}
 }

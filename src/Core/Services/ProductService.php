@@ -21,7 +21,7 @@ class ProductService
 
     public function getPaginatedProducts(int $page, int $itemsPerPage,
 										 ?string $query, ?array $tagId,
-										 ?float $minPrice = null, ?float $maxPrice = null): array
+										 ?int $minPrice = null, ?int $maxPrice = null): array
     {
 
         $offset = ($page - 1) * $itemsPerPage;
@@ -43,7 +43,7 @@ class ProductService
 
     }
 
-    public function getTotalPages(int $itemsPerPage, ?array $tagId = null, ?string $query = null, ?float $minPrice = null, ?float $maxPrice = null): int
+    public function getTotalPages(int $itemsPerPage, ?array $tagId = null, ?string $query = null, ?int $minPrice = null, ?int $maxPrice = null): int
     {
 
         $totalProducts = $this->repository->getTotalCount($tagId, $query, $minPrice, $maxPrice);

@@ -98,7 +98,7 @@ class ProductRepository
 
 	public function findAllPaginated(int $limit, int $offset,
 									 ?string $query, ?array $tagIds = null,
-									 ?float $minPrice = null, ?float $maxPrice = null,
+									 ?int $minPrice = null, ?int $maxPrice = null,
 									 bool $showOnlyActive = true): array
     {
 		$tagIds = $tagIds ? array_slice($tagIds, 0, 3) : [];
@@ -247,7 +247,7 @@ class ProductRepository
     }
 
     public function getTotalCount(?array $tagIds = null, ?string $query = null,
-								  ?float $minPrice = null, ?float $maxPrice = null): int
+								  ?int $minPrice = null, ?int $maxPrice = null): int
     {
 
 		$sql = "SELECT COUNT(DISTINCT i.id) FROM up_item i ";

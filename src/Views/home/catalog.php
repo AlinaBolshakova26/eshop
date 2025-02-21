@@ -12,26 +12,43 @@
 		<?php endforeach; ?>
     </div>
 </div>
-<form method="GET" action="">
-    <label for="minPrice">Минимальная цена:</label>
-    <input type="number" id="minPrice" name="minPrice" value="<?= htmlspecialchars($_GET['minPrice'] ?? '') ?>">
+<?php if (!empty($priceError)): ?>
+    <div class="alert alert-danger mb-4" role="alert">
+		<?= htmlspecialchars($priceError) ?>
+    </div>
+<?php endif; ?>
+<div class="price-filter mb-4">
+    <form method="GET" action="" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="minPrice" class="form-label">Минимальная цена</label>
+            <input type="number" id="minPrice" name="minPrice" class="form-control"
+                   value="<?= htmlspecialchars($_GET['minPrice'] ?? '') ?>" placeholder="От" min="0">
+        </div>
 
-    <label for="maxPrice">Максимальная цена:</label>
-    <input type="number" id="maxPrice" name="maxPrice" value="<?= htmlspecialchars($_GET['maxPrice'] ?? '') ?>">
+        <div class="col-md-3">
+            <label for="maxPrice" class="form-label">Максимальная цена</label>
+            <input type="number" id="maxPrice" name="maxPrice" class="form-control"
+                   value="<?= htmlspecialchars($_GET['maxPrice'] ?? '') ?>" placeholder="До" min="0">
+        </div>
 
-	<?php if (!empty($selectedTagIds)): ?>
-        <input type="hidden" name="tags" value="<?= implode(',', $selectedTagIds) ?>">
-	<?php endif; ?>
+		<?php if (!empty($selectedTagIds)): ?>
+            <input type="hidden" name="tags" value="<?= implode(',', $selectedTagIds) ?>">
+		<?php endif; ?>
 
-	<?php if (!empty($searchQuery)): ?>
-        <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchQuery) ?>">
-	<?php endif; ?>
+		<?php if (!empty($searchQuery)): ?>
+            <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchQuery) ?>">
+		<?php endif; ?>
 
-    <button type="submit">Применить фильтр</button>
-</form>
-<a href="<?php echo Utils\PaginationHelper::getResetUrl(); ?>">Сбросить фильтр</a>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Применить</button>
+        </div>
 
-
+        <div class="col-md-2">
+            <a href="<?= Utils\PaginationHelper::removeQueryParams(['minPrice', 'maxPrice']); ?>"
+               class="btn btn-outline-secondary w-100">Сбросить</a>
+        </div>
+    </form>
+</div>
 <div class="row">
     <h1 class="mb-4">
 		<?php
