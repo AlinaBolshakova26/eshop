@@ -21,7 +21,6 @@
                         <div class="col-md-9">
                             <p class="mb-1"><strong><?= htmlspecialchars($item->product_name) ?></strong></p>
                             <p class="mb-1">Количество: <?= $item->getQuantity() ?></p>
-                            <p class="mb-1">Цена за ед.: ₽<?= number_format($item->product_price ?? 0, 2) ?></p>
                             <p class="mb-1">Сумма: <strong>₽<?= number_format(($item->product_price ?? 0) * $item->getQuantity(), 2) ?></strong></p>
                         </div>
                     </div>
@@ -116,3 +115,4 @@
     document.getElementById('orderForm').addEventListener('submit', function(e) {
     });
 </script>
+

@@ -185,12 +185,10 @@ class OrderController
 
     public static function storeCartOrder()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-        {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return;
         }
-        if (!isset($_SESSION['user_id']))
-        {
+        if (!isset($_SESSION['user_id'])) {
             header("Location: /user/login");
             exit;
         }
@@ -205,12 +203,10 @@ class OrderController
         $apartment     = trim($_POST['apartment'] ?? '');
 
         $errors = [];
-        if (empty($customer_name))
-        {
+        if (empty($customer_name)) {
             $errors['customer_name'] = 'Введите ФИО';
         }
-        if (!preg_match('/^(\+7|8)\d{10}$/', $phone))
-        {
+        if (!preg_match('/^(\+7|8)\d{10}$/', $phone)) {
             $errors['phone'] = 'Телефон должен быть в формате +7XXXXXXXXXX или 8XXXXXXXXXX.';
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -226,16 +222,14 @@ class OrderController
             $errors['house'] = 'Укажите номер дома';
         }
 
-        if (!empty($errors))
-        {
+        if (!empty($errors)) {
             $db = (new MySQLDatabase())->getConnection();
             $cartRepository = new CartRepository($db);
             $cartService = new CartService($cartRepository);
             $cartItems = $cartService->getCartItems($userId);
 
             $total = 0;
-            foreach ($cartItems as $item)
-            {
+            foreach ($cartItems as $item) {
                 $total += ($item->product_price ?? 0) * $item->getQuantity();
             }
 
@@ -243,12 +237,12 @@ class OrderController
                 'cartItems' => $cartItems,
                 'total'     => $total,
                 'user'      => [
-                    'name'  => $customer_name,
-                    'phone' => $phone,
-                    'email' => $email,
-                    'city'  => $city,
-                    'street'=> $street,
-                    'house' => $house,
+                    'name'      => $customer_name,
+                    'phone'     => $phone,
+                    'email'     => $email,
+                    'city'      => $city,
+                    'street'    => $street,
+                    'house'     => $house,
                     'apartment' => $apartment,
                 ],
                 'errors'    => $errors
@@ -265,8 +259,7 @@ class OrderController
         $cartService = new CartService($cartRepository);
         $cartItems = $cartService->getCartItems($userId);
 
-        if (empty($cartItems))
-        {
+        if (empty($cartItems)) {
             $_SESSION['flash'] = ['type' => 'warning', 'message' => 'Ваша корзина пуста'];
             header("Location: /cart");
             exit;
@@ -276,34 +269,33 @@ class OrderController
         $db->beginTransaction();
         $allSaved = true;
 
-        foreach ($cartItems as $item)
-        {
-            $totalPrice = ($item->product_price ?? 0) * $item->getQuantity();
+
+        foreach ($cartItems as $item) {
+            $quantity = $item->getQuantity();
+            $totalPrice = ($item->product_price ?? 0) * $quantity;
+
             $saved = $orderRepository->saveOrder(
                 $userId,
                 $item->getItemId(),
-                $totalPrice,
+                $quantity,
+                (float)$totalPrice,
                 $city,
                 $street,
                 $house,
                 $apartment
             );
-            if (!$saved)
-            {
+            if (!$saved) {
                 $allSaved = false;
                 break;
             }
         }
 
-        if ($allSaved)
-        {
+        if ($allSaved) {
             $cartService->clearCart($userId);
             $db->commit();
             $_SESSION['flash'] = ['type' => 'success', 'message' => 'Заказ оформлен успешно'];
             header("Location: /order/success");
-        }
-        else
-        {
+        } else {
             $db->rollBack();
             $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Ошибка при оформлении заказа'];
             header("Location: /order/checkout-cart");

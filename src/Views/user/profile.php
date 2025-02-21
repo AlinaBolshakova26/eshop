@@ -77,7 +77,9 @@
                                         <span class="badge order-status <?= $statusClass; ?>">
                                     <?= htmlspecialchars($order['status']); ?>
                                 </span>
-                                        <p class="order-price">&#8381; <?= number_format($order['price']); ?></p>
+                                        <p class="order-quantity">Количество: <?= htmlspecialchars($order['quantity']); ?></p>
+                                        <p class="order-total">Сумма заказа: &#8381; <?= number_format($order['price']); ?></p>
+
                                         <p class="order-date"><?= htmlspecialchars(date('d.m.Y', strtotime($order['created_at']))); ?></p>
                                     </div>
                                 </div>
@@ -119,7 +121,9 @@
                                         <span class="badge order-status <?= $statusClass; ?>">
                                             <?= htmlspecialchars($order['status']); ?>
                                         </span>
-                                        <p class="order-price">&#8381; <?= number_format($order['price']); ?></p>
+                                        <p class="order-quantity">Количество: <?= htmlspecialchars($order['quantity']); ?></p>
+                                        <p class="order-total">Сумма заказа: &#8381; <?= number_format($order['price']); ?></p>
+
                                         <p class="order-date"><?= htmlspecialchars(date('d.m.Y', strtotime($order['created_at']))); ?></p>
                                     </div>
                                 </div>
