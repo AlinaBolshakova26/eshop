@@ -7,3 +7,6 @@ ALTER TABLE up_order
 
 ALTER TABLE up_order
     DROP COLUMN address;
+
+ALTER TABLE up_order
+    ADD COLUMN quantity INT DEFAULT 1 AFTER price;

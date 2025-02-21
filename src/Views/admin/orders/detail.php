@@ -16,7 +16,8 @@
                 <h4 class="mt-3"><i class="fas fa-box"></i> Товар</h4>
                 <p><strong>ID товара:</strong> <?= htmlspecialchars($order['item_id']) ?></p>
                 <p><strong>Название:</strong> <?= htmlspecialchars($order['item_name']) ?></p>
-                <p><strong>Цена:</strong> <span class="text-success fw-bold"><?= htmlspecialchars($order['price']) ?> ₽</span></p>
+                <p><strong>Количество:</strong> <?= htmlspecialchars($order['quantity']) ?></p>
+                <p><strong>Общая стоимость:</strong> <span class="text-success fw-bold"><?= htmlspecialchars($order['price']) ?> ₽</span></p>
                 <a href="/product/<?= htmlspecialchars($order['item_id']) ?>" class="btn btn-outline-secondary mt-2">
                     <i class="fas fa-arrow-right"></i> Ссылка на товар
                 </a>

@@ -13,7 +13,8 @@
                 <th>ID</th>
                 <th>Пользователь</th>
                 <th>Товар</th>
-                <th>Цена</th>
+                <th>Количество</th>
+                <th>Общая стоимость</th>
                 <th>Адрес</th>
                 <th>Статус</th>
                 <th>Действия</th>
@@ -28,6 +29,7 @@
                     <td><?= htmlspecialchars($order['id']) ?></td>
                     <td><?= htmlspecialchars($order['user_id']) ?></td>
                     <td><?= htmlspecialchars($order['item_id']) ?></td>
+                    <td><?= htmlspecialchars($order['quantity']) ?></td>
                     <td><?= number_format($order['price'], 2) ?> ₽</td>
                     <td><?= htmlspecialchars($order['city'] . ', ' . $order['street'] . ', ' . $order['house'] . ($order['apartment'] ? ', кв. ' . $order['apartment'] : '')) ?></td>
                     <td>

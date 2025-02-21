@@ -92,7 +92,7 @@ class OrderRepository
     public function getOrderById(int $id): ?array
     {
 
-        $stmt = $this->pdo->prepare("SELECT o.id, o.user_id, o.item_id, o.price, o.status, o.created_at,
+        $stmt = $this->pdo->prepare("SELECT o.id, o.user_id, o.item_id, o.price, o.quantity, o.status, o.created_at,
         o.updated_at, o.city, o.street, o.house, o.apartment, u.phone, u.name, u.email, i.name as item_name FROM up_order o 
         INNER JOIN up_user u on o.user_id = u.id  
         INNER JOIN up_item i on o.item_id = i.id 

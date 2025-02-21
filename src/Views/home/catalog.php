@@ -135,9 +135,15 @@
                 </li>
 			<?php endif; ?>
 
-			<?php foreach ($pages as $page): ?>
+			<?php foreach ($pages as $index => $page): ?>
+				<?php
+				if ($index === 2 && $pages[2] > 3) {
+					echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+				}
+				?>
                 <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchQuery); ?>"><?php echo $page; ?></a>
+                    <a class="page-link"
+                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchQuery); ?>"><?php echo $page; ?></a>
                 </li>
 			<?php endforeach; ?>
 
