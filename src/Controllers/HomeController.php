@@ -40,13 +40,8 @@ class HomeController
 
 		define("ITEMS_PER_PAGE", 9);
 
-		$searchQuery = null;
+		$searchQuery = '';
 		$searchValue = isset($_GET['searchInput']) ? (string)$_GET['searchInput'] : null;
-
-		if ($searchValue) {
-			$searchQuery = TransliterateService::transliterate(urldecode($searchValue));
-		}
-
 		$minPrice = isset($_GET['minPrice']) ? (int)$_GET['minPrice'] : null;
 		$maxPrice = isset($_GET['maxPrice']) ? (int)$_GET['maxPrice'] : null;
 
@@ -65,31 +60,47 @@ class HomeController
 			}
 		}
 
-
 		try {
 			$tags = $this->tagService->getAllTags();
+
+			if ($searchValue) 
+			{
+				$searchQuery = TransliterateService::transliterate(urldecode($searchValue));
+
+				$tagIdsLikeQuery = $this->tagService->getIdsLikeQuery($tags, $searchQuery); 
+				$productIdsByTagIds = $this->productService->getIdsByTagIds($tagIdsLikeQuery); 
+
+				$searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE, $productIdsByTagIds, $searchQuery);
+
+				$products = $searchResults['products'];
+
+                $totalPages = ceil($searchResults['totalProducts'] / ITEMS_PER_PAGE);
+			}
+			else 
+			{
+				$products = $this->productService->getPaginatedProducts(
+					$currentPage,
+					ITEMS_PER_PAGE,
+					$searchQuery,
+					$selectedTagIds,
+					$minPrice,
+					$maxPrice
+				);
+
+				$totalPages = $this->productService->getTotalPages(
+					ITEMS_PER_PAGE,
+					$selectedTagIds,
+					$searchQuery,
+					$minPrice,
+					$maxPrice
+				);
+
+			}
 
 			if ($priceError) {
 				$minPrice = null;
 				$maxPrice = null;
 			}
-
-			$products = $this->productService->getPaginatedProducts(
-				$currentPage,
-				ITEMS_PER_PAGE,
-				$searchQuery,
-				$selectedTagIds,
-				$minPrice,
-				$maxPrice
-			);
-
-			$totalPages = $this->productService->getTotalPages(
-				ITEMS_PER_PAGE,
-				$selectedTagIds,
-				$searchQuery,
-				$minPrice,
-				$maxPrice
-			);
 
 			$selectedTagNames = [];
 			foreach ($tags as $tag) {
@@ -112,6 +123,7 @@ class HomeController
 				'totalPages' => $totalPages,
 				'currentPage' => $currentPage,
 				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
 				'minPrice' => $minPrice,
 				'maxPrice' => $maxPrice,
 				'priceError' => $priceError,
@@ -120,6 +132,7 @@ class HomeController
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
 				'content' => $content,
 				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
 			]);
 		} catch (\PDOException $e) {
 			error_log("Database error: " . $e->getMessage());
@@ -134,6 +147,7 @@ class HomeController
 				'totalPages' => 0,
 				'currentPage' => 1,
 				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
 				'minPrice' => $minPrice,
 				'maxPrice' => $maxPrice,
 				'priceError' => $priceError,
@@ -142,6 +156,7 @@ class HomeController
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
 				'content' => $content,
 				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
 			]);
 		}
 	}

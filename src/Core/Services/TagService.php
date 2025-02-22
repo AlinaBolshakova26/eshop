@@ -81,4 +81,23 @@ class TagService
 
     }
 
+    public function getIdsLikeQuery(array $tags, string $query): array
+    {
+
+        $tagIds = [];
+        $lowerQuery = mb_strtolower($query, 'UTF-8');
+
+        foreach($tags as $tag)
+        {
+            $lowerTagName = mb_strtolower($tag->getName(), 'UTF-8');
+            if (str_contains($lowerTagName, $lowerQuery))
+            {
+                $tagIds[] = $tag->getId();
+            }
+        }
+
+        return $tagIds;
+
+    }
+
 }

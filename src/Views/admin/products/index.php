@@ -2,7 +2,8 @@
     <div class="fixed-top-row">
         <div class="d-flex justify-content-between align-items-center">
             <div class="mx-3 flex-grow-1">
-                <input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..." value="<?php echo htmlspecialchars(trim($searchQuery, '%')); ?>">
+            <input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..." value="<?php echo htmlspecialchars($searchValue ?? ''); ?>">
+
             </div>
             <div>
                 <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
@@ -49,25 +50,45 @@
 
 <?php if ($totalPages > 1): ?>
     <?php
-    $baseUrl = !empty($originalQuery) ? '/admin/products/search/' . $originalQuery : '/admin/products';
+    $baseUrl = '/admin/products';
+    $searchParam = '';
+    
+    if ($searchValue) {
+        $encodedSearch = urlencode($searchValue);
+        $searchParam = 'searchInput=' . $encodedSearch;
+    }
+    
+    // Базовый URL с параметрами поиска (без номера страницы)
+    $baseUrlWithSearch = $baseUrl . ($searchParam ? '?' . $searchParam : '');
+    
+    // URL для пагинации (со страницей > 1)
+    $urlWithSearchAndPage = $baseUrl . '?' . $searchParam . ($searchParam ? '&' : '') . 'page=';
     ?>
     <nav aria-label="Product pagination">
         <ul class="pagination justify-content-center">
             <?php if ($currentPage > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $currentPage - 1; ?>"><<</a>
+                    <?php if ($currentPage == 2): ?>
+                        <a class="page-link" href="<?php echo $baseUrlWithSearch; ?>"><<</a>
+                    <?php else: ?>
+                        <a class="page-link" href="<?php echo $urlWithSearchAndPage . ($currentPage - 1); ?>"><<</a>
+                    <?php endif; ?>
                 </li>
             <?php endif; ?>
 
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?php echo $currentPage == $i ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    <?php if ($i == 1): ?>
+                        <a class="page-link" href="<?php echo $baseUrlWithSearch; ?>"><?php echo $i; ?></a>
+                    <?php else: ?>
+                        <a class="page-link" href="<?php echo $urlWithSearchAndPage . $i; ?>"><?php echo $i; ?></a>
+                    <?php endif; ?>
                 </li>
             <?php endfor; ?>
 
             <?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo $baseUrl; ?>?page=<?php echo $currentPage + 1; ?>">>></a>
+                    <a class="page-link" href="<?php echo $urlWithSearchAndPage . ($currentPage + 1); ?>">>></a>
                 </li>
             <?php endif; ?>
         </ul>

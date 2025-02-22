@@ -19,7 +19,7 @@
         <div class="fixed-top-row">
 			<form method="GET" action=""  class="d-flex justify-content-between align-items-center">
 				<div class="mx-3 flex-grow-1">
-					<input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..." value="<?= htmlspecialchars($searchQuery) ?? ''?>">
+					<input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..." value="<?php echo htmlspecialchars($searchValue ?? ''); ?>">
 				</div>
 				<div>
 					<button type="submit" class="btn btn-primary">Поиск</button>
