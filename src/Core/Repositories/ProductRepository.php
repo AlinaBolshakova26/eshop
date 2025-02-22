@@ -17,184 +17,208 @@ class ProductRepository
 
     }
 
-	public function findAllPaginatedAdmin(int $limit, int $offset, ?string $query, ?int $tagId = null, bool $showOnlyActive = true): array
+	public function getProducts
+	(
+		int $limit,
+		int $offset,
+		array $filters = [],
+		bool $countOnly = false,
+
+	): array | int
 	{
 
-		$sql = "
-            SELECT 
-                i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
-                img.path AS main_image_path
-            FROM up_item i
-            LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
-        ";
+		$params = [];
 
-		if ($tagId)
+		$sql = $countOnly 
+			? 	"SELECT COUNT(DISTINCT i.id) FROM up_item i "
+			: 	"SELECT i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, " . 
+				(!empty($filters['isAdmin']) ? "i.description, " : "") . 
+				"img.path AS main_image_path
+				FROM up_item i
+				LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+				";
+
+		if (!empty($filters['tagIds'])) 
 		{
 			$sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
 		}
 
 		$sql .= "WHERE 1=1 ";
 
-		if ($showOnlyActive)
+		if (!empty($filters['showOnlyActive']) && $filters['showOnlyActive'] !== true) 
 		{
 			$sql .= "AND i.is_active = 1 ";
 		}
 
-		if ($tagId)
-		{
-			$sql .= "AND it.tag_id = :tagId ";
+		if (!empty($filters['tagIds'])) {
+			$this->addTagFilterToQuery($sql, $params, $filters['tagIds']);
 		}
-
-		if ($query)
-		{
-			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
+		
+		if (!empty($filters['query'])) {
+			$searchOptions = 
+			[
+				'searchInTags' => !empty($filters['searchInTags']) && $filters['searchInTags'] !== false,
+				'productIdsByTagIds' => $filters['productIdsByTagIds'] ?? []
+			];
+			$this->addSearchFilterToQuery($sql, $params, $filters['query'], $searchOptions);	
 		}
-
-		$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
-
-		$stmt = $this->pdo->prepare($sql);
-
-		if ($tagId)
-		{
-			$stmt->bindParam(':tagId', $tagId, PDO::PARAM_INT);
-		}
-
-		if ($query)
-		{
-			$stmt->bindParam(':query', $query, PDO::PARAM_STR);
-		}
-
-		$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-		$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-		$stmt->execute();
-		$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-		if (!empty($products))
-		{
-			$productIds = array_column($products, 'id');
-			$additionalImages = $this->findAdditionalImages($productIds);
-			$imagesByProduct = [];
-
-			foreach ($additionalImages as $image)
-			{
-				$imagesByProduct[$image['item_id']][] = $image['path'];
-			}
-
-			return array_map(
-				function ($productData) use ($imagesByProduct) {
-					$product = Product::fromDatabase($productData);
-					$additionalImages = $imagesByProduct[$productData['id']] ?? [];
-					$product->setAdditionalImagePaths($additionalImages);
-					return $product;
-				},
-				$products
+		
+		if (isset($filters['minPrice']) || isset($filters['maxPrice'])) {
+			$this->addPriceFilterToQuery($sql, $params, 
+				$filters['minPrice'] ?? null, 
+				$filters['maxPrice'] ?? null
 			);
 		}
 
-		return [];
+		if (!$countOnly) {
+			$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
+			$params[':limit'] = $limit;
+			$params[':offset'] = $offset;
+		}
+		
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->execute($params);
+		
+		if ($countOnly) {
+			return (int) $stmt->fetchColumn();
+		}
+		
+		$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		return $this->mapProductsWithImages($products);
 
 	}
 
-	public function findAllPaginated(int $limit, int $offset,
-									 ?string $query, ?array $tagIds = null,
-									 ?int $minPrice = null, ?int $maxPrice = null,
-									 bool $showOnlyActive = true): array
+	public function findAllPaginated
+	(
+		int $limit, int $offset,
+		?array $tagIds = null,
+		?int $minPrice = null, ?int $maxPrice = null,
+		bool $showOnlyActive = true
+	): array
     {
 
-		$params = [];
+		$filters =
+		[
+			'tagIds' => $tagIds ? array_slice($tagIds, 0, 3) : null,
+			'minPrice' => $minPrice,
+			'maxPrice' => $maxPrice,
+			'showOnlyActive' => $showOnlyActive,
+		];
+        
+		return $this->getProducts($limit, $offset, $filters);
+		
+    }
 
-		$tagIds = $tagIds ? array_slice($tagIds, 0, 3) : [];
+	public function findAllPaginatedAdmin(int $limit, int $offset): array
+	{
 
-        $sql = "
-        SELECT DISTINCT
-            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, 
-            img.path AS main_image_path
-        FROM up_item i
-        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
-    ";
+		$filters = 
+		[
+			'isAdmin' => true, 
+			'showOnlyActive' => false,
+		];
 
-		if ($tagIds) {
-			$sql .= " JOIN up_item_tag it ON i.id = it.item_id ";
+		return $this->getProducts($limit, $offset, $filters);
+
+	}
+
+	private function mapProductsWithImages(array $productsData): array
+	{
+
+		if (empty($productsData))
+		{
+			return [];
 		}
 
-		$sql .= "WHERE 1=1 ";
+		$productIds = array_column($productsData, 'id');
+		$additionalImages = $this->findAdditionalImages($productIds);
+		$imagesByProduct = [];
 
-		if ($showOnlyActive) {
-			$sql .= "AND i.is_active = 1 ";
+		foreach ($additionalImages as $image)
+		{
+			$imagesByProduct[$image['item_id']][] = $image['path'];
 		}
 
-		if ($tagIds) {
+		return array_map(
+			function ($productData) use ($imagesByProduct) {
+				$product = Product::fromDatabase($productData);
+				$additionalImages = $imagesByProduct[$productData['id']] ?? [];
+				$product->setAdditionalImagePaths($additionalImages);
+				return $product;
+			},
+			$productsData
+		);
+
+	}
+
+	private function addTagFilterToQuery(string &$sql, array &$params, ?array $tagIds = null): void
+	{
+
+		if(!empty($tagIds))
+		{
 			$placeholders = implode(',', array_map(fn($index) => ":tagId$index", range(0, count($tagIds) - 1)));
 			$sql .= "AND i.id IN (
-            SELECT item_id
-            FROM up_item_tag
-            WHERE tag_id IN ($placeholders)
-            GROUP BY item_id
-        ) ";
+				SELECT item_id
+				FROM up_item_tag
+				WHERE tag_id IN ($placeholders)
+				GROUP BY item_id
+        	) ";
+
+			foreach ($tagIds as $index => $tagId) 
+			{
+				$params[":tagId$index"] = $tagId;
+			}
+
 		}
 
-		if ($query !== null && trim($query) !== '') {
-			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
-			$params[':query'] = '%' . str_replace('%', '\%', $query) . '%';
+	}
+
+	private function addSearchFilterToQuery(string &$sql, array &$params, ?string $query, ?array $options = null): void
+	{
+
+		if ($query !== null && trim($query) !== '') 
+		{
+			if (!empty($options['searchInTags']) && !empty($options['productIdsByTagIds']))
+			{
+				$tagPlaceholders = [];
+				foreach($options['productIdsByTagIds'] as $index => $id)
+				{
+					$paramName = ":tagProductId$index";
+					$tagPlaceholders[] = $paramName;
+					$params[$paramName] = $id;
+				}
+
+				$sql .= "AND (
+					LOWER(i.name) LIKE LOWER(:query1) 
+					OR LOWER(i.description) LIKE LOWER(:query2)
+					OR i.id IN (" . implode(',', $tagPlaceholders) . ")
+				) ";
+			}
+			else
+			{
+				$sql .= "AND (LOWER(i.name) LIKE LOWER(:query1) OR LOWER(i.description) LIKE LOWER(:query2))"; 
+			}
+			$params[':query1'] = '%' . str_replace('%', '\%', $query) . '%';
+			$params[':query2'] = '%' . str_replace('%', '\%', $query) . '%';	
 		}
+
+	}
+
+	private function addPriceFilterToQuery(string &$sql, array &$params, ?int $minPrice, ?int $maxPrice): void
+	{
 
 		if ($minPrice !== null) {
 			$sql .= "AND i.price >= :minPrice ";
-		}
-
-		if ($maxPrice !== null) {
-			$sql .= "AND i.price <= :maxPrice ";
-		}
-
-		$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
-
-		$stmt = $this->pdo->prepare($sql);
-
-		if ($tagIds) {
-			foreach ($tagIds as $index => $tagId) {
-				$placeholder = ":tagId$index";
-				$params[$placeholder] = $tagId;
-			}
-		}
-
-		if ($minPrice !== null) {
 			$params[':minPrice'] = $minPrice;
 		}
 
 		if ($maxPrice !== null) {
+			$sql .= "AND i.price <= :maxPrice ";
 			$params[':maxPrice'] = $maxPrice;
 		}
 
-		$params[':limit'] = $limit;
-		$params[':offset'] = $offset;
-
-		$stmt->execute($params);
-
-		$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-		if (!empty($products)) {
-			$productIds = array_column($products, 'id');
-			$additionalImages = $this->findAdditionalImages($productIds);
-			$imagesByProduct = [];
-			foreach ($additionalImages as $image) {
-				$imagesByProduct[$image['item_id']][] = $image['path'];
-			}
-
-			return array_map(
-				function ($productData) use ($imagesByProduct) {
-					$product = Product::fromDatabase($productData);
-					$additionalImages = $imagesByProduct[$productData['id']] ?? [];
-					$product->setAdditionalImagePaths($additionalImages);
-					return $product;
-				},
-				$products
-			);
-		}
-
-		return [];
-        
-    }
+	}
 
     public function findProductById(int $id, bool $isAdmin = false): ?Product
     {
@@ -245,67 +269,25 @@ class ProductRepository
 
     }
 
-    public function getTotalCount(?array $tagIds = null, ?string $query = null,
-								  ?int $minPrice = null, ?int $maxPrice = null): int
+    public function getTotalCount
+	(
+		?array $tagIds = null, 
+		?string $query = null,
+		?int $minPrice = null, 
+		?int $maxPrice = null
+	): int
     {
 
-		$params = [];
+		$filters = 
+		[
+			'tagIds' => $tagIds,
+			'query' => $query,
+			'minPrice' => $minPrice,
+			'maxPrice' => $maxPrice,
+			'showOnlyActive' => true,
+		];
 
-		$sql = "SELECT COUNT(DISTINCT i.id) FROM up_item i ";
-
-		if ($tagIds) {
-			$sql .= "JOIN up_item_tag it ON i.id = it.item_id ";
-		}
-
-		$sql .= "WHERE 1=1 ";
-
-		if ($tagIds) {
-			$placeholders = implode(',', array_map(fn($index) => ":tagId$index", range(0, count($tagIds) - 1)));
-			$sql .= "AND i.id IN (
-            SELECT item_id
-            FROM up_item_tag
-            WHERE tag_id IN ($placeholders)
-            GROUP BY item_id
-        ) ";
-		}
-
-		if ($query !== null && trim($query) !== '') {
-			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
-			$params[':query'] = '%' . str_replace('%', '\%', $query) . '%';
-		}
-
-		if ($minPrice !== null) {
-			$sql .= "AND i.price >= :minPrice ";
-		}
-
-		if ($maxPrice !== null) {
-			$sql .= "AND i.price <= :maxPrice ";
-		}
-
-		$stmt = $this->pdo->prepare($sql);
-
-		if ($tagIds) {
-			foreach ($tagIds as $index => $tagId) {
-				$placeholder = ":tagId$index";
-				$params[$placeholder] = $tagId;
-			}
-		}
-
-		if ($minPrice !== null) {
-			$params[':minPrice'] = $minPrice;
-		}
-
-		if ($maxPrice !== null) {
-			$params[':maxPrice'] = $maxPrice;
-		}
-
-		foreach ($params as $key => $value) {
-			$stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
-		}
-
-		$stmt->execute();
-
-		return (int) $stmt->fetchColumn();
+		return $this->getProducts(0,0,$filters,true);
 
     }
 
@@ -448,6 +430,17 @@ class ProductRepository
         return [];
 
     }
+
+	public function findPrices(array $products): array 
+	{
+
+		if (!empty($products))
+		{
+
+		}
+
+		return [];
+	}
 
 	public function findByIds(array $productIds, bool $showOnlyActive = true): array
     {

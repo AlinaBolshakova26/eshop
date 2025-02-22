@@ -49,7 +49,6 @@ class ProductsAdminController
         {
             if ($searchValue)
             {
-                echo 'yes';
                 $tags = $this->tagService->getAllTags();
 
                 $searchQuery = TransliterateService::transliterate($searchValue);
@@ -64,8 +63,7 @@ class ProductsAdminController
             }
             else 
             {
-                echo 'no';
-                $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE, false);
+                $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE);
                 $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
             }
 

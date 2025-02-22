@@ -57,7 +57,7 @@ class PaginationHelper
 		} else {
 			$newTagIds = array_slice(array_merge($selectedTagIds ?? [], [$tagId]), -3);
 		}
-		return htmlspecialchars(implode(',', $newTagIds));
+		return implode(',', $newTagIds);
 	}
 
 	public static function removeQueryParams(array $paramsToRemove): string
