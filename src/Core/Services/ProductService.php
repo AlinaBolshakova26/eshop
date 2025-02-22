@@ -20,12 +20,12 @@ class ProductService
     }
 
     public function getPaginatedProducts(int $page, int $itemsPerPage,
-										 ?string $query, ?array $tagId,
+										 ?array $tagIds,
 										 ?int $minPrice = null, ?int $maxPrice = null): array
     {
 
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $query, $tagId, $minPrice, $maxPrice);
+        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice);
 
         return array_map(
             fn($product) => $product->toListDTO(), 
@@ -52,12 +52,12 @@ class ProductService
 
     }
 
-    public function adminGetPaginatedProducts(int $currentPage, int $itemsPerPage, bool $showOnlyActive = true): array
+    public function adminGetPaginatedProducts(int $currentPage, int $itemsPerPage): array
     {
 
         $offset = ($currentPage - 1) * $itemsPerPage;
 
-        return $this->repository->findAllPaginatedAdmin($itemsPerPage, $offset, null, null, $showOnlyActive);
+        return $this->repository->findAllPaginatedAdmin($itemsPerPage, $offset);
 
     }
 
@@ -130,35 +130,33 @@ class ProductService
         return (!empty($tagIds)) ? $this->repository->findIdsByTagIds($tagIds) : [];
     }
 
-    public function searchProducts(int $page, int $itemsPerPage, array $productIdsbyTagIds, string $query, bool $showOnlyActive = true): array 
+    public function searchProducts(int $page, int $itemsPerPage, array $productIdsByTagIds, string $query, bool $showOnlyActive = true, ?int $minPrice = null, ?int $maxPrice = null): array 
     {
+
+        $filters = 
+        [
+            'query' => $query,
+            'showOnlyActive' => $showOnlyActive,
+            'searchInTags' => true,
+            'productIdsByTagIds' => !empty($productIdsByTagIds) ? $productIdsByTagIds : [], 
+            'minPrice' => $minPrice,
+            'maxPrice' => $maxPrice,
+        ];
 
         $offset = ($page - 1) * $itemsPerPage;
 
-        $query = '%' . $query . '%';
+        $totalProducts = $this->repository->getProducts(0, 0, $filters, true);
 
-        $productsByNameAndDescription = $this->repository->findByNameAndDescription($query, $showOnlyActive);
+        $products = $this->repository->getProducts($itemsPerPage, $offset, $filters);
         
-        $productIds = array_column($productsByNameAndDescription, 'id'); 
-        $diff = array_diff($productIdsbyTagIds, $productIds);
-
-        $diffProducts = $this->repository->findByIds($diff, $showOnlyActive);
-
-        $allProducts = array_merge($productsByNameAndDescription, $diffProducts);
-        $allProducts = $this->repository->findWithAdditionalImages($allProducts);
-
         if ($showOnlyActive)
         {
-            $allProducts = array_map(fn($product) => $product->toListDTO(), $allProducts);
+            $products = array_map(fn($product) => $product->toListDTO(), $products);
         }
-        
-        $totalProducts = count($allProducts);
-
-        $paginatedResults = array_slice($allProducts, $offset, $itemsPerPage);
 
         return 
         [
-            'products' => $paginatedResults,
+            'products' => $products,
             'totalProducts' => $totalProducts,
         ];
 
