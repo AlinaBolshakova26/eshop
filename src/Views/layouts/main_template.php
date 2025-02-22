@@ -29,20 +29,6 @@
 				</div>
 			</form>
         </div>
-        <div class="d-flex align-items-center profile">
-            <?php if(isset($_SESSION['user_id'])): ?>
-                <a href="/cart" class="btn btn-outline-primary me-3">Корзина</a>
-                <a href="/user/profile" class="btn btn-outline-primary me-2">Профиль</a>
-                <a href="/user/logout" class="logout-link">
-                    <img src="/assets/images/logout.png" alt="logout">
-                </a>
-            </div>
-            <div class="col-md-5">
-                <form method="GET" action="/search" class="d-flex">
-                    <input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров...">
-                    <button type="submit" class="btn btn-primary ms-2">Поиск</button>
-                </form>
-            </div>
             <div class="col-md-4 d-flex justify-content-end align-items-center">
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="/cart" class="btn btn-outline-primary me-2">Корзина</a>
