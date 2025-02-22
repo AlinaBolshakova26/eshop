@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .map(button => button.getAttribute("data-tag-id"))
             .filter(id => id !== "all");
 
-        let url = "/tag";
+        let url = "";
         if (selectedTags.length > 0) {
             url += `?tags=${selectedTags.join(',')}`;
         }
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .map(button => button.getAttribute("data-tag-id"))
             .filter(id => id !== "all");
 
-        let url = "/tag";
+        let url = "";
         if (selectedTags.length > 0) {
             url += `?tags=${selectedTags.join(',')}`;
         }

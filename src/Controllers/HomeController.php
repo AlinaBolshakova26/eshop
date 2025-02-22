@@ -70,10 +70,10 @@ class HomeController
 				$tagIdsLikeQuery = $this->tagService->getIdsLikeQuery($tags, $searchQuery); 
 				$productIdsByTagIds = $this->productService->getIdsByTagIds($tagIdsLikeQuery); 
 
-				$searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE, $productIdsByTagIds, $searchQuery);
+				$searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE, $productIdsByTagIds, $searchQuery, true, $minPrice, $maxPrice);
 
 				$products = $searchResults['products'];
-
+				
                 $totalPages = ceil($searchResults['totalProducts'] / ITEMS_PER_PAGE);
 			}
 			else 
@@ -81,12 +81,11 @@ class HomeController
 				$products = $this->productService->getPaginatedProducts(
 					$currentPage,
 					ITEMS_PER_PAGE,
-					$searchQuery,
 					$selectedTagIds,
 					$minPrice,
 					$maxPrice
 				);
-
+	
 				$totalPages = $this->productService->getTotalPages(
 					ITEMS_PER_PAGE,
 					$selectedTagIds,
