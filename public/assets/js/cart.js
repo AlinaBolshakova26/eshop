@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
         input.addEventListener('change', function() {
             let form = input.closest('form');
             let formData = new FormData(form);
-
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
@@ -36,6 +35,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
         input.addEventListener('input', function() {
             updateCartTotal();
+        });
+    });
+
+    document.querySelectorAll('.remove-from-cart').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const itemId = this.dataset.itemId;
+
+            fetch('/cart/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'item_id=' + encodeURIComponent(itemId)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Удаляем элемент из DOM
+                        this.closest('.cart-item').remove();
+                        updateCartTotal(); // Обновляем общую стоимость
+                    } else {
+                        alert('Ошибка: Не удалось удалить товар');
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
         });
     });
 });

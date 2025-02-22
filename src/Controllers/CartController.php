@@ -49,6 +49,9 @@ class CartController
 
         if ($itemId > 0) {
             $this->cartService->addToCart($userId, $itemId, $quantity);
+
+            $favoriteService = new \Core\Services\FavoriteService(new \Core\Repositories\FavoriteRepository((new \Core\Database\MySQLDatabase())->getConnection()));
+            $favoriteService->removeFavorite($userId, $itemId);
         }
 
         header("Location: /cart");
@@ -81,6 +84,7 @@ class CartController
     }
 
 
+
     public function remove()
     {
         if (!isset($_SESSION['user_id'])) {
@@ -91,12 +95,26 @@ class CartController
         $userId = $_SESSION['user_id'];
         $itemId = isset($_POST['item_id']) ? (int)$_POST['item_id'] : 0;
 
-        if ($itemId > 0) {
-            $this->cartService->removeCartItem($userId, $itemId);
+        if ($itemId <= 0) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Неверный ID товара']);
+            exit;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $success = $this->cartService->removeCartItem($userId, $itemId);
+
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => $success]);
+            exit;
+        }
+
+        if ($success) {
             header("Location: /cart");
+            exit;
+        } else {
+            http_response_code(500);
+            echo "Ошибка при удалении товара";
             exit;
         }
     }

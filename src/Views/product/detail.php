@@ -28,18 +28,23 @@
         <div class="description mb-4">
             <?php echo nl2br(htmlspecialchars($product->description)); ?>
         </div>
+
         <?php if (isset($_SESSION['user_id'])): ?>
             <form method="POST" action="/cart/add" class="mb-4">
                 <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($product->id); ?>">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-success w-50">Добавить в корзину</button>
             </form>
+            <button type="button" class="btn add-to-favorite-detail w-50" data-item-id="<?= htmlspecialchars($product->id); ?>" style="background-color: #EA80AE; color: white; font-size: 1.2rem;">
+                Добавить в избранное
+            </button>
         <?php else: ?>
             <div class="mb-4 d-flex gap-2">
                 <a href="/order/create/<?php echo $product->id; ?>" class="btn btn-success w-50">Купить</a>
                 <a href="/user/login?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="btn btn-warning w-50">Добавить в корзину</a>
             </div>
         <?php endif; ?>
+
     </div>
     <div id="imageModal" class="modal-overlay">
         <div class="modal-content">
