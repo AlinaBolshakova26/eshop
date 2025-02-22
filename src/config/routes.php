@@ -61,4 +61,12 @@ $router->addRoute('GET', '/admin/orders', [\Controllers\Admin\OrdersAdminControl
 $router->addRoute('POST', '/admin/orders', [\Controllers\Admin\OrdersAdminController::class, 'handlePost']);
 $router->addRoute('GET', '/admin/orders/{id:\d+}', [\Controllers\Admin\OrderDetailAdminController::class, 'show']);
 
+$router->addRoute('GET', '/favorites', [\Controllers\FavoriteController::class, 'index']);
+$router->addRoute('POST', '/favorites/add/{id:\d+}', [\Controllers\FavoriteController::class, 'add']);
+$router->addRoute('POST', '/favorites/remove/{id:\d+}', [\Controllers\FavoriteController::class, 'remove']);
+$router->addRoute('POST', '/favorites/toggle', [\Controllers\FavoriteController::class, 'toggle']);
+$router->addRoute('GET', '/favorites/data', [\Controllers\FavoriteController::class, 'data']);
+
+
+
 return $router;

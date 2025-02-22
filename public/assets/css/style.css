@@ -19,7 +19,7 @@ main {
 
 .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .product-images-slider {
@@ -81,7 +81,7 @@ main {
 /* Form Styles */
 .form-control:focus {
     border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
 }
 
 /* Footer Styles */
@@ -208,13 +208,13 @@ footer a:hover {
     border-radius: 30px;
     background: linear-gradient(45deg, #f49ec3, #d87ab8);
     border: none;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
 }
 
 .btn-login:hover {
     background: linear-gradient(45deg, #d87ab8, #f49ec3);
-    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 .card {
@@ -245,6 +245,7 @@ footer a:hover {
     font-size: 1rem;
     transition: background-color 0.3s ease;
 }
+
 
 .btn-success {
     background-color: #93B35F;
@@ -346,7 +347,7 @@ footer a:hover {
     background-color: #bad18c;
 }
 
-.container .h4,  h4 {
+.container .h4, h4 {
     color: #EA80AE;
     margin-top: 0.5% !important;
 }
@@ -363,6 +364,7 @@ footer a:hover {
 .row {
     justify-content: flex-start;
 }
+
 .desc {
     padding: 30px;
     background-color: #ffffff;
@@ -575,6 +577,7 @@ footer a:hover {
 .avatar-picker-option:hover, .avatar-picker-option.selected {
     border: 3px solid #EA80AE !important;
 }
+
 .order-carousel-container {
     position: relative;
     overflow: hidden;
@@ -591,6 +594,7 @@ footer a:hover {
 .order-carousel::-webkit-scrollbar {
     display: none;
 }
+
 .order-carousel {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -607,9 +611,11 @@ footer a:hover {
     cursor: pointer;
     z-index: 10;
 }
+
 .left-arrow {
     left: 10px;
 }
+
 .right-arrow {
     right: 10px;
 }
@@ -623,13 +629,14 @@ footer a:hover {
     min-width: 240px;
     border: none;
     border-radius: 0.5rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
     background-color: #fff;
 }
+
 .order-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .order-img {
@@ -681,7 +688,7 @@ footer a:hover {
     max-width: 20%;
 }
 
-.logout-link img{
+.logout-link img {
     max-width: 60%;
 }
 
@@ -691,6 +698,27 @@ footer a:hover {
 }
 
 .tag-cloud .btn.active {
-    background-color: #f493bc; /* Розовый */
+    background-color: #f493bc;
     color: white;
 }
+
+.favorite-icon i {
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: color 0.3s;
+    z-index: 20;
+}
+
+.favorite-icon i.favorite-active {
+    color: red;
+}
+
+.favorite-icon i.favorite-inactive {
+    color: whitesmoke;
+}
+
+.header-favorite-icon {
+    font-size: 1em;
+    color: red;
+}
+
