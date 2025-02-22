@@ -28,7 +28,7 @@ class HomeController
 
     }
 
-    public function index(?string $query = null): void
+    public function index(): void
 	{
 		if (isset($_GET['tags']) && $_GET['tags'] === '') {
 			header('Location: /');
@@ -40,28 +40,67 @@ class HomeController
 
 		define("ITEMS_PER_PAGE", 9);
 
-		$searchValue = null;
-		$searchQuery = null;
-		if ($query) {
-			$searchValue = urldecode($query);
-			$searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
+		$searchQuery = '';
+		$searchValue = isset($_GET['searchInput']) ? (string)$_GET['searchInput'] : null;
+		$minPrice = isset($_GET['minPrice']) ? (int)$_GET['minPrice'] : null;
+		$maxPrice = isset($_GET['maxPrice']) ? (int)$_GET['maxPrice'] : null;
+
+		$priceError = null;
+		if ($minPrice !== null || $maxPrice !== null) {
+			if (!is_numeric($minPrice) && $minPrice !== null) {
+				$priceError = "Минимальная цена должна быть числом.";
+			} elseif (!is_numeric($maxPrice) && $maxPrice !== null) {
+				$priceError = "Максимальная цена должна быть числом.";
+			}
+			elseif (($minPrice !== null && $minPrice < 0) || ($maxPrice !== null && $maxPrice < 0)) {
+				$priceError = "Цены не могут быть отрицательными.";
+			}
+			elseif ($minPrice !== null && $maxPrice !== null && $minPrice > $maxPrice) {
+				$priceError = "Минимальная цена не может быть больше максимальной.";
+			}
 		}
 
 		try {
 			$tags = $this->tagService->getAllTags();
 
-			$products = $this->productService->getPaginatedProducts(
-				$currentPage,
-				ITEMS_PER_PAGE,
-				$searchQuery,
-				$selectedTagIds
-			);
+			if ($searchValue) 
+			{
+				$searchQuery = TransliterateService::transliterate(urldecode($searchValue));
 
-			$totalPages = $this->productService->getTotalPages(
-				ITEMS_PER_PAGE,
-				$selectedTagIds,
-				$searchQuery
-			);
+				$tagIdsLikeQuery = $this->tagService->getIdsLikeQuery($tags, $searchQuery); 
+				$productIdsByTagIds = $this->productService->getIdsByTagIds($tagIdsLikeQuery); 
+
+				$searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE, $productIdsByTagIds, $searchQuery);
+
+				$products = $searchResults['products'];
+
+                $totalPages = ceil($searchResults['totalProducts'] / ITEMS_PER_PAGE);
+			}
+			else 
+			{
+				$products = $this->productService->getPaginatedProducts(
+					$currentPage,
+					ITEMS_PER_PAGE,
+					$searchQuery,
+					$selectedTagIds,
+					$minPrice,
+					$maxPrice
+				);
+
+				$totalPages = $this->productService->getTotalPages(
+					ITEMS_PER_PAGE,
+					$selectedTagIds,
+					$searchQuery,
+					$minPrice,
+					$maxPrice
+				);
+
+			}
+
+			if ($priceError) {
+				$minPrice = null;
+				$maxPrice = null;
+			}
 
 			$selectedTagNames = [];
 			foreach ($tags as $tag) {
@@ -79,15 +118,21 @@ class HomeController
 			$content = View::make(__DIR__ . "/../Views/home/catalog.php", [
 				'products' => $products,
 				'tags' => $tags,
-				'selectedTagIds' => $selectedTagIds, // Передаем массив выбранных тегов
+				'selectedTagIds' => $selectedTagIds,
 				'selectedTagName' => $selectedTagName,
 				'totalPages' => $totalPages,
 				'currentPage' => $currentPage,
 				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
+				'minPrice' => $minPrice,
+				'maxPrice' => $maxPrice,
+				'priceError' => $priceError,
 			]);
 
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
 				'content' => $content,
+				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
 			]);
 		} catch (\PDOException $e) {
 			error_log("Database error: " . $e->getMessage());
@@ -102,10 +147,16 @@ class HomeController
 				'totalPages' => 0,
 				'currentPage' => 1,
 				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
+				'minPrice' => $minPrice,
+				'maxPrice' => $maxPrice,
+				'priceError' => $priceError,
 			]);
 
 			echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
 				'content' => $content,
+				'searchQuery' => $searchQuery,
+				'searchValue' => $searchValue,  
 			]);
 		}
 	}

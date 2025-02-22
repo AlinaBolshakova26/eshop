@@ -15,10 +15,26 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <div class="row w-100 align-items-center">
-            <div class="col-md-3">
-                <a href="/" class="logo-link">
-                    <img src="/assets/images/logo.png" alt="logo" class="img-fluid">
+        <a href="/" class="logo-link me-3">
+            <img src="/assets/images/logo.png" alt="logo">
+        </a>
+<!--        <h4>Позвольте вашей красоте сиять</h4>-->
+        <div class="fixed-top-row">
+			<form method="GET" action=""  class="d-flex justify-content-between align-items-center">
+				<div class="mx-3 flex-grow-1">
+					<input type="text" name="searchInput" class="form-control" placeholder="Поиск товаров..." value="<?php echo htmlspecialchars($searchValue ?? ''); ?>">
+				</div>
+				<div>
+					<button type="submit" class="btn btn-primary">Поиск</button>
+				</div>
+			</form>
+        </div>
+        <div class="d-flex align-items-center profile">
+            <?php if(isset($_SESSION['user_id'])): ?>
+                <a href="/cart" class="btn btn-outline-primary me-3">Корзина</a>
+                <a href="/user/profile" class="btn btn-outline-primary me-2">Профиль</a>
+                <a href="/user/logout" class="logout-link">
+                    <img src="/assets/images/logout.png" alt="logout">
                 </a>
             </div>
             <div class="col-md-5">

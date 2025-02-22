@@ -96,8 +96,14 @@ class ProductRepository
 
 	}
 
-	public function findAllPaginated(int $limit, int $offset, ?string $query, ?array $tagIds = null, bool $showOnlyActive = true): array
+	public function findAllPaginated(int $limit, int $offset,
+									 ?string $query, ?array $tagIds = null,
+									 ?int $minPrice = null, ?int $maxPrice = null,
+									 bool $showOnlyActive = true): array
     {
+
+		$params = [];
+
 		$tagIds = $tagIds ? array_slice($tagIds, 0, 3) : [];
 
         $sql = "
@@ -128,15 +134,23 @@ class ProductRepository
         ) ";
 		}
 
-		if ($query) {
-			$sql .= "AND LOWER(i.name) LIKE LOWER(:query)";
+		if ($query !== null && trim($query) !== '') {
+			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
+			$params[':query'] = '%' . str_replace('%', '\%', $query) . '%';
+		}
+
+		if ($minPrice !== null) {
+			$sql .= "AND i.price >= :minPrice ";
+		}
+
+		if ($maxPrice !== null) {
+			$sql .= "AND i.price <= :maxPrice ";
 		}
 
 		$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
 
 		$stmt = $this->pdo->prepare($sql);
 
-		$params = [];
 		if ($tagIds) {
 			foreach ($tagIds as $index => $tagId) {
 				$placeholder = ":tagId$index";
@@ -144,8 +158,12 @@ class ProductRepository
 			}
 		}
 
-		if ($query) {
-			$params[':query'] = "%$query%";
+		if ($minPrice !== null) {
+			$params[':minPrice'] = $minPrice;
+		}
+
+		if ($maxPrice !== null) {
+			$params[':maxPrice'] = $maxPrice;
 		}
 
 		$params[':limit'] = $limit;
@@ -227,8 +245,11 @@ class ProductRepository
 
     }
 
-    public function getTotalCount(?array $tagIds = null, ?string $query = null): int
+    public function getTotalCount(?array $tagIds = null, ?string $query = null,
+								  ?int $minPrice = null, ?int $maxPrice = null): int
     {
+
+		$params = [];
 
 		$sql = "SELECT COUNT(DISTINCT i.id) FROM up_item i ";
 
@@ -248,13 +269,21 @@ class ProductRepository
         ) ";
 		}
 
-		if ($query) {
-			$sql .= ($tagIds ? "AND" : "WHERE") . " LOWER(i.name) LIKE LOWER(:query)";
+		if ($query !== null && trim($query) !== '') {
+			$sql .= "AND LOWER(i.name) LIKE LOWER(:query) ";
+			$params[':query'] = '%' . str_replace('%', '\%', $query) . '%';
+		}
+
+		if ($minPrice !== null) {
+			$sql .= "AND i.price >= :minPrice ";
+		}
+
+		if ($maxPrice !== null) {
+			$sql .= "AND i.price <= :maxPrice ";
 		}
 
 		$stmt = $this->pdo->prepare($sql);
 
-		$params = [];
 		if ($tagIds) {
 			foreach ($tagIds as $index => $tagId) {
 				$placeholder = ":tagId$index";
@@ -262,8 +291,12 @@ class ProductRepository
 			}
 		}
 
-		if ($query) {
-			$params[':query'] = "%$query%";
+		if ($minPrice !== null) {
+			$params[':minPrice'] = $minPrice;
+		}
+
+		if ($maxPrice !== null) {
+			$params[':maxPrice'] = $maxPrice;
 		}
 
 		foreach ($params as $key => $value) {
@@ -364,4 +397,120 @@ class ProductRepository
 		$stmt = $this->pdo->prepare($sql);
 		$stmt->execute($params);
 	}
+
+	public function findIdsByTagIds(array $tagIds): array 
+    {
+
+        $placeholders = rtrim(str_repeat('?,', count($tagIds)), ',');
+        
+        $sql = "
+        SELECT DISTINCT
+            item_id
+        FROM up_item_tag
+        WHERE tag_id IN ($placeholders)
+        ";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->execute($tagIds);
+
+        $productIds = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return (!empty($productIds)) ? array_column($productIds, 'item_id') : [];
+
+    }
+
+	public function findWithAdditionalImages(array $products):array
+    {
+
+        if (!empty($products))
+        {
+            $productIds = array_column($products, 'id');
+            $additionalImages = $this->findAdditionalImages($productIds);
+            $imagesByProduct = [];
+
+            foreach ($additionalImages as $image)
+            {
+                $imagesByProduct[$image['item_id']][] = $image['path'];
+            }
+
+            return array_map(
+                function ($productData) use ($imagesByProduct) {
+                    $product = Product::fromDatabase($productData);
+                    $additionalImages = $imagesByProduct[$productData['id']] ?? [];
+                    $product->setAdditionalImagePaths($additionalImages);
+                    return $product;
+                },
+                $products
+            );  
+        }
+        
+        return [];
+
+    }
+
+	public function findByIds(array $productIds, bool $showOnlyActive = true): array
+    {
+
+        if (empty($productIds))
+        {
+            return [];
+        }
+
+        $productIds = array_values($productIds);
+        $placeholders = rtrim(str_repeat('?,', count($productIds)), ',');
+
+        $sql = "
+        SELECT 
+            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
+            img.path AS main_image_path
+        FROM up_item i
+        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        WHERE i.id in ($placeholders)
+        ";
+
+        if ($showOnlyActive)
+        {
+            $sql .= " AND i.is_active = 1";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->execute($productIds);
+
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return $products;
+
+    }
+
+	public function findByNameAndDescription(string $query, bool $showOnlyActive = true): array
+    {
+
+        $sql = "
+        SELECT 
+            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
+            img.path AS main_image_path
+        FROM up_item i
+        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        WHERE (LOWER(i.name) LIKE LOWER(:query1)) OR (LOWER(i.description) LIKE LOWER(:query2))
+        ";
+
+        if ($showOnlyActive)
+        {
+            $sql .= " AND i.is_active = 1";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->bindValue(':query1', $query, PDO::PARAM_STR);
+        $stmt->bindValue(':query2', $query, PDO::PARAM_STR);
+
+        $stmt->execute();
+        
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return $results;
+
+    }
 }

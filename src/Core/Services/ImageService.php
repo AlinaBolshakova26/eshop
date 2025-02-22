@@ -39,10 +39,9 @@ class ImageService
 			return false;
 		}
 
-		$allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
 		$fileMimeType = mime_content_type($uploadedFile['tmp_name']);
 
-		if (!in_array($fileMimeType, $allowedMimeTypes)) {
+		if (!str_starts_with($fileMimeType, 'image/')) {
 			return false;
 		}
 

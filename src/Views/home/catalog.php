@@ -2,7 +2,7 @@
     <div class="tag-cloud">
         <a href="/" class="btn tag-btn <?php echo empty($selectedTagIds) ? 'active' : ''; ?>" data-tag-id="all">Все</a>
 		<?php foreach ($tags as $tag): ?>
-            <a href="/tag?tags=<?php
+            <a href="/?tags=<?php
 			echo Utils\PaginationHelper::buildTagParam($selectedTagIds, $tag->toListDTO()->id);
 			?>"
                class="btn tag-btn <?php echo in_array($tag->toListDTO()->id, $selectedTagIds ?? []) ? 'active' : ''; ?>"
@@ -12,7 +12,43 @@
 		<?php endforeach; ?>
     </div>
 </div>
+<?php if (!empty($priceError)): ?>
+    <div class="alert alert-danger mb-4" role="alert">
+		<?= htmlspecialchars($priceError) ?>
+    </div>
+<?php endif; ?>
+<div class="price-filter mb-4">
+    <form method="GET" action="" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label for="minPrice" class="form-label">Минимальная цена</label>
+            <input type="number" id="minPrice" name="minPrice" class="form-control"
+                   value="<?= htmlspecialchars($_GET['minPrice'] ?? '') ?>" placeholder="От" min="0">
+        </div>
 
+        <div class="col-md-3">
+            <label for="maxPrice" class="form-label">Максимальная цена</label>
+            <input type="number" id="maxPrice" name="maxPrice" class="form-control"
+                   value="<?= htmlspecialchars($_GET['maxPrice'] ?? '') ?>" placeholder="До" min="0">
+        </div>
+
+		<?php if (!empty($selectedTagIds)): ?>
+            <input type="hidden" name="tags" value="<?= implode(',', $selectedTagIds) ?>">
+		<?php endif; ?>
+
+		<?php if (!empty($searchValue)): ?>
+            <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchValue) ?>">
+		<?php endif; ?>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Применить</button>
+        </div>
+
+        <div class="col-md-2">
+            <a href="<?= Utils\PaginationHelper::removeQueryParams(['minPrice', 'maxPrice']); ?>"
+               class="btn btn-outline-secondary w-100">Сбросить</a>
+        </div>
+    </form>
+</div>
 <div class="row">
     <h1 class="mb-4">
 		<?php
@@ -103,19 +139,25 @@
         <ul class="pagination justify-content-center">
 			<?php if ($currentPage > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage - 1); ?>"><<</a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage - 1, $minPrice, $maxPrice, $searchQuery); ?>"><<</a>
                 </li>
 			<?php endif; ?>
 
-			<?php foreach ($pages as $page): ?>
+			<?php foreach ($pages as $index => $page): ?>
+				<?php
+				if ($index === 2 && $pages[2] > 3) {
+					echo '<li class="page-item disabled"><span class="page-link">...</span></li>';
+				}
+				?>
                 <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page); ?>"><?php echo $page; ?></a>
+                    <a class="page-link"
+                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchValue); ?>"><?php echo $page; ?></a>
                 </li>
 			<?php endforeach; ?>
 
 			<?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1); ?>">>></a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1, $minPrice, $maxPrice, $searchValue); ?>">>></a>
                 </li>
 			<?php endif; ?>
         </ul>
