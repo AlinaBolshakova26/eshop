@@ -56,4 +56,12 @@ $router->addRoute('GET', '/admin/orders', [\Controllers\Admin\OrdersAdminControl
 $router->addRoute('POST', '/admin/orders', [\Controllers\Admin\OrdersAdminController::class, 'handlePost']);
 $router->addRoute('GET', '/admin/orders/{id:\d+}', [\Controllers\Admin\OrderDetailAdminController::class, 'show']);
 
+$router->addRoute('GET', '/admin/tags', [\Controllers\Admin\TagAdminController::class, 'index']);
+$router->addRoute('GET', '/admin/tags/create', [\Controllers\Admin\TagAdminController::class, 'create']);
+$router->addRoute('POST', '/admin/tags/create', [\Controllers\Admin\TagAdminController::class, 'store']);
+$router->addRoute('GET', '/admin/tags/edit/{id:\d+}', [\Controllers\Admin\TagAdminController::class, 'edit']);
+$router->addRoute('POST', '/admin/tags/edit/{id:\d+}', [\Controllers\Admin\TagAdminController::class, 'update']);
+$router->addRoute('POST', '/admin/tags/process', [\Controllers\Admin\TagAdminController::class, 'process']);
+
+
 return $router;

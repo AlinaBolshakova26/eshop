@@ -32,11 +32,11 @@
 					<span>Заказы</span>
 				</a>
 			</li>
-<!--			<li class="nav-item">-->
-<!--				<a class="nav-link" href="/admin/tags">-->
-<!--					<span>Теги</span>-->
-<!--				</a>-->
-<!--			</li>-->
+			<li class="nav-item">
+				<a class="nav-link" href="/admin/tags">
+					<span>Теги</span>
+				</a>
+			</li>
 		</ul>
 	</div>
 </nav>

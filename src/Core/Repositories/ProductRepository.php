@@ -101,8 +101,7 @@ class ProductRepository
 									 ?int $minPrice = null, ?int $maxPrice = null,
 									 bool $showOnlyActive = true): array
     {
-		$tagIds = $tagIds ? array_slice($tagIds, 0, 3) : [];
-
+		$tagIds = $tagIds ?: [];
         $sql = "
         SELECT DISTINCT
             i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, 
@@ -400,4 +399,41 @@ class ProductRepository
 		$stmt = $this->pdo->prepare($sql);
 		$stmt->execute($params);
 	}
+
+	public function getAllProducts(): array
+	{
+		$sql = "
+        SELECT 
+            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
+            img.path AS main_image_path
+        FROM up_item i
+        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+        WHERE 1=1
+        ORDER BY i.id ASC
+    ";
+
+		$stmt = $this->pdo->query($sql);
+		$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		if (!empty($products)) {
+			$productIds = array_column($products, 'id');
+			$additionalImages = $this->findAdditionalImages($productIds);
+			$imagesByProduct = [];
+			foreach ($additionalImages as $image) {
+				$imagesByProduct[$image['item_id']][] = $image['path'];
+			}
+			return array_map(
+				function ($productData) use ($imagesByProduct) {
+					$product = Product::fromDatabase($productData);
+					$additionalImages = $imagesByProduct[$productData['id']] ?? [];
+					$product->setAdditionalImagePaths($additionalImages);
+					return $product;
+				},
+				$products
+			);
+		}
+
+		return [];
+	}
+
 }

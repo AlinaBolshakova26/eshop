@@ -35,7 +35,6 @@ class HomeController
 			exit;
 		}
 		$selectedTagIds = isset($_GET['tags']) ? explode(',', $_GET['tags']) : [];
-		$selectedTagIds = array_slice($selectedTagIds, 0, 3);
 		$currentPage = max(1, (int)($_GET['page'] ?? 1));
 
 		define("ITEMS_PER_PAGE", 9);
@@ -67,7 +66,7 @@ class HomeController
 
 
 		try {
-			$tags = $this->tagService->getAllTags();
+			$tags = $this->tagService->getAllTags(true);
 
 			if ($priceError) {
 				$minPrice = null;

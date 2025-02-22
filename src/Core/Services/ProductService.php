@@ -235,4 +235,9 @@ class ProductService
 
     }
 
+	public function getAllProducts(): array
+	{
+		return $this->repository->getAllProducts();
+	}
+
 }

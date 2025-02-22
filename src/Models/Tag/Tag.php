@@ -10,6 +10,7 @@ class Tag
 	private string $name;
 	private string $created_at;
 	private string $updated_at;
+	private bool $is_active; // Изменено на bool
 
 	public static function fromDatabase(array $row): self
 	{
@@ -18,6 +19,7 @@ class Tag
 		$tag->name = $row['name'];
 		$tag->created_at = $row['created_at'] ?? date('Y-m-d H:i:s');
 		$tag->updated_at = $row['updated_at'] ?? date('Y-m-d H:i:s');
+		$tag->is_active = isset($row['is_active']) ? (bool)$row['is_active'] : true; // Обработка NULL значений
 
 		return $tag;
 	}
@@ -28,19 +30,17 @@ class Tag
 			$this->id,
 			$this->name,
 			$this->created_at,
-			$this->updated_at
+			$this->updated_at,
+			$this->is_active // Передаем булево значение
 		);
 	}
-
 
 	public function rename(PDO $pdo, string $newName): bool
 	{
 		$this->name = $newName;
 		$this->updated_at = date('Y-m-d H:i:s');
-
 		return $this->save($pdo);
 	}
-
 
 	private function save(PDO $pdo): bool
 	{
@@ -62,6 +62,7 @@ class Tag
 		}
 	}
 
+	// Геттеры
 	public function getId(): int
 	{
 		return $this->id;
@@ -70,16 +71,6 @@ class Tag
 	public function getName(): string
 	{
 		return $this->name;
-	}
-
-	public function setId(int $id): void
-	{
-		$this->id = $id;
-	}
-
-	public function setName(string $name): void
-	{
-		$this->name = $name;
 	}
 
 	public function getCreatedAt(): string
@@ -92,6 +83,22 @@ class Tag
 		return $this->updated_at;
 	}
 
+	public function getIsActive(): bool // Добавлен геттер
+	{
+		return $this->is_active;
+	}
+
+	// Сеттеры
+	public function setId(int $id): void
+	{
+		$this->id = $id;
+	}
+
+	public function setName(string $name): void
+	{
+		$this->name = $name;
+	}
+
 	public function setCreatedAt(string $created_at): void
 	{
 		$this->created_at = $created_at;
@@ -100,5 +107,10 @@ class Tag
 	public function setUpdatedAt(string $updated_at): void
 	{
 		$this->updated_at = $updated_at;
+	}
+
+	public function setIsActive(bool $isActive): void // Добавлен сеттер
+	{
+		$this->is_active = $isActive;
 	}
 }

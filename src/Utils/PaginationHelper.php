@@ -50,12 +50,12 @@ class PaginationHelper
 		return $activeTags;
 	}
 
-	public static function buildTagParam(?array $selectedTagIds = null, int $tagId, int $maxTags = 3): string
+	public static function buildTagParam(?array $selectedTagIds = null, int $tagId): string
 	{
 		if (in_array($tagId, $selectedTagIds ?? [])) {
 			$newTagIds = array_diff($selectedTagIds, [$tagId]);
 		} else {
-			$newTagIds = array_slice(array_merge($selectedTagIds ?? [], [$tagId]), -3);
+			$newTagIds = array_merge($selectedTagIds ?? [], [$tagId]);
 		}
 		return htmlspecialchars(implode(',', $newTagIds));
 	}
