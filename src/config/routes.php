@@ -46,7 +46,6 @@ $router->addRoute('GET', '/admin', function()
 
 $router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 $router->addRoute('POST', '/admin/products/process', [\Controllers\Admin\ProductsAdminController::class, 'process']);
-$router->addRoute('GET', '/admin/products/search/{query:[^/]+}', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 $router->addRoute('GET', '/admin/products/edit/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'edit']);
 $router->addRoute('POST', '/admin/products/update/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'update']);
 $router->addRoute('GET', '/admin/products/create', [\Controllers\Admin\ProductCreateController::class, 'create']);

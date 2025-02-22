@@ -35,8 +35,8 @@
             <input type="hidden" name="tags" value="<?= implode(',', $selectedTagIds) ?>">
 		<?php endif; ?>
 
-		<?php if (!empty($searchQuery)): ?>
-            <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchQuery) ?>">
+		<?php if (!empty($searchValue)): ?>
+            <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchValue) ?>">
 		<?php endif; ?>
 
         <div class="col-md-2">
@@ -143,13 +143,13 @@
 				?>
                 <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
                     <a class="page-link"
-                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchQuery); ?>"><?php echo $page; ?></a>
+                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchValue); ?>"><?php echo $page; ?></a>
                 </li>
 			<?php endforeach; ?>
 
 			<?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1, $minPrice, $maxPrice, $searchQuery); ?>">>></a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1, $minPrice, $maxPrice, $searchValue); ?>">>></a>
                 </li>
 			<?php endif; ?>
         </ul>

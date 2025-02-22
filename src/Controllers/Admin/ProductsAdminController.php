@@ -9,12 +9,15 @@ use Core\Database\MySQLDatabase;
 use Core\Repositories\AdminRepository;
 use Core\Repositories\ProductRepository;
 use Core\Services\TransliterateService;
-
+use Core\Services\TagService;
+use Core\Repositories\TagRepository;
 class ProductsAdminController
 {
 
     private AdminService $adminService;
     private ProductService $productService;
+
+    private TagService $tagService;
 
     public function __construct()
     {
@@ -24,6 +27,7 @@ class ProductsAdminController
 
         $this->adminService = new AdminService(new AdminRepository($pdo));
         $this->productService = new ProductService(new ProductRepository($pdo));
+        $this->tagService = new TagService(new TagRepository($pdo));
 
     }
 
@@ -36,41 +40,31 @@ class ProductsAdminController
             exit;
         }
 
-        if (isset($_GET['searchInput'])) 
-        {
-            $searchInput = trim(strip_tags($_GET['searchInput']));
-            if ($searchInput !== '') 
-            {
-                header('Location: /admin/products/search/' . urlencode($searchInput));
-                exit;
-            } 
-            else 
-            {
-                header('Location: /admin/products');
-                exit;
-            }
-        }
-
+		$searchQuery = '';
+        $searchValue = $query ?? $_GET['searchInput'] ?? null;
         $currentPage = max(1, (int)($_GET['page'] ?? 1));
         define("ITEMS_PER_PAGE", 30);
 
-        $searchQuery = '';
-        if ($query)
-        {
-            $searchQuery = '%' . TransliterateService::transliterate(urldecode($query)) . '%';
-        }
-
         try 
         {
-            if ($searchQuery)
+            if ($searchValue)
             {
-                $searchResults = $this->productService->searchAdminProducts($currentPage, ITEMS_PER_PAGE, $searchQuery);
-                $products = $searchResults['items'];
-                $totalPages = ceil($searchResults['total'] / ITEMS_PER_PAGE);
-                $originalQuery = $query;
+                echo 'yes';
+                $tags = $this->tagService->getAllTags();
+
+                $searchQuery = TransliterateService::transliterate($searchValue);
+
+                $tagIdsLikeQuery = $this->tagService->getIdsLikeQuery($tags, $searchQuery); 
+				$productIdsByTagIds = $this->productService->getIdsByTagIds($tagIdsLikeQuery);
+
+                $searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE, $productIdsByTagIds, $searchQuery, false);
+
+				$products = $searchResults['products'];
+                $totalPages = ceil($searchResults['totalProducts'] / ITEMS_PER_PAGE);
             }
             else 
             {
+                echo 'no';
                 $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE, false);
                 $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
             }
@@ -80,7 +74,7 @@ class ProductsAdminController
                 'totalPages' => $totalPages,
                 'currentPage' => $currentPage,
                 'searchQuery' => $searchQuery,
-                'originalQuery' => $originalQuery ?? '',
+                'searchValue' => $searchValue,
                 'error' => View::make(__DIR__ . '/../../Views/admin/error_block.php')
             ]);
 
@@ -112,7 +106,7 @@ class ProductsAdminController
                 $searchInput = trim(strip_tags($_POST['searchInput'] ?? ''));
                 if ($searchInput !== '') 
                 {
-                    header('Location: /admin/products/search/' . urlencode($searchInput));
+                    header('Location: /admin/products?searchInput=' . urlencode($searchInput));
                     exit;
                 }
                 header('Location: /admin/products');
