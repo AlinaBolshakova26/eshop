@@ -59,6 +59,7 @@ $router->addRoute('GET', '/admin', function()
 
 $router->addRoute('GET', '/admin/products', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 $router->addRoute('POST', '/admin/products/process', [\Controllers\Admin\ProductsAdminController::class, 'process']);
+$router->addRoute('GET', '/admin/products/search/{query:[^/]+}', [\Controllers\Admin\ProductsAdminController::class, 'index']);
 $router->addRoute('GET', '/admin/products/edit/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'edit']);
 $router->addRoute('POST', '/admin/products/update/{id:\d+}', [\Controllers\Admin\ProductDetailAdminController::class, 'update']);
 $router->addRoute('GET', '/admin/products/create', [\Controllers\Admin\ProductCreateController::class, 'create']);
@@ -74,6 +75,13 @@ $router->addRoute('POST', '/favorites/remove/{id:\d+}', [\Controllers\FavoriteCo
 $router->addRoute('POST', '/favorites/toggle', [\Controllers\FavoriteController::class, 'toggle']);
 $router->addRoute('GET', '/favorites/data', [\Controllers\FavoriteController::class, 'data']);
 
+
+$router->addRoute('GET', '/admin/tags', [\Controllers\Admin\TagAdminController::class, 'index']);
+$router->addRoute('GET', '/admin/tags/create', [\Controllers\Admin\TagAdminController::class, 'create']);
+$router->addRoute('POST', '/admin/tags/create', [\Controllers\Admin\TagAdminController::class, 'store']);
+$router->addRoute('GET', '/admin/tags/edit/{id:\d+}', [\Controllers\Admin\TagAdminController::class, 'edit']);
+$router->addRoute('POST', '/admin/tags/edit/{id:\d+}', [\Controllers\Admin\TagAdminController::class, 'update']);
+$router->addRoute('POST', '/admin/tags/process', [\Controllers\Admin\TagAdminController::class, 'process']);
 
 
 return $router;

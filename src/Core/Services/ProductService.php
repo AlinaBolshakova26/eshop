@@ -29,6 +29,7 @@ class ProductService
         ?int $maxPrice = null
     ): array {
         $offset = ($page - 1) * $itemsPerPage;
+        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice,true);
 
         $products = $this->repository->findAllPaginated(
             $itemsPerPage,
@@ -196,5 +197,10 @@ class ProductService
         ];
 
     }
+
+	public function getAllProducts(): array
+	{
+		return $this->repository->getAllProducts();
+	}
 
 }

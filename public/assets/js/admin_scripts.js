@@ -17,7 +17,7 @@ $(document).ready(function() {
     });
 
     $('#select-all').change(function() {
-        $('.product-checkbox, .order-checkbox').prop('checked', this.checked);
+        $('.product-checkbox, .order-checkbox, .tag-checkbox').prop('checked', this.checked);
     });
 });
 

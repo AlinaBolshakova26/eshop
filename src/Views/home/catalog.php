@@ -1,6 +1,10 @@
 <div class="tag-filter mb-4">
     <div class="tag-cloud">
-        <a href="/" class="btn tag-btn <?php echo empty($selectedTagIds) ? 'active' : ''; ?>" data-tag-id="all">Все</a>
+		<?php if (!empty($tags)): ?>
+            <a href="/"
+               class="btn tag-btn <?php echo empty($selectedTagIds) ? 'active' : ''; ?>"
+               data-tag-id="all">Все</a>
+		<?php endif; ?>
 		<?php foreach ($tags as $tag): ?>
             <a href="/?tags=<?php
 			echo Utils\PaginationHelper::buildTagParam($selectedTagIds, $tag->toListDTO()->id);

@@ -39,15 +39,13 @@ class HomeController
     }
 
     public function index(): void
-    {
-        if (isset($_GET['tags']) && $_GET['tags'] === '')
-        {
-            header('Location: /');
-            exit;
-        }
-        $selectedTagIds = isset($_GET['tags']) ? explode(',', $_GET['tags']) : [];
-        $selectedTagIds = array_slice($selectedTagIds, 0, 3);
-        $currentPage = max(1, (int)($_GET['page'] ?? 1));
+	{
+		if (isset($_GET['tags']) && $_GET['tags'] === '') {
+			header('Location: /');
+			exit;
+		}
+		$selectedTagIds = isset($_GET['tags']) ? explode(',', $_GET['tags']) : [];
+		$currentPage = max(1, (int)($_GET['page'] ?? 1));
 
         define("ITEMS_PER_PAGE", 9);
 
@@ -76,9 +74,8 @@ class HomeController
             }
         }
 
-        try
-        {
-            $tags = $this->tagService->getAllTags();
+		try {
+			$tags = $this->tagService->getAllTags(true);
 
             if ($searchValue)
             {

@@ -20,35 +20,29 @@ class TagRepository
 
 	public function getAll(): array
 	{
+		$sql = "
+        SELECT id, name, is_active, created_at, updated_at
+        FROM up_tag
+        WHERE is_active = 1;
+    ";
 
-		$stmt = $this->pdo->query("
-            SELECT id, name, created_at, updated_at
-            FROM up_tag");
 
-		return array_map(
-			fn($row) => Tag::fromDatabase($row),
-			$stmt->fetchAll(PDO::FETCH_ASSOC)
-		);
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->execute();
 
+		return array_map([Tag::class, 'fromDatabase'], $stmt->fetchAll(PDO::FETCH_ASSOC));
 	}
 
-	public function create(string $name): ?Tag
+	public function create(string $name): int
 	{
-
 		$stmt = $this->pdo->prepare("
-            INSERT INTO up_tag (name, created_at, updated_at)
-            VALUES (:name, NOW(), NOW())
-        ");
+        INSERT INTO up_tag (name, is_active, created_at, updated_at)
+        VALUES (:name, 1, NOW(), NOW())
+    ");
 
-		if ($stmt->execute(['name' => $name])) 
-		{
-			$id = $this->pdo->lastInsertId();
+		$stmt->execute([':name' => $name]);
 
-			return new Tag ($id, $name, date('Y-m-d H:i:s'), date('Y-m-d H:i:s'));
-		}
-
-		return null;
-
+		return (int)$this->pdo->lastInsertId();
 	}
 
 	public function update(int $id, string $newName): bool
@@ -122,4 +116,118 @@ class TagRepository
 		$stmt->execute([':item_id' => $productId]);
 		return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 	}
+
+	public function findAllPaginated(int $limit, int $offset, ?string $query = null): array
+	{
+		$sql = "
+        SELECT id, name, is_active, created_at, updated_at
+        FROM up_tag
+    ";
+		if ($query) {
+			$sql .= " WHERE LOWER(name) LIKE LOWER(:query)";
+		}
+
+		$sql .= " ORDER BY id ASC LIMIT :limit OFFSET :offset";
+
+		$stmt = $this->pdo->prepare($sql);
+
+		$params = [];
+		if ($query) {
+			$params[':query'] = '%' . $query . '%';
+		}
+
+		$params[':limit'] = $limit;
+		$params[':offset'] = $offset;
+
+		$stmt->execute($params);
+
+		return array_map([Tag::class, 'fromDatabase'], $stmt->fetchAll(PDO::FETCH_ASSOC));
+	}
+
+	public function getTotalCount(?string $query = null): int
+	{
+		$sql = "SELECT COUNT(*) FROM up_tag WHERE is_active = 1";
+
+		if ($query) {
+			$sql .= " AND LOWER(name) LIKE LOWER(:query)";
+		}
+
+		$stmt = $this->pdo->prepare($sql);
+
+		if ($query) {
+			$stmt->bindValue(':query', '%' . $query . '%', PDO::PARAM_STR);
+		}
+
+		$stmt->execute();
+
+		return (int)$stmt->fetchColumn();
+	}
+
+
+	public function findTagById(int $id): ?Tag
+	{
+		$stmt = $this->pdo->prepare("
+        SELECT id, name, is_active, created_at, updated_at
+        FROM up_tag
+        WHERE id = :id
+        LIMIT 1
+    ");
+
+		$stmt->execute([':id' => $id]);
+		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		if (!$row) {
+			return null;
+		}
+
+		return Tag::fromDatabase($row);
+	}
+
+	public function updateName(int $id, string $newName): void
+	{
+		$stmt = $this->pdo->prepare("
+        UPDATE up_tag
+        SET name = :name, updated_at = NOW()
+        WHERE id = :id
+    ");
+
+		$stmt->execute([
+			':id' => $id,
+			':name' => $newName,
+		]);
+	}
+
+	public function updateStatus(array $tagIds, bool $isActive): void
+	{
+		if (empty($tagIds)) {
+			return;
+		}
+
+		$placeholders = str_repeat('?,', count($tagIds) - 1) . '?';
+		$stmt = $this->pdo->prepare("
+        UPDATE up_tag
+        SET is_active = ?, updated_at = NOW()
+        WHERE id IN ($placeholders)
+    ");
+
+		$params = array_merge([(int)$isActive], $tagIds);
+		$stmt->execute($params);
+	}
+
+	public function getLastInsertedId(): int
+	{
+		return (int)$this->pdo->lastInsertId();
+	}
+
+	public function findByName(string $name): ?array
+	{
+		$stmt = $this->pdo->prepare("SELECT * FROM up_tag WHERE BINARY name = :name LIMIT 1");
+		$stmt->bindValue(':name', $name, PDO::PARAM_STR);
+		$stmt->execute();
+
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		return $result !== false ? $result : null;
+	}
+
 }
