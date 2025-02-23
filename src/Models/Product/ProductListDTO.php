@@ -1,6 +1,8 @@
 <?php
 namespace Models\Product;
 
+use Models\Rating\RatingListDTO;
+
 final class ProductListDTO
 {
 	public function __construct(
@@ -11,5 +13,6 @@ final class ProductListDTO
 		public readonly int $is_active,
 		public readonly ?string $main_image_path,
 		public readonly ?array $additional_image_paths,
-	) {}
+        public readonly ?RatingListDTO $rating = null
+    ) {}
 }

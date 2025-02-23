@@ -1,6 +1,15 @@
 <?php
 
 use Core\Router;
+use Core\Database\MySQLDatabase;
+use Core\Repositories\RatingRepository;
+use Core\Services\RatingService;
+
+$database = new MySQLDatabase();
+$pdo = $database->getConnection();
+
+$ratingRepo = new RatingRepository($pdo);
+$ratingService = new RatingService($ratingRepo);
 
 $router = new Router();
 
@@ -31,6 +40,10 @@ $router->addRoute('POST', '/cart/update', [\Controllers\CartController::class, '
 $router->addRoute('POST', '/cart/remove', [\Controllers\CartController::class, 'remove']);
 $router->addRoute('GET', '/cart/checkout', [\Controllers\CartController::class, 'checkout']);
 $router->addRoute('POST', '/cart/checkout', [\Controllers\CartController::class, 'processCheckout']);
+$router->addRoute('POST', '/rating/create', function() use ($ratingRepo, $ratingService) {
+    $controller = new \Controllers\RatingController($ratingRepo, $ratingService);
+    $controller->create();
+});
 
 $router->addRoute('GET', '/admin/login', [\Controllers\Admin\AdminController::class, 'login']);
 $router->addRoute('POST', '/admin/login', [\Controllers\Admin\AdminController::class, 'authenticate']);
