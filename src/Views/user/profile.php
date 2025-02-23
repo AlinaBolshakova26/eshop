@@ -128,6 +128,17 @@
                                     </div>
                                 </div>
                             </a>
+                            <?php if (stripos($order['status'], 'Доставлен') !== false): ?>
+                                <div class="rating-section mt-2" data-product-id="<?= $order['product_id'] ?>">
+                                    <div class="star-rating">
+                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                            <span class="star <?= ($i <= ($ratings[$order['product_id']] ?? 0)) ? 'filled' : '' ?>"
+                                                  data-rating="<?= $i ?>">★</span>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <small class="rating-status text-muted"></small>
+                                </div>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>

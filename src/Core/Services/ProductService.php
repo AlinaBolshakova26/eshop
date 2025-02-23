@@ -3,35 +3,70 @@
 namespace Core\Services;
 
 use Core\Repositories\ProductRepository;
-use Core\Repositories\TagRepository;
-use Models\Product;
-use Models\ProductListDTO;
+use Core\Repositories\RatingRepository;
+use Models\Rating\RatingListDTO;
+use Models\Product\Product;
 
 class ProductService
 {
 
     private ProductRepository $repository;
+    private RatingRepository $ratingRepository;
 
-    public function __construct(ProductRepository $repository)
+    public function __construct(ProductRepository $repository, RatingRepository $ratingRepository)
     {
 
         $this->repository = $repository;
+        $this->ratingRepository = $ratingRepository;
 
     }
 
-    public function getPaginatedProducts(int $page, int $itemsPerPage,
-										 ?array $tagIds,
-										 ?int $minPrice = null, ?int $maxPrice = null): array
-    {
-
+    public function getPaginatedProducts(
+        int $page,
+        int $itemsPerPage,
+        ?array $tagIds,
+        ?int $minPrice = null,
+        ?int $maxPrice = null
+    ): array {
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice);
 
-        return array_map(
-            fn($product) => $product->toListDTO(), 
-            $products
+        $products = $this->repository->findAllPaginated(
+            $itemsPerPage,
+            $offset,
+            $tagIds,
+            $minPrice,
+            $maxPrice
         );
 
+        if (empty($products)) {
+            return [];
+        }
+
+        $productIds = array_map(fn(Product $p) => $p->getId(), $products);
+
+        $ratings = $this->ratingRepository->getAverageRatingsForProducts($productIds);
+
+        return array_map(
+            function(Product $product) use ($ratings)
+            {
+                $productWithRating = $product->withRating(
+                    $ratings[$product->getId()] ?? new RatingListDTO(0, 0)
+                );
+
+                return $productWithRating->toListDTO();
+            },
+            $products
+        );
+    }
+
+    private function addRatingsToProducts(array $products): array
+    {
+        $productIds = array_map(fn($p) => $p->getId(), $products);
+        $ratings = $this->ratingRepository->getAverageRatingsForProducts($productIds);
+
+        return array_map(fn($product) => $product->withRating(
+            $ratings[$product->getId()] ?? null
+        ), $products);
     }
 
     public function getProductByid(int $id)
@@ -148,13 +183,13 @@ class ProductService
         $totalProducts = $this->repository->getProducts(0, 0, $filters, true);
 
         $products = $this->repository->getProducts($itemsPerPage, $offset, $filters);
-        
+
         if ($showOnlyActive)
         {
             $products = array_map(fn($product) => $product->toListDTO(), $products);
         }
 
-        return 
+        return
         [
             'products' => $products,
             'totalProducts' => $totalProducts,

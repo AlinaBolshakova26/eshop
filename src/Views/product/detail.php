@@ -23,6 +23,14 @@
         </div>
     </div>
     <div class="col-md-6 order-1 order-md-2 desc">
+        <div class="product-rating mb-2">
+            <div class="stars-detail" title="<?= Utils\RatingHelper::getRatingText($averageRating, $totalReviews) ?>">
+                <?= Utils\RatingHelper::getRatingStars($averageRating) ?>
+            </div>
+            <small class="text-muted-rating">
+                <?= Utils\RatingHelper::getRatingText($averageRating, $totalReviews) ?>
+            </small>
+        </div>
         <h1><?php echo htmlspecialchars($product->name); ?></h1>
         <p class="price h2 my-4">&#8381; <?php echo number_format($product->price); ?></p>
         <div class="description mb-4">

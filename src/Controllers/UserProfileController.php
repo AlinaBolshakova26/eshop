@@ -8,10 +8,12 @@ use Core\Services\OrderService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\UserRepository;
 use Core\Repositories\OrderRepository;
+use Core\Repositories\RatingRepository;
 
 class UserProfileController
 {
     private UserService $userService;
+    private RatingRepository $ratingRepository;
     private OrderService $orderService;
 
     public function __construct()
@@ -21,6 +23,7 @@ class UserProfileController
 
         $this->userService = new UserService(new UserRepository($pdo));
         $this->orderService = new OrderService(new OrderRepository($pdo));
+        $this->ratingRepository= new RatingRepository($pdo);
     }
 
     public function profile(): void
@@ -37,13 +40,31 @@ class UserProfileController
         $orders = $this->orderService->getOrdersByUserId($userId);
         $avatars = $this->userService->getAvatars();
 
-        echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
-            'content' => View::make(__DIR__ . "/../Views/user/profile.php", [
-                'user' => $user,
-                'avatars' => $avatars,
-                'orders' => $orders
-            ]),
-        ]);
+        if ($user)
+        {
+            $productIds = array_map(function ($order)
+            {
+                return $order['product_id'];
+            }, array_filter($orders, fn($o) => stripos($o['status'], 'Доставлен') !== false));
+
+            $ratings = [];
+            if (!empty($productIds))
+            {
+                foreach ($productIds as $pid)
+                {
+                    $ratings[$pid] = $this->ratingRepository->getRatingByUserAndProduct($user['id'], $pid);
+                }
+            }
+
+            echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
+                'content' => View::make(__DIR__ . "/../Views/user/profile.php", [
+                    'user' => $user,
+                    'avatars' => $avatars,
+                    'orders' => $orders,
+                    'ratings' => $ratings
+                ]),
+            ]);
+        }
     }
 
     public function update(): void

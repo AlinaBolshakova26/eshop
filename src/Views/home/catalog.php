@@ -96,7 +96,15 @@
                                 </a>
                             </div>
                         <?php endif; ?>
-
+                        <div class="product-rating mb-2">
+                            <?php
+                            $averageRating = $product->rating->averageRating ?? 0;
+                            echo Utils\RatingHelper::getRatingStars($averageRating);
+                            ?>
+                            <small class="text-muted-rating">
+                                <?= Utils\RatingHelper::getRatingText($averageRating, $product->rating->totalReviews ?? 0) ?>
+                            </small>
+                        </div>
                         <h5 class="card-title"><?php echo htmlspecialchars($product->name); ?></h5>
                         <p class="card-text"><?php echo nl2br(htmlspecialchars($product->desc_short)); ?></p>
                         <p class="card-text"><strong>&#8381; <?php echo number_format($product->price); ?></strong></p>

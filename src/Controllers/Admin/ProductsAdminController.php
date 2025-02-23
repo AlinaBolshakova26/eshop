@@ -11,6 +11,8 @@ use Core\Repositories\ProductRepository;
 use Core\Services\TransliterateService;
 use Core\Services\TagService;
 use Core\Repositories\TagRepository;
+use Core\Repositories\RatingRepository;
+
 class ProductsAdminController
 {
 
@@ -19,15 +21,23 @@ class ProductsAdminController
 
     private TagService $tagService;
 
+
     public function __construct()
     {
 
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
 
+        $productRepository = new ProductRepository($pdo);
+        $ratingRepository = new RatingRepository($pdo);
+        $tagRepository = new TagRepository($pdo);
+
         $this->adminService = new AdminService(new AdminRepository($pdo));
-        $this->productService = new ProductService(new ProductRepository($pdo));
-        $this->tagService = new TagService(new TagRepository($pdo));
+        $this->productService = new ProductService(
+            $productRepository,
+            $ratingRepository
+        );
+        $this->tagService = new TagService($tagRepository);
 
     }
 

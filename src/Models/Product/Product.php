@@ -1,5 +1,6 @@
 <?php
 namespace Models\Product;
+use Models\Rating\RatingListDTO;
 
 use Core\Database\MySQLDatabase;
 
@@ -15,6 +16,7 @@ class Product
 	private string $updated_at;
 	private ?string $main_image_path;
 	private ?array $additional_image_paths;
+    private ?RatingListDTO $rating = null;
 
 
 	public static function fromDatabase(array $row): self
@@ -34,6 +36,13 @@ class Product
 		return $product;
 	}
 
+    public function withRating(RatingListDTO $rating): self
+    {
+        $clone = clone $this;
+        $clone->rating = $rating;
+        return $clone;
+    }
+
 
 	public function toListDTO(): ProductListDTO
 	{
@@ -45,6 +54,7 @@ class Product
 			$this->is_active ? 1 : 0,
 			$this->main_image_path,
 			$this->additional_image_paths,
+            $this->rating
 		);
 	}
 

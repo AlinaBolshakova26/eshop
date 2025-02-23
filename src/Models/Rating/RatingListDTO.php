@@ -1,13 +1,13 @@
 <?php
 
-namespace Models\Rating;
+    namespace Models\Rating;
 
-class RatingListDTO {
-    public float $averageRating;
-    public int $totalReviews;
-
-    public function __construct(float $averageRating, int $totalReviews) {
-        $this->averageRating = $averageRating;
-        $this->totalReviews = $totalReviews;
+    final class RatingListDTO
+    {
+        public function __construct(
+            public readonly float $averageRating,
+            public readonly int   $totalReviews
+        )
+        {
+        }
     }
-}
