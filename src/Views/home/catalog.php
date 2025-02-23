@@ -39,8 +39,8 @@
             <input type="hidden" name="tags" value="<?= implode(',', $selectedTagIds) ?>">
 		<?php endif; ?>
 
-		<?php if (!empty($searchQuery)): ?>
-            <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchQuery) ?>">
+		<?php if (!empty($searchValue)): ?>
+            <input type="hidden" name="searchInput" value="<?= htmlspecialchars($searchValue) ?>">
 		<?php endif; ?>
 
         <div class="col-md-2">
@@ -93,6 +93,14 @@
                         </button>
                     </div>
                     <div class="card-body d-flex flex-column">
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <div class="position-absolute top-0 end-0 p-2">
+                                <a href="#" class="favorite-icon" data-item-id="<?= $product->id; ?>">
+                                    <i class="fa fa-heart favorite-inactive" data-favorite="<?= $product->id; ?>"></i>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
                         <h5 class="card-title"><?php echo htmlspecialchars($product->name); ?></h5>
                         <p class="card-text"><?php echo nl2br(htmlspecialchars($product->desc_short)); ?></p>
                         <p class="card-text"><strong>&#8381; <?php echo number_format($product->price); ?></strong></p>
@@ -147,13 +155,13 @@
 				?>
                 <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
                     <a class="page-link"
-                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchQuery); ?>"><?php echo $page; ?></a>
+                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchValue); ?>"><?php echo $page; ?></a>
                 </li>
 			<?php endforeach; ?>
 
 			<?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1, $minPrice, $maxPrice, $searchQuery); ?>">>></a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1, $minPrice, $maxPrice, $searchValue); ?>">>></a>
                 </li>
 			<?php endif; ?>
         </ul>

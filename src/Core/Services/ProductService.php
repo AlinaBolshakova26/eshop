@@ -20,12 +20,12 @@ class ProductService
     }
 
     public function getPaginatedProducts(int $page, int $itemsPerPage,
-										 ?string $query, ?array $tagId,
+										 ?array $tagIds,
 										 ?int $minPrice = null, ?int $maxPrice = null): array
     {
 
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $query, $tagId, $minPrice, $maxPrice);
+        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice);
 
         return array_map(
             fn($product) => $product->toListDTO(), 
@@ -52,12 +52,12 @@ class ProductService
 
     }
 
-    public function adminGetPaginatedProducts(int $currentPage, int $itemsPerPage, bool $showOnlyActive = true): array
+    public function adminGetPaginatedProducts(int $currentPage, int $itemsPerPage): array
     {
 
         $offset = ($currentPage - 1) * $itemsPerPage;
 
-        return $this->repository->findAllPaginatedAdmin($itemsPerPage, $offset, null, $showOnlyActive);
+        return $this->repository->findAllPaginatedAdmin($itemsPerPage, $offset);
 
     }
 
@@ -125,112 +125,39 @@ class ProductService
 
     }
 
-    public function searchProducts(int $page, int $itemsPerPage, array $tags, string $query): array 
+    public function getIdsByTagIds(array $tagIds):array
     {
-
-        $offset = ($page - 1) * $itemsPerPage;
-        $query = trim($query, '%');
-        
-        if ($query === '')
-        {
-            return [];
-        }
-
-        $pattern = '/' . preg_quote($query, '/') . '/ui';
-        $results = [];
-        $addedProductIds = [];
-        $allProducts = $this->repository->findAll();
-
-        foreach ($tags as $tag) 
-        {
-            if (preg_match($pattern, $tag->getName())) 
-            {
-                $tagProducts = $this->repository->findByTagId($itemsPerPage, $offset, $tag->getId());
-                foreach ($tagProducts as $product) 
-                {
-                    if (!in_array($product->getId(), $addedProductIds)) 
-                    {
-                        $results[] = $product;
-                        $addedProductIds[] = $product->getId();
-                    }
-                }            
-            }
-        }
-
-        foreach ($allProducts as $product) 
-        {
-            if (preg_match($pattern, $product->getName())) 
-            {
-                if (!in_array($product->getId(), $addedProductIds)) 
-                {
-                    $results[] = $product;
-                    $addedProductIds[] = $product->getId();
-                }
-            }
-            elseif (preg_match($pattern, $product->getDescription())) 
-            {
-                if (!in_array($product->getId(), $addedProductIds)) 
-                {
-                    $results[] = $product;
-                    $addedProductIds[] = $product->getId();
-                }
-            }
-        }
-
-        $totalResults = count($results);
-        $paginatedResults = array_slice($results, $offset, $itemsPerPage);
-
-        return [
-            'items' => array_map(function($product) {
-                return $product->toListDTO();
-            }, $paginatedResults),
-            'total' => $totalResults
-        ];
-
+        return (!empty($tagIds)) ? $this->repository->findIdsByTagIds($tagIds) : [];
     }
 
-    public function searchAdminProducts(int $page, int $itemsPerPage, string $query): array 
+    public function searchProducts(int $page, int $itemsPerPage, array $productIdsByTagIds, string $query, bool $showOnlyActive = true, ?int $minPrice = null, ?int $maxPrice = null): array 
     {
 
+        $filters = 
+        [
+            'query' => $query,
+            'showOnlyActive' => $showOnlyActive,
+            'searchInTags' => true,
+            'productIdsByTagIds' => !empty($productIdsByTagIds) ? $productIdsByTagIds : [], 
+            'minPrice' => $minPrice,
+            'maxPrice' => $maxPrice,
+        ];
+
         $offset = ($page - 1) * $itemsPerPage;
-        $query = trim($query, '%');
+
+        $totalProducts = $this->repository->getProducts(0, 0, $filters, true);
+
+        $products = $this->repository->getProducts($itemsPerPage, $offset, $filters);
         
-        if ($query === '')
+        if ($showOnlyActive)
         {
-            return [];
+            $products = array_map(fn($product) => $product->toListDTO(), $products);
         }
 
-        $pattern = '/' . preg_quote($query, '/') . '/ui';
-        $results = [];
-        $addedProductIds = [];
-        $allProducts = $this->repository->findAll(false);
-
-        foreach ($allProducts as $product) 
-        {
-            if (preg_match($pattern, $product->getName())) 
-            {
-                if (!in_array($product->getId(), $addedProductIds)) 
-                {
-                    $results[] = $product;
-                    $addedProductIds[] = $product->getId();
-                }
-            }
-            elseif (preg_match($pattern, $product->getDescription())) 
-            {
-                if (!in_array($product->getId(), $addedProductIds)) 
-                {
-                    $results[] = $product;
-                    $addedProductIds[] = $product->getId();
-                }
-            }
-        }
-
-        $totalResults = count($results);
-        $paginatedResults = array_slice($results, $offset, $itemsPerPage);
-
-        return [
-            'items' => $paginatedResults,
-            'total' => $totalResults
+        return 
+        [
+            'products' => $products,
+            'totalProducts' => $totalProducts,
         ];
 
     }

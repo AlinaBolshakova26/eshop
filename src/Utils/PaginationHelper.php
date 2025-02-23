@@ -7,7 +7,7 @@ class PaginationHelper
 											  int     $page,
 											  ?float  $minPrice = null,
 											  ?float  $maxPrice = null,
-											  ?string $query = null): string
+											  ?string $searchValue = null): string
 	{
 		$url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -17,8 +17,8 @@ class PaginationHelper
 			$params['tags'] = implode(',', $tagIds);
 		}
 
-		if ($query) {
-			$params['query'] = $query;
+		if ($searchValue) {
+			$params['searchInput'] = $searchValue;
 		}
 
 		if ($minPrice !== null) {
@@ -57,7 +57,7 @@ class PaginationHelper
 		} else {
 			$newTagIds = array_merge($selectedTagIds ?? [], [$tagId]);
 		}
-		return htmlspecialchars(implode(',', $newTagIds));
+		return implode(',', $newTagIds);
 	}
 
 	public static function removeQueryParams(array $paramsToRemove): string
