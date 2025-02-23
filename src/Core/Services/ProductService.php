@@ -25,7 +25,7 @@ class ProductService
     {
 
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice);
+        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice,true);
 
         return array_map(
             fn($product) => $product->toListDTO(), 

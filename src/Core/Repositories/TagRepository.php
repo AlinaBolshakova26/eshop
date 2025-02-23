@@ -122,10 +122,9 @@ class TagRepository
 		$sql = "
         SELECT id, name, is_active, created_at, updated_at
         FROM up_tag
-        WHERE is_active = 1
     ";
 		if ($query) {
-			$sql .= " AND LOWER(name) LIKE LOWER(:query)";
+			$sql .= " WHERE LOWER(name) LIKE LOWER(:query)";
 		}
 
 		$sql .= " ORDER BY id ASC LIMIT :limit OFFSET :offset";

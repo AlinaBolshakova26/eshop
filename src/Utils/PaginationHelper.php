@@ -68,6 +68,6 @@ class PaginationHelper
 			unset($params[$param]);
 		}
 
-		return '?' . http_build_query($params);
+		return '/' . http_build_query($params);
 	}
 }
