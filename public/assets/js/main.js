@@ -251,3 +251,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     restoreSelectedTagsFromUrl();
 });
+document.querySelectorAll('.star-rating .star').forEach(star => {
+    star.addEventListener('click', function(e) {
+        e.stopPropagation(); // Предотвращаем всплытие события
+        const productId = this.closest('.rating-section').dataset.productId;
+        const ratingValue = this.dataset.rating;
+
+        if (this.dataset.rated === 'true') return;
+
+        rateProduct(productId, ratingValue);
+    });
+});
+
+document.querySelectorAll('.order-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+        if (!e.target.closest('.rating-section')) {
+            window.location = this.closest('.order-card-link').href;
+        }
+    });
+});

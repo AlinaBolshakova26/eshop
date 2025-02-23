@@ -125,29 +125,30 @@
                                         <p class="order-total">Сумма заказа: &#8381; <?= number_format($order['price']); ?></p>
 
                                         <p class="order-date"><?= htmlspecialchars(date('d.m.Y', strtotime($order['created_at']))); ?></p>
+                                        <?php if (stripos($order['status'], 'Доставлен') !== false): ?>
+                                            <div class="rating-section mt-2" data-product-id="<?= $order['product_id'] ?>" onclick="event.stopPropagation()">
+                                                <?php if ($ratings[$order['product_id']]['rated'] ?? false): ?>
+                                                    <div class="text-muted small">
+                                                        Вы уже оценили этот товар
+                                                        <div class="d-inline-block ms-2">
+                                                            <?= Utils\RatingHelper::getRatingStars($ratings[$order['product_id']]['value']) ?>
+                                                        </div>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <div class="star-rating profile" onclick="event.stopPropagation()">
+                                                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                            <span class="star <?= ($i <= ($ratings[$order['product_id']]['value'] ?? 0)) ? 'filled' : '' ?>"
+                                                                  data-rating="<?= $i ?>"
+                                                                  onclick="event.stopPropagation()">★</span>
+                                                        <?php endfor; ?>
+                                                    </div>
+                                                    <small class="rating-status text-muted"></small>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </a>
-                            <?php if (stripos($order['status'], 'Доставлен') !== false): ?>
-                                <div class="rating-section mt-2" data-product-id="<?= $order['product_id'] ?>">
-                                    <?php if ($ratings[$order['product_id']]['rated'] ?? false): ?>
-                                        <div class="text-muted small">
-                                            Вы уже оценили этот товар
-                                            <div class="d-inline-block ms-2">
-                                                <?= Utils\RatingHelper::getRatingStars($ratings[$order['product_id']]['value']) ?>
-                                            </div>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="star-rating">
-                                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                <span class="star <?= ($i <= ($ratings[$order['product_id']]['value'] ?? 0)) ? 'filled' : '' ?>"
-                                                      data-rating="<?= $i ?>">★</span>
-                                            <?php endfor; ?>
-                                        </div>
-                                        <small class="rating-status text-muted"></small>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>

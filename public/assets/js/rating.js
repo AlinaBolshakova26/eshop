@@ -6,7 +6,7 @@ document.querySelectorAll('.star-rating').forEach(rating => {
             const ratingValue = star.dataset.rating;
 
             if (rating.querySelector('.star[data-rated="true"]')) {
-                showRatingStatus('Вы уже оценили этот товар', 'text-danger');
+                showRatingFeedback('Вы уже оценили этот товар', false);
                 return;
             }
 
@@ -22,22 +22,26 @@ document.querySelectorAll('.star-rating').forEach(rating => {
                         rating: ratingValue
                     })
                 });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error ${response.status}: ${errorText}`);
+                }
 
                 const result = await response.json();
-                if (result.success) {
-                    rating.querySelectorAll('.star').forEach((s, index) => {
-                        s.classList.toggle('filled', index < ratingValue);
-                    });
-                    showRatingFeedback('Оценка сохранена!', true);
-                } else {
-                    showRatingFeedback(result.error || 'Ошибка сохранения оценки', false);
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Неизвестная ошибка');
                 }
-                if (response.ok) {
-                    e.target.setAttribute('data-rated', 'true');
-                    showRatingStatus('Спасибо за оценку!', 'text-success');
-                }
+
+                rating.querySelectorAll('.star').forEach((s, index) => {
+                    s.classList.toggle('filled', index < ratingValue);
+                    s.dataset.rated = "true";
+                });
+                showRatingFeedback('Спасибо за оценку!', true);
+
             } catch (error) {
-                showRatingFeedback('Ошибка сети', false);
+                console.error('Ошибка:', error);
+                showRatingFeedback(error.message, false);
             }
         });
     });
