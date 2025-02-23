@@ -4,9 +4,11 @@ namespace Controllers\Admin;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\AdminRepository;
 use Core\Repositories\ProductRepository;
+use Core\Repositories\RatingRepository;
 use Core\Repositories\TagRepository;
 use Core\Services\AdminService;
 use Core\Services\ProductService;
+use Core\Services\RatingService;
 use Core\Services\TagService;
 use Core\View;
 
@@ -15,6 +17,7 @@ class TagAdminController
 	private AdminService $adminService;
 	private TagService $tagService;
 
+	private RatingService $ratingService;
 	private ProductService $productService;
 
 	public function __construct()
@@ -24,7 +27,7 @@ class TagAdminController
 
 		$this->adminService = new AdminService(new AdminRepository($pdo));
 		$this->tagService = new TagService(new TagRepository($pdo));
-		$this->productService = new ProductService(new ProductRepository($pdo));
+		$this->productService = new ProductService(new ProductRepository($pdo),new RatingRepository($pdo));
 	}
 
 
