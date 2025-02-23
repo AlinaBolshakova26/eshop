@@ -21,6 +21,15 @@ class RatingController
     {
         header('Content-Type: application/json');
 
+        $userId = $_SESSION['user_id'] ?? null;
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (!$userId || $this->ratingRepository->hasUserRated($userId, $data['product_id'])) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Вы уже оценивали этот товар']);
+            exit;
+        }
+
         if (!isset($_SESSION['user_id']))
         {
             http_response_code(401);
@@ -41,27 +50,11 @@ class RatingController
 
         try
         {
-            $existingRating = $this->ratingRepository->getRatingByUserAndProduct(
-                $_SESSION['user_id'],
-                $data['product_id']
-            );
-
-            if ($existingRating)
-            {
-                $this->ratingRepository->updateRating(
+            $this->ratingRepository->createRating(
                     $_SESSION['user_id'],
                     $data['product_id'],
                     $data['rating']
                 );
-            }
-            else
-            {
-                $this->ratingRepository->createRating(
-                    $_SESSION['user_id'],
-                    $data['product_id'],
-                    $data['rating']
-                );
-            }
 
             echo json_encode(['success' => true]);
         }

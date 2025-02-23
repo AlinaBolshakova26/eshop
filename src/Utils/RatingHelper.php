@@ -14,7 +14,9 @@ class RatingHelper
             if ($averageRating >= $score)
             {
                 $fill = 100;
-            } elseif ($averageRating > ($score - 1)) {
+            }
+            elseif ($averageRating > ($score - 1))
+            {
                 $fill = ($averageRating - ($score - 1)) * 100;
             }
 
@@ -31,7 +33,8 @@ class RatingHelper
 
     public static function getRatingText(float $averageRating, int $totalReviews): string
     {
-        if ($totalReviews === 0) {
+        if ($totalReviews === 0)
+        {
             return 'Нет оценок';
         }
 
@@ -42,16 +45,11 @@ class RatingHelper
     private static function getReviewsText(int $count): string
     {
         $lastDigit = $count % 10;
-        $lastTwo = $count % 100;
-
-        if ($lastTwo >= 11 && $lastTwo <= 14) {
-            return "{$count} отзывов";
-        }
 
         return match($lastDigit) {
-            1 => "{$count} отзыв",
-            2, 3, 4 => "{$count} отзыва",
-            default => "{$count} отзывов"
+            1 => "{$count} оценка",
+            2, 3, 4 => "{$count} оценки",
+            default => "{$count} оценок"
         };
     }
 }

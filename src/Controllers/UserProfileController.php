@@ -52,7 +52,10 @@ class UserProfileController
             {
                 foreach ($productIds as $pid)
                 {
-                    $ratings[$pid] = $this->ratingRepository->getRatingByUserAndProduct($user['id'], $pid);
+                    $ratings[$pid] = [
+                        'value' => $this->ratingRepository->getRatingByUserAndProduct($user['id'], $pid),
+                        'rated' => $this->ratingRepository->hasUserRated($user['id'], $pid)
+                    ];
                 }
             }
 

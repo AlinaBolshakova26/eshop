@@ -5,6 +5,11 @@ document.querySelectorAll('.star-rating').forEach(rating => {
         star.addEventListener('click', async () => {
             const ratingValue = star.dataset.rating;
 
+            if (rating.querySelector('.star[data-rated="true"]')) {
+                showRatingStatus('Вы уже оценили этот товар', 'text-danger');
+                return;
+            }
+
             try {
                 const response = await fetch('/rating/create', {
                     method: 'POST',
@@ -20,13 +25,16 @@ document.querySelectorAll('.star-rating').forEach(rating => {
 
                 const result = await response.json();
                 if (result.success) {
-                    // Обновляем отображение звезд
                     rating.querySelectorAll('.star').forEach((s, index) => {
                         s.classList.toggle('filled', index < ratingValue);
                     });
                     showRatingFeedback('Оценка сохранена!', true);
                 } else {
                     showRatingFeedback(result.error || 'Ошибка сохранения оценки', false);
+                }
+                if (response.ok) {
+                    e.target.setAttribute('data-rated', 'true');
+                    showRatingStatus('Спасибо за оценку!', 'text-success');
                 }
             } catch (error) {
                 showRatingFeedback('Ошибка сети', false);

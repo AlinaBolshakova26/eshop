@@ -53,15 +53,6 @@ class RatingRepository
         return $result ? (int)$result['rating'] : null;
     }
 
-    public function updateRating(int $userId, int $productId, int $rating): void
-    {
-        $stmt = $this->pdo->prepare(
-            "UPDATE up_ratings SET rating = ? 
-        WHERE user_id = ? AND product_id = ?"
-        );
-        $stmt->execute([$rating, $userId, $productId]);
-    }
-
     public function createRating(int $userId, int $productId, int $rating): void
     {
         $stmt = $this->pdo->prepare(
@@ -71,4 +62,18 @@ class RatingRepository
         $stmt->execute([$userId, $productId, $rating]);
     }
 
+    public function hasUserRated(int $userId, int $productId): bool
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT COUNT(*) 
+        FROM up_ratings 
+        WHERE user_id = :user_id 
+        AND product_id = :product_id
+    ");
+        $stmt->execute([
+            ':user_id' => $userId,
+            ':product_id' => $productId
+        ]);
+        return (bool)$stmt->fetchColumn();
+    }
 }
