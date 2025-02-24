@@ -108,7 +108,6 @@
                 <?php if (!empty($otherOrders)): ?>
                     <div class="order-carousel">
                         <?php foreach ($otherOrders as $order): ?>
-                            <a href="/product/<?= $order['product_id']; ?>" class="order-card-link">
                                 <div class="card order-card">
                                     <img src="<?= htmlspecialchars($order['main_image'] ?? '/img/no-image.png'); ?>" class="order-img" alt="Товар">
                                     <div class="order-card-body">
@@ -147,6 +146,41 @@
                                             </div>
                                         <?php endif; ?>
                                     </div>
+                                    <?php if (stripos($order['status'], 'Доставлен') !== false): ?>
+                                        <div class="mt-3">
+                                            <div class="comment-section" data-product-id="<?= $order['product_id'] ?>">
+                                                <?php if ($ratings[$order['product_id']]['rated'] ?? false): ?>
+                                                    <!-- Если пользователь уже оценил товар, показываем только его комментарий -->
+                                                    <?php if (!empty($ratings[$order['product_id']]['comment'])): ?>
+                                                        <div class="card">
+                                                            <div class="card-body text-muted small">
+                                                                <p class="mb-1">Ваш комментарий:</p>
+                                                                <p class="comment-text"><?= htmlspecialchars($ratings[$order['product_id']]['comment']) ?></p>
+                                                            </div>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="card">
+                                                            <div class="card-body text-muted small">
+                                                                <p>Вы оценили этот товар на <?= $ratings[$order['product_id']]['value'] ?> из 5.</p>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <!-- Если пользователь еще не оценил товар, показываем форму комментария -->
+                                                    <div class="card">
+                                                        <div class="card-body comment-form">
+                                                            <div class="form-group">
+                                                                <textarea class="form-control" maxlength="500" rows="3" placeholder="Оставьте комментарий о товаре..."></textarea>
+                                                                <small class="char-counter text-muted d-block mt-1">Осталось символов: 500</small>
+                                                            </div>
+                                                            <button class="btn btn-sm btn-primary mt-2 submit-comment">Отправить отзыв</button>
+                                                            <small class="comment-status text-muted d-block mt-2"></small>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </a>
                         <?php endforeach; ?>

@@ -54,11 +54,10 @@ class UserProfileController
                 {
                     $ratings[$pid] = [
                         'value' => $this->ratingRepository->getRatingByUserAndProduct($user['id'], $pid),
-                        'rated' => $this->ratingRepository->hasUserRated($user['id'], $pid)
+                        'rated' => $this->ratingRepository->hasUserRated($user['id'], $pid),
                     ];
                 }
             }
-
             echo View::make(__DIR__ . "/../Views/layouts/main_template.php", [
                 'content' => View::make(__DIR__ . "/../Views/user/profile.php", [
                     'user' => $user,

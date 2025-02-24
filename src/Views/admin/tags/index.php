@@ -1,14 +1,4 @@
 <form id="tags-form" action="/admin/tags/process" method="POST">
-    <div class="fixed-top-row">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="mx-3 flex-grow-1">
-                <input type="text" name="searchInput" class="form-control" placeholder="Поиск тегов..." value="<?php echo htmlspecialchars(trim($searchQuery, '%')); ?>">
-            </div>
-            <div>
-                <button type="submit" name="action" value="search" class="btn btn-primary">Поиск</button>
-            </div>
-        </div>
-    </div>
 
     <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
         <button type="submit" name="action" value="deactivate" class="btn btn-danger">Деактивировать</button>
@@ -47,19 +37,19 @@
         <ul class="pagination justify-content-center">
 			<?php if ($currentPage > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo !empty($searchQuery) ? '/admin/tags/search/' . urlencode($searchQuery) : '/admin/tags'; ?>?page=<?php echo $currentPage - 1; ?>"><<</a>
+                    <a class="page-link" href="/admin/tags?page=<?php echo $currentPage - 1; ?>"><<</a>
                 </li>
 			<?php endif; ?>
 
 			<?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?php echo $currentPage == $i ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo !empty($searchQuery) ? '/admin/tags/search/' . urlencode($searchQuery) : '/admin/tags'; ?>?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                    <a class="page-link" href="/admin/tags?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                 </li>
 			<?php endfor; ?>
 
 			<?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo !empty($searchQuery) ? '/admin/tags/search/' . urlencode($searchQuery) : '/admin/tags'; ?>?page=<?php echo $currentPage + 1; ?>">>></a>
+                    <a class="page-link" href="/admin/tags?page=<?php echo $currentPage + 1; ?>">>></a>
                 </li>
 			<?php endif; ?>
         </ul>

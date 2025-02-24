@@ -67,16 +67,15 @@ class TagService
 	public function getPaginatedTags(
 		int $page,
 		int $itemsPerPage,
-		?string $query = null,
 	): array {
 		$offset = ($page - 1) * $itemsPerPage;
 
-		return $this->tagRepository->findAllPaginated($itemsPerPage, $offset, $query);
+		return $this->tagRepository->findAllPaginated($itemsPerPage, $offset);
 	}
 
-	public function getTotalPages(int $itemsPerPage, ?string $query = null): int
+	public function getTotalPages(int $itemsPerPage): int
 	{
-		$totalTags = $this->tagRepository->getTotalCount($query);
+		$totalTags = $this->tagRepository->getTotalCount();
 
 		return ceil($totalTags / $itemsPerPage);
 	}

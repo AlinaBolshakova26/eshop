@@ -117,24 +117,18 @@ class TagRepository
 		return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 	}
 
-	public function findAllPaginated(int $limit, int $offset, ?string $query = null): array
+	public function findAllPaginated(int $limit, int $offset): array
 	{
 		$sql = "
         SELECT id, name, is_active, created_at, updated_at
         FROM up_tag
-    ";
-		if ($query) {
-			$sql .= " WHERE LOWER(name) LIKE LOWER(:query)";
-		}
-
+    	";
+		
 		$sql .= " ORDER BY id ASC LIMIT :limit OFFSET :offset";
 
 		$stmt = $this->pdo->prepare($sql);
 
 		$params = [];
-		if ($query) {
-			$params[':query'] = '%' . $query . '%';
-		}
 
 		$params[':limit'] = $limit;
 		$params[':offset'] = $offset;
@@ -144,19 +138,11 @@ class TagRepository
 		return array_map([Tag::class, 'fromDatabase'], $stmt->fetchAll(PDO::FETCH_ASSOC));
 	}
 
-	public function getTotalCount(?string $query = null): int
+	public function getTotalCount(): int
 	{
-		$sql = "SELECT COUNT(*) FROM up_tag WHERE is_active = 1";
-
-		if ($query) {
-			$sql .= " AND LOWER(name) LIKE LOWER(:query)";
-		}
+		$sql = "SELECT COUNT(*) FROM up_tag";
 
 		$stmt = $this->pdo->prepare($sql);
-
-		if ($query) {
-			$stmt->bindValue(':query', '%' . $query . '%', PDO::PARAM_STR);
-		}
 
 		$stmt->execute();
 
