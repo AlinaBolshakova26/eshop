@@ -78,46 +78,78 @@ class RatingRepository
         return (bool)$stmt->fetchColumn();
     }
 
-    public function getUserRatingsForProducts(int $userId, array $productIds): array
+    public function getTotalCount(): int
     {
-        if (empty($productIds)) {
-            return [];
-        }
+        $sql = "SELECT COUNT(*)
+            FROM up_ratings r
+            INNER JOIN up_user u ON u.id = r.user_id
+            INNER JOIN up_item i ON i.id = r.product_id";
 
-        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
-        $query = "SELECT 
-                product_id,
-                rating as value,
-                comment,
-                1 as rated
-              FROM up_ratings 
-              WHERE user_id = ? AND product_id IN ($placeholders)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    }
 
-        $stmt = $this->pdo->prepare($query);
-        $params = array_merge([$userId], $productIds);
-        $stmt->execute($params);
+    public function findFullRatingDetails(int $id): ?object
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT 
+            r.id,
+            r.rating,
+            r.comment,
+            r.created_at AS createdAt,
+            u.id AS userId,
+            u.name AS userName,
+            u.email AS userEmail,
+            u.phone AS userPhone,
+            i.id AS productId,
+            i.name AS productName,
+            o.id AS orderId,
+            o.created_at AS orderDate
+        FROM up_ratings r
+        LEFT JOIN up_user u ON u.id = r.user_id
+        LEFT JOIN up_item i ON i.id = r.product_id
+        LEFT JOIN up_order o ON o.item_id = r.product_id AND o.user_id = r.user_id
+        WHERE r.id = ?
+    ");
 
-        $ratings = [];
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $ratings[$row['product_id']] = [
-                'value' => (int)$row['value'],
-                'comment' => $row['comment'],
-                'rated' => (bool)$row['rated']
-            ];
-        }
+        $stmt->execute([$id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Заполняем массив для продуктов без рейтингов
-        foreach ($productIds as $productId) {
-            if (!isset($ratings[$productId])) {
-                $ratings[$productId] = [
-                    'value' => 0,
-                    'comment' => '',
-                    'rated' => false
-                ];
-            }
-        }
+        return $result ? (object)$result : null;
+    }
 
-        return $ratings;
+    public function findAllPaginated(int $limit, int $offset): array
+    {
+        $sql = "
+        SELECT 
+            r.id,
+            r.product_id,
+            r.user_id,
+            r.rating,
+            r.comment,
+            r.created_at,
+            u.name AS user_name,
+            i.name AS product_name
+        FROM up_ratings r
+        INNER JOIN up_user u ON u.id = r.user_id
+        INNER JOIN up_item i ON i.id = r.product_id
+    ";
+
+        $params = [];
+
+        $sql .= " ORDER BY r.created_at DESC LIMIT :limit OFFSET :offset";
+
+        $params[':limit'] = $limit;
+        $params[':offset'] = $offset;
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->bindValue(':limit', $params[':limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $params[':offset'], PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
 }

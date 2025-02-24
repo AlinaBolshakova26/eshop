@@ -21,7 +21,8 @@ class RatingController
 {
     header('Content-Type: application/json');
 
-    if (!isset($_SESSION['user_id'])) {
+    if (!isset($_SESSION['user_id']))
+    {
         http_response_code(401);
         echo json_encode(['error' => 'Требуется авторизация']);
         return;
@@ -33,22 +34,22 @@ class RatingController
     $rating = $data['rating'] ?? null;
     $comment = $data['comment'] ?? '';
 
-    // Валидация входных данных
-    if (!$productId || !$rating || $rating < 1 || $rating > 5) {
+    if (!$productId || !$rating || $rating < 1 || $rating > 5)
+    {
         http_response_code(400);
         echo json_encode(['error' => 'Некорректные данные']);
         return;
     }
 
-    // Проверка на повторное голосование
-    if ($this->ratingRepository->hasUserRated($userId, $productId)) {
+    if ($this->ratingRepository->hasUserRated($userId, $productId))
+    {
         http_response_code(403);
         echo json_encode(['error' => 'Вы уже оценивали этот товар']);
         return;
     }
 
-    try {
-        // Сохраняем рейтинг и комментарий
+    try
+    {
         $this->ratingRepository->createRating(
             $userId,
             $productId,
@@ -57,7 +58,9 @@ class RatingController
         );
 
         echo json_encode(['success' => true]);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e)
+    {
         http_response_code(500);
         echo json_encode(['error' => 'Ошибка сервера: ' . $e->getMessage()]);
     }
