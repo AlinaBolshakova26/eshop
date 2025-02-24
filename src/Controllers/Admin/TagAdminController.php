@@ -12,6 +12,9 @@ use Core\Services\RatingService;
 use Core\Services\TagService;
 use Core\View;
 
+use Core\Services\TransliterateService;
+
+
 class TagAdminController
 {
 	private AdminService $adminService;
@@ -31,21 +34,22 @@ class TagAdminController
 	}
 
 
-	public function index(?string $query = null): void
+	public function index(): void
+	
 	{
+
 		try {
 			$currentPage = max(1, (int)($_GET['page'] ?? 1));
 			define("ITEMS_PER_PAGE", 10);
 
-			$tags = $this->tagService->getPaginatedTags($currentPage, ITEMS_PER_PAGE, $query);
+			$tags = $this->tagService->getPaginatedTags($currentPage, ITEMS_PER_PAGE);
 
-			$totalPages = $this->tagService->getTotalPages(ITEMS_PER_PAGE, $query, );
+			$totalPages = $this->tagService->getTotalPages(ITEMS_PER_PAGE);
 
 			$content = View::make(__DIR__ . '/../../Views/admin/tags/index.php', [
 				'tags' => $tags,
 				'totalPages' => $totalPages,
 				'currentPage' => $currentPage,
-				'searchQuery' => $query,
 			]);
 
 			echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', [

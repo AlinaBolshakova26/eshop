@@ -53,13 +53,13 @@ class RatingRepository
         return $result ? (int)$result['rating'] : null;
     }
 
-    public function createRating(int $userId, int $productId, int $rating): void
+    public function createRating(int $userId, int $productId, int $rating, string $comment): void
     {
         $stmt = $this->pdo->prepare(
-            "INSERT INTO up_ratings (user_id, product_id, rating) 
-        VALUES (?, ?, ?)"
+            "INSERT INTO up_ratings (user_id, product_id, rating, comment) 
+        VALUES (?, ?, ?, ?)"
         );
-        $stmt->execute([$userId, $productId, $rating]);
+        $stmt->execute([$userId, $productId, $rating, $comment]);
     }
 
     public function hasUserRated(int $userId, int $productId): bool
@@ -76,4 +76,47 @@ class RatingRepository
         ]);
         return (bool)$stmt->fetchColumn();
     }
+
+    public function getUserRatingsForProducts(int $userId, array $productIds): array
+    {
+        if (empty($productIds)) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+        $query = "SELECT 
+                product_id,
+                rating as value,
+                comment,
+                1 as rated
+              FROM up_ratings 
+              WHERE user_id = ? AND product_id IN ($placeholders)";
+
+        $stmt = $this->pdo->prepare($query);
+        $params = array_merge([$userId], $productIds);
+        $stmt->execute($params);
+
+        $ratings = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $ratings[$row['product_id']] = [
+                'value' => (int)$row['value'],
+                'comment' => $row['comment'],
+                'rated' => (bool)$row['rated']
+            ];
+        }
+
+        // Заполняем массив для продуктов без рейтингов
+        foreach ($productIds as $productId) {
+            if (!isset($ratings[$productId])) {
+                $ratings[$productId] = [
+                    'value' => 0,
+                    'comment' => '',
+                    'rated' => false
+                ];
+            }
+        }
+
+        return $ratings;
+    }
+    
 }
