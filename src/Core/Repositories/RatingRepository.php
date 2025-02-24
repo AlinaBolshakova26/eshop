@@ -4,6 +4,7 @@ namespace Core\Repositories;
 
 use PDO;
 use Models\Rating\RatingListDTO;
+use Models\Rating\Rating;
 
 class RatingRepository
 {
