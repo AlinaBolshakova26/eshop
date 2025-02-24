@@ -83,5 +83,8 @@ $router->addRoute('GET', '/admin/tags/edit/{id:\d+}', [\Controllers\Admin\TagAdm
 $router->addRoute('POST', '/admin/tags/edit/{id:\d+}', [\Controllers\Admin\TagAdminController::class, 'update']);
 $router->addRoute('POST', '/admin/tags/process', [\Controllers\Admin\TagAdminController::class, 'process']);
 
+$router->addRoute('GET', '/admin/ratings', [\Controllers\Admin\RatingAdminController::class, 'index']);
+$router->addRoute('GET', '/admin/ratings/{id:\d+}', [\Controllers\Admin\RatingAdminController::class, 'show']);
+
 
 return $router;
