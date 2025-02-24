@@ -27,9 +27,11 @@ class ProductService
         ?array $tagIds,
         ?int $minPrice = null,
         ?int $maxPrice = null
-    ): array {
+    ): array 
+    {
+
         $offset = ($page - 1) * $itemsPerPage;
-        $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice,true);
+        // $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice,true);
 
         $products = $this->repository->findAllPaginated(
             $itemsPerPage,
@@ -60,15 +62,15 @@ class ProductService
         );
     }
 
-    private function addRatingsToProducts(array $products): array
-    {
-        $productIds = array_map(fn($p) => $p->getId(), $products);
-        $ratings = $this->ratingRepository->getAverageRatingsForProducts($productIds);
+    // private function addRatingsToProducts(array $products): array
+    // {
+    //     $productIds = array_map(fn($p) => $p->getId(), $products);
+    //     $ratings = $this->ratingRepository->getAverageRatingsForProducts($productIds);
 
-        return array_map(fn($product) => $product->withRating(
-            $ratings[$product->getId()] ?? null
-        ), $products);
-    }
+    //     return array_map(fn($product) => $product->withRating(
+    //         $ratings[$product->getId()] ?? null
+    //     ), $products);
+    // }
 
     public function getProductByid(int $id)
     {

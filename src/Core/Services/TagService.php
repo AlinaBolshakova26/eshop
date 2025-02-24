@@ -95,14 +95,14 @@ class TagService
 		return $this->tagRepository->findTagById($id);
 	}
 
-	public function updateTag(int $id, string $newName): void
-	{
-		if (trim($newName) === '') {
-			throw new \InvalidArgumentException('Новое название тега не может быть пустым');
-		}
+	// public function updateTag(int $id, string $newName): void
+	// {
+	// 	if (trim($newName) === '') {
+	// 		throw new \InvalidArgumentException('Новое название тега не может быть пустым');
+	// 	}
 
-		$this->tagRepository->updateName($id, $newName);
-	}
+	// 	$this->tagRepository->updateName($id, $newName);
+	// }
 
 	public function toggleTagsStatus(array $tagIds, bool $isActive): void
 	{

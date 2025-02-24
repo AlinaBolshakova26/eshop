@@ -28,7 +28,7 @@ class HomeController
 
         $productRepository = new ProductRepository($pdo);
         $ratingRepository = new RatingRepository($pdo);
-
+        
         $this->tagService = new TagService(new TagRepository($pdo));
         $this->productService = new ProductService(
             $productRepository,
@@ -75,7 +75,7 @@ class HomeController
         }
 
 		try {
-			$tags = $this->tagService->getAllTags(true);
+			$tags = $this->tagService->getAllTags();
 
             if ($searchValue)
             {

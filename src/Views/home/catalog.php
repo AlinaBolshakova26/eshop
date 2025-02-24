@@ -7,7 +7,7 @@
 		<?php endif; ?>
 		<?php foreach ($tags as $tag): ?>
             <a href="/?tags=<?php
-			echo Utils\PaginationHelper::buildTagParam($selectedTagIds, $tag->toListDTO()->id);
+			echo Utils\PaginationHelper::buildTagParam($tag->toListDTO()->id, $selectedTagIds);
 			?>"
                class="btn tag-btn <?php echo in_array($tag->toListDTO()->id, $selectedTagIds ?? []) ? 'active' : ''; ?>"
                data-tag-id="<?php echo htmlspecialchars($tag->toListDTO()->id); ?>">
@@ -151,7 +151,7 @@
         <ul class="pagination justify-content-center">
 			<?php if ($currentPage > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage - 1, $minPrice, $maxPrice, $searchQuery); ?>"><<</a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl( $currentPage - 1, $selectedTagIds,  $minPrice, $maxPrice, $searchQuery); ?>"><<</a>
                 </li>
 			<?php endif; ?>
 
@@ -163,13 +163,13 @@
 				?>
                 <li class="page-item <?php echo ($page == $currentPage) ? 'active' : ''; ?>">
                     <a class="page-link"
-                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $page, $minPrice, $maxPrice, $searchValue); ?>"><?php echo $page; ?></a>
+                       href="<?php echo Utils\PaginationHelper::buildPaginationUrl($page, $selectedTagIds, $minPrice, $maxPrice, $searchValue); ?>"><?php echo $page; ?></a>
                 </li>
 			<?php endforeach; ?>
 
 			<?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl($selectedTagIds, $currentPage + 1, $minPrice, $maxPrice, $searchValue); ?>">>></a>
+                    <a class="page-link" href="<?php echo Utils\PaginationHelper::buildPaginationUrl( $currentPage + 1, $selectedTagIds,$minPrice, $maxPrice, $searchValue); ?>">>></a>
                 </li>
 			<?php endif; ?>
         </ul>

@@ -3,8 +3,9 @@ namespace Utils;
 
 class PaginationHelper
 {
-	public static function buildPaginationUrl(?array  $tagIds = null,
-											  int     $page,
+	public static function buildPaginationUrl(int $page,
+											  ?array  $tagIds = [],
+											  
 											  ?float  $minPrice = null,
 											  ?float  $maxPrice = null,
 											  ?string $searchValue = null): string
@@ -50,7 +51,7 @@ class PaginationHelper
 		return $activeTags;
 	}
 
-	public static function buildTagParam(?array $selectedTagIds = null, int $tagId): string
+	public static function buildTagParam(int $tagId, ?array $selectedTagIds = null): string
 	{
 		if (in_array($tagId, $selectedTagIds ?? [])) {
 			$newTagIds = array_diff($selectedTagIds, [$tagId]);
@@ -68,6 +69,6 @@ class PaginationHelper
 			unset($params[$param]);
 		}
 
-		return '/' . http_build_query($params);
+		return (empty($params)) ? '/' : '/?' . http_build_query($params);
 	}
 }
