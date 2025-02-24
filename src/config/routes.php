@@ -2,15 +2,6 @@
 
 
 use Core\Router;
-use Core\Database\MySQLDatabase;
-use Core\Repositories\RatingRepository;
-use Core\Services\RatingService;
-
-$database = new MySQLDatabase();
-$pdo = $database->getConnection();
-
-$ratingRepo = new RatingRepository($pdo);
-$ratingService = new RatingService($ratingRepo);
 
 $router = new Router();
 
@@ -24,7 +15,6 @@ $router->addRoute('POST', '/order/submit', [\Controllers\OrderController::class,
 $router->addRoute('GET', '/order/success', [\Controllers\OrderController::class, 'success']);
 $router->addRoute('GET', '/order/checkout-cart', [\Controllers\OrderController::class, 'createCartOrder']);
 $router->addRoute('POST', '/order/submit-cart', [\Controllers\OrderController::class, 'storeCartOrder']);
-
 
 $router->addRoute('GET', '/user/login', [\Controllers\UserController::class, 'index']);
 $router->addRoute('POST', '/user/login', [\Controllers\UserController::class, 'authenticate']);
@@ -42,10 +32,7 @@ $router->addRoute('POST', '/cart/remove', [\Controllers\CartController::class, '
 $router->addRoute('GET', '/cart/checkout', [\Controllers\CartController::class, 'checkout']);
 $router->addRoute('POST', '/cart/checkout', [\Controllers\CartController::class, 'processCheckout']);
 
-$router->addRoute('POST', '/rating/create', function() use ($ratingRepo, $ratingService) {
-    $controller = new \Controllers\RatingController($ratingRepo, $ratingService);
-    $controller->create();
-});
+$router->addRoute('POST', '/rating/create', [\Controllers\RatingController::class, 'create']);
 
 $router->addRoute('GET', '/admin/login', [\Controllers\Admin\AdminController::class, 'login']);
 $router->addRoute('POST', '/admin/login', [\Controllers\Admin\AdminController::class, 'authenticate']);

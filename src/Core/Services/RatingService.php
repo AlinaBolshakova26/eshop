@@ -57,4 +57,14 @@ class RatingService
     {
         return $this->repository->findFullRatingDetails($id);
     }
+
+	public function hasUserRated(int $userId, int $productId): bool
+	{
+		return $this->repository->hasUserRated($userId, $productId);
+	}
+
+	public function createRating(int $userId, int $productId, int $rating, string $comment): void
+	{
+		$this->repository->createRating($userId, $productId, $rating, $comment);
+	}
 }

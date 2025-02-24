@@ -51,8 +51,8 @@ class HomeController
 
         $searchQuery = '';
         $searchValue = isset($_GET['searchInput']) ? (string)$_GET['searchInput'] : null;
-        $minPrice = isset($_GET['minPrice']) ? (int)$_GET['minPrice'] : null;
-        $maxPrice = isset($_GET['maxPrice']) ? (int)$_GET['maxPrice'] : null;
+        $minPrice = isset($_GET['minPrice']) && $_GET['minPrice'] !== '' ? (int)$_GET['minPrice'] : null;
+        $maxPrice = isset($_GET['maxPrice']) && $_GET['maxPrice'] !== '' ? (int)$_GET['maxPrice'] : null;
 
         $priceError = null;
         if ($minPrice !== null || $maxPrice !== null)
