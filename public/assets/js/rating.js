@@ -6,7 +6,7 @@ document.querySelectorAll('.star-rating').forEach(rating => {
             const ratingValue = star.dataset.rating;
 
             if (rating.querySelector('.star[data-rated="true"]')) {
-                showRatingFeedback('Вы уже оценили этот товар', false);
+                showRatingFeedback('Ваша оценка:', false);
                 return;
             }
 

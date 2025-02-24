@@ -129,7 +129,7 @@
                                             <div class="rating-section mt-2" data-product-id="<?= $order['product_id'] ?>" onclick="event.stopPropagation()">
                                                 <?php if ($ratings[$order['product_id']]['rated'] ?? false): ?>
                                                     <div class="text-muted small">
-                                                        Вы уже оценили этот товар
+                                                        Ваша оценка:
                                                         <div class="d-inline-block ms-2">
                                                             <?= Utils\RatingHelper::getRatingStars($ratings[$order['product_id']]['value']) ?>
                                                         </div>
