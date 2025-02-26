@@ -92,7 +92,7 @@ class ProductDetailAdminController
 		$imagesToDelete = $_POST['images_to_delete'] ?? [];
 		$this->productService->updateProduct
 		($id,
-		[
+			[
 				'name' => $_POST['name'],
 				'description' => $_POST['description'],
 				'desc_short' => $_POST['desc_short'],

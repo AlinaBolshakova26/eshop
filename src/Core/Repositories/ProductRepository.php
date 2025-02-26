@@ -421,43 +421,19 @@ class ProductRepository
 	public function updateProduct(Product $product, array $changedFields): void
 	{
 
-		if (empty($changedFields)) 
-		{
-			return;
-		}
-
 		$sql = "UPDATE up_item SET ";
 		$updates = [];
 		$params = [':id' => $product->getId()];
 
-		if (array_key_exists('name', $changedFields)) 
+		foreach($changedFields as $field => $value)
 		{
-			$updates[] = "name = :name";
-			$params[':name'] = $changedFields['name'];
-		}
+			$updates[] = "$field = :$field";
 
-		if (array_key_exists('description', $changedFields)) 
-		{
-			$updates[] = "description = :description";
-			$params[':description'] = $changedFields['description'];
-		}
-
-		if (array_key_exists('desc_short', $changedFields)) 
-		{
-			$updates[] = "desc_short = :desc_short";
-			$params[':desc_short'] = $changedFields['desc_short'];
-		}
-
-		if (array_key_exists('price', $changedFields)) 
-		{
-			$updates[] = "price = :price";
-			$params[':price'] = $changedFields['price'];
-		}
-
-		if (array_key_exists('is_active', $changedFields)) 
-		{
-			$updates[] = "is_active = :is_active";
-			$params[':is_active'] = $changedFields['is_active'] ? 1 : 0;
+			if ($field === 'is_active')
+			{
+				$params[":$field"] = $changedFields[$field] ? 1 : 0;
+			}
+			else $params[":$field"] = $changedFields[$field];
 		}
 
 		$updates[] = "updated_at = NOW()";

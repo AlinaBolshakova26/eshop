@@ -124,26 +124,24 @@ class ProductService
             throw new \InvalidArgumentException('Product not found');
         }
 
+
         $changedFields = [];
-        if ($data['name'] !== $product->getName())
+
+        $fieldsToCheck =
+        [
+            'name' => 'getName',
+            'description' => 'getDescription',
+            'desc_short' => 'getDescShort',
+            'price' => 'getPrice',
+            'is_active' => 'getIsActive',
+        ];
+
+        foreach($fieldsToCheck as $field => $getter)
         {
-            $changedFields['name'] = $data['name'];
-        }
-        if ($data['description'] !== $product->getDescription())
-        {
-            $changedFields['description'] = $data['description'];
-        }
-        if ($data['desc_short'] !== $product->getDescShort())
-        {
-            $changedFields['desc_short'] = $data['desc_short'];
-        }
-        if ($data['price'] !== $product->getPrice())
-        {
-            $changedFields['price'] = $data['price'];
-        }
-        if ($data['is_active'] !== $product->getIsActive())
-        {
-            $changedFields['is_active'] = $data['is_active'];
+            if (isset($data[$field]) && $data[$field] !== $product->$getter())
+            {
+                $changedFields[$field] = $data[$field];
+            }
         }
 
         if (!empty($changedFields))
