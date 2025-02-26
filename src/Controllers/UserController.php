@@ -10,6 +10,7 @@ use Requests\UserRegistrationRequest;
 
 class UserController
 {
+    
     private UserService $userService;
 
     public function __construct()
@@ -22,14 +23,20 @@ class UserController
 
     public function index(): void
     {
+
         $content = View::make(__DIR__ . '/../Views/user/auth/login.php');
-        echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-            'content' => $content,
-        ]);
+        echo View::make
+        (__DIR__ . '/../Views/layouts/main_template.php', 
+    [
+                'content' => $content,
+            ]
+        );
+
     }
 
     public function authenticate(): void
     {
+        
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 
@@ -46,40 +53,65 @@ class UserController
             else
             {
                 $error = "Неверный email или пароль.";
-                $content = View::make(__DIR__ . '/../Views/user/auth/login.php', ['error' => $error]);
-                echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+                $content = View::make
+                (__DIR__ . '/../Views/user/auth/login.php', 
+            [
+                        'error' => $error
+                    ]
+                );
+                echo View::make
+                (__DIR__ . '/../Views/layouts/main_template.php', 
+            [
                     'content' => $content,
-                ]);
+                    ]
+                );
             }
         }
         catch (\Exception $e)
         {
             error_log("Ошибка при аутентификации: " . $e->getMessage());
             $error = "Произошла ошибка при попытке входа.";
-            $content = View::make(__DIR__ . '/../Views/user/auth/login.php', ['error' => $error]);
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-                'content' => $content,
-            ]);
+            $content = View::make
+            (__DIR__ . '/../Views/user/auth/login.php', 
+        [
+                    'error' => $error
+                ]
+            );
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
+                    'content' => $content,
+                ]
+            );
         }
+
     }
 
     public function logout(): void
     {
+
         session_destroy();
         header("Location: /user/login");
         exit;
+
     }
 
     public function register(): void
     {
+
         $content = View::make(__DIR__ . '/../Views/user/auth/register.php');
-        echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-            'content' => $content,
-        ]);
+        echo View::make
+        (__DIR__ . '/../Views/layouts/main_template.php', 
+    [
+                'content' => $content,
+            ]
+        );
+
     }
 
     public function store(): void
     {
+
         try
         {
             $registrationRequest = new UserRegistrationRequest($_POST);
@@ -87,8 +119,18 @@ class UserController
         }
         catch (\InvalidArgumentException $e)
         {
-            $content = View::make(__DIR__ . '/../Views/user/auth/register.php', ['error' => $e->getMessage()]);
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', ['content' => $content]);
+            $content = View::make
+            (__DIR__ . '/../Views/user/auth/register.php', 
+        [
+                    'error' => $e->getMessage()
+                ]
+            );
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
+                    'content' => $content
+                ]
+            );
             return;
         }
 
@@ -96,6 +138,7 @@ class UserController
         {
             $userData = $registrationRequest->getData();
             $result = $this->userService->register($userData);
+
             if ($result)
             {
                 header("Location: /user/login");
@@ -104,16 +147,38 @@ class UserController
             else
             {
                 $error = "Ошибка регистрации. Попробуйте еще раз.";
-                $content = View::make(__DIR__ . '/../Views/user/auth/register.php', ['error' => $error]);
-                echo View::make(__DIR__ . '/../Views/layouts/main_template.php', ['content' => $content]);
+                $content = View::make
+                (__DIR__ . '/../Views/user/auth/register.php', 
+            [
+                        'error' => $error
+                    ]
+                );
+                echo View::make
+                (__DIR__ . '/../Views/layouts/main_template.php', 
+            [
+                        'content' => $content
+                    ]
+                );
             }
         }
         catch (\Exception $e)
         {
             error_log("Ошибка регистрации: " . $e->getMessage());
             $error = "Ошибка регистрации: " . $e->getMessage();
-            $content = View::make(__DIR__ . '/../Views/user/auth/register.php', ['error' => $error]);
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', ['content' => $content]);
+            $content = View::make
+            (__DIR__ . '/../Views/user/auth/register.php', 
+        [
+                    'error' => $error
+                ]
+            );
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
+                    'content' => $content
+                ]
+            );
         }
+
     }
+    
 }

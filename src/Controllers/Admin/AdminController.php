@@ -33,9 +33,7 @@ class AdminController
 
     public function login(): void
     {
-
         require __DIR__ . '/../../Views/admin/auth/login.php';
-
     }
 
     public function authenticate(): void

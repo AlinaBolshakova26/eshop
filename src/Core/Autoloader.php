@@ -8,33 +8,32 @@ class Autoloader
 
 	public static function addPath($path)
 	{
-
 		self::$paths[] = $path;
-
 	}
 
 	public static function register()
 	{
 
-		spl_autoload_register(function ($className) 
-		{
-			$file = str_replace('\\', DIRECTORY_SEPARATOR, $className);
-
-			foreach (self::$paths as $path) 
+		spl_autoload_register
+		(function ($className) 
 			{
-				$fullPath = $path . $file . '.php';
+				$file = str_replace('\\', DIRECTORY_SEPARATOR, $className);
 
-				if (file_exists($fullPath)) 
+				foreach (self::$paths as $path) 
 				{
-					require $fullPath;
+					$fullPath = $path . $file . '.php';
 
-					return true;
+					if (file_exists($fullPath)) 
+					{
+						require $fullPath;
+
+						return true;
+					}
 				}
-			}
 
-			return false;
-		});
-
+				return false;
+			});
+	
 	}
 	
 }

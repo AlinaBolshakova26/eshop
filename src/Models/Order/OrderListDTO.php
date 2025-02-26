@@ -3,7 +3,9 @@ namespace Models\Order;
 
 final class OrderListDTO
 {
-	public function __construct(
+
+	public function __construct
+	(
 		public readonly int $id,
 		public readonly string $city,
 		public readonly string $street,
@@ -13,4 +15,5 @@ final class OrderListDTO
 		public readonly string $status,
 		public readonly string $createdAt
 	) {}
+
 }

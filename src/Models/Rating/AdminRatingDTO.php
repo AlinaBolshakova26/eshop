@@ -3,7 +3,9 @@ namespace Models\Rating;
 
 class AdminRatingDTO
 {
-    public function __construct(
+
+    public function __construct
+    (
         public int $id,
         public string $userName,
         public string $productName,
@@ -11,4 +13,5 @@ class AdminRatingDTO
         public ?string $comment,
         public string $createdAt
     ) {}
+
 }

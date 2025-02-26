@@ -20,8 +20,10 @@ class Session
 
     public static function destroy(): void
     {
+
         $_SESSION = [];
         session_destroy();
+        
     }
     
 }

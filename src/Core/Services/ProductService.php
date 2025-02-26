@@ -15,13 +15,12 @@ class ProductService
 
     public function __construct(ProductRepository $repository, RatingRepository $ratingRepository)
     {
-
         $this->repository = $repository;
         $this->ratingRepository = $ratingRepository;
-
     }
 
-    public function getPaginatedProducts(
+    public function getPaginatedProducts
+    (
         int $page,
         int $itemsPerPage,
         ?array $tagIds,
@@ -31,9 +30,9 @@ class ProductService
     {
 
         $offset = ($page - 1) * $itemsPerPage;
-        // $products = $this->repository->findAllPaginated($itemsPerPage, $offset, $tagIds, $minPrice, $maxPrice,true);
 
-        $products = $this->repository->findAllPaginated(
+        $products = $this->repository->findAllPaginated
+        (
             $itemsPerPage,
             $offset,
             $tagIds,
@@ -41,7 +40,8 @@ class ProductService
             $maxPrice
         );
 
-        if (empty($products)) {
+        if (empty($products)) 
+        {
             return [];
         }
 
@@ -49,10 +49,12 @@ class ProductService
 
         $ratings = $this->ratingRepository->getAverageRatingsForProducts($productIds);
 
-        return array_map(
+        return array_map
+        (
             function(Product $product) use ($ratings)
             {
-                $productWithRating = $product->withRating(
+                $productWithRating = $product->withRating
+                (
                     $ratings[$product->getId()] ?? new RatingListDTO(0, 0)
                 );
 
@@ -60,17 +62,8 @@ class ProductService
             },
             $products
         );
+
     }
-
-    // private function addRatingsToProducts(array $products): array
-    // {
-    //     $productIds = array_map(fn($p) => $p->getId(), $products);
-    //     $ratings = $this->ratingRepository->getAverageRatingsForProducts($productIds);
-
-    //     return array_map(fn($product) => $product->withRating(
-    //         $ratings[$product->getId()] ?? null
-    //     ), $products);
-    // }
 
     public function getProductByid(int $id)
     {
@@ -101,9 +94,7 @@ class ProductService
 
     public function adminGetProductByid(int $id)
     {
-
         return $this->repository->findProductById($id, true);
-
     }
 
     public function adminToggleStatus(array $productIds, bool $newStatus): void
@@ -113,15 +104,14 @@ class ProductService
         {
             throw new \InvalidArgumentException('No products to update');
         }
+
         $this->repository->updateStatus($productIds, $newStatus);
 
     }
 
     public function createProduct(array $data): int
     {
-
         return $this->repository->create($data);
-
     }
 
     public function updateProduct(int $id, array $data): void

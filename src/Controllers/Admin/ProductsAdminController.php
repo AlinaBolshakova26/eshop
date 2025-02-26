@@ -33,7 +33,8 @@ class ProductsAdminController
         $tagRepository = new TagRepository($pdo);
 
         $this->adminService = new AdminService(new AdminRepository($pdo));
-        $this->productService = new ProductService(
+        $this->productService = new ProductService
+        (
             $productRepository,
             $ratingRepository
         );
@@ -77,18 +78,23 @@ class ProductsAdminController
                 $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
             }
 
-            $content = View::make(__DIR__ . '/../../Views/admin/products/index.php', [
-                'products' => $products,
-                'totalPages' => $totalPages,
-                'currentPage' => $currentPage,
-                'searchQuery' => $searchQuery,
-                'searchValue' => $searchValue,
-                'error' => View::make(__DIR__ . '/../../Views/admin/error_block.php')
-            ]);
+            $content = View::make(__DIR__ . '/../../Views/admin/products/index.php', 
+        [
+                    'products' => $products,
+                    'totalPages' => $totalPages,
+                    'currentPage' => $currentPage,
+                    'searchQuery' => $searchQuery,
+                    'searchValue' => $searchValue,
+                    'error' => View::make(__DIR__ . '/../../Views/admin/error_block.php')
+                ]
+            );
 
-            echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', [
-                'content' => $content,
-            ]);
+            echo View::make
+            (__DIR__ . '/../../Views/layouts/admin_layout.php', 
+        [
+                    'content' => $content,
+                ]
+            );
         }
         catch (\PDOException $e)
         {

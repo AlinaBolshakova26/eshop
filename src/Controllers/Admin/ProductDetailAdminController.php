@@ -31,7 +31,8 @@ class ProductDetailAdminController
         $ratingRepository = new RatingRepository($pdo);
 
         $this->adminService = new AdminService(new AdminRepository($pdo));
-        $this->productService = new ProductService(
+        $this->productService = new ProductService
+		(
             $productRepository,
             $ratingRepository
         );
@@ -41,6 +42,7 @@ class ProductDetailAdminController
 
     public function edit(int $id): void
     {
+		
 		if (!$this->adminService->isAdminLoggedIn())
 		{
 			header('Location: /admin/login');
@@ -57,23 +59,27 @@ class ProductDetailAdminController
             exit;
         }
 
-        $content = View::make(__DIR__ . '/../../Views/admin/products/detail.php', 
-    		[
+        $content = View::make
+		(__DIR__ . '/../../Views/admin/products/detail.php', 
+	[
                 'product' => $product,
 				'allTags' => $allTags,
 				'productTags' => $productTags,
             ]
         );
 
-        echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', 
-    		[
+        echo View::make
+		(__DIR__ . '/../../Views/layouts/admin_layout.php', 
+	[
                 'content' => $content,
             ]
         );
+
     }
 
 	public function update(int $id)
 	{
+
 		if (!$this->adminService->isAdminLoggedIn())
 		{
 			header('Location: /admin/login');
@@ -84,14 +90,16 @@ class ProductDetailAdminController
 		$main_image = $_FILES['main_image'] ?? null;
 		$additional_images = $_FILES['additional_images'] ?? [];
 		$imagesToDelete = $_POST['images_to_delete'] ?? [];
-		$this->productService->updateProduct($id,
+		$this->productService->updateProduct
+		($id,
 		[
-			'name' => $_POST['name'],
-			'description' => $_POST['description'],
-			'desc_short' => $_POST['desc_short'],
-			'price' => $_POST['price'],
-			'is_active' => $_POST['is_active'],
-		]);
+				'name' => $_POST['name'],
+				'description' => $_POST['description'],
+				'desc_short' => $_POST['desc_short'],
+				'price' => $_POST['price'],
+				'is_active' => $_POST['is_active'],
+			]
+		);
 
 		$this->tagService->updateProductTags($id, $selectedTagIds);
 
@@ -100,15 +108,19 @@ class ProductDetailAdminController
 			$this->imageService->saveImage($id, $main_image, true);
 		}
 
-		if (!empty($additional_images)) {
-			foreach ($additional_images['tmp_name'] as $key => $tmpName) {
-				$file = [
+		if (!empty($additional_images)) 
+		{
+			foreach ($additional_images['tmp_name'] as $key => $tmpName) 
+			{
+				$file = 
+				[
 					'tmp_name' => $tmpName,
 					'name' => $additional_images['name'][$key],
 					'type' => $additional_images['type'][$key],
 					'error' => $additional_images['error'][$key],
 					'size' => $additional_images['size'][$key]
 				];
+
 				$this->imageService->saveImage($id, $file);
 			}
 		}
@@ -123,5 +135,7 @@ class ProductDetailAdminController
 
 		header('Location: /admin/products');
 		exit;
+
 	}
+	
 }

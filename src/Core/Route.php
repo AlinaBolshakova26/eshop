@@ -18,12 +18,10 @@ class Route
         callable|array $callback
     )
     {
-
         $this->method = strtoupper($method);
         $this->path = $path;
         $this->callback = $callback;
         $this->processPath();
-        
     }
 
     private function processPath(): void
@@ -45,12 +43,10 @@ class Route
 
     public function matches(string $method, string $uri): bool
     {
-
         return
             $this->method === $method
             &&
             preg_match('#^' . $this->pattern . '$#', $uri);
-
     }
 
     public function execute(string $uri):? array

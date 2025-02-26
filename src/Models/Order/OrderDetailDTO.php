@@ -3,7 +3,9 @@ namespace Models\Order;
 
 final class OrderDetailDTO
 {
-	public function __construct(
+
+	public function __construct
+	(
 		public readonly int $id,
 		public readonly int $user_id,
 		public readonly int $item_id,
@@ -16,4 +18,5 @@ final class OrderDetailDTO
 		public readonly string $createdAt,
 		public readonly string $updatedAt
 	) {}
+
 }

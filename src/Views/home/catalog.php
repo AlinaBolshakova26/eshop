@@ -26,14 +26,14 @@
         <div class="col-md-3">
             <label for="minPrice" class="form-label">Минимальная цена</label>
             <input type="number" id="minPrice" name="minPrice" class="form-control"
-                   value="<?= htmlspecialchars($_GET['minPrice']) ?? null ?>" placeholder="От" min="0">
+                   value="<?= isset($_GET['minPrice']) ? htmlspecialchars($_GET['minPrice']) : null ?>" placeholder="От" min="0">
         </div>
 
         <div class="col-md-3">
             <label for="maxPrice" class="form-label">Максимальная цена</label>
             <input type="number" id="maxPrice" name="maxPrice" class="form-control"
-                   value="<?= htmlspecialchars($_GET['maxPrice']) ?? null ?>" placeholder="До" min="0">
-        </div>
+            value="<?= isset($_GET['maxPrice']) ? htmlspecialchars($_GET['maxPrice']) : null ?>" placeholder="От" min="0">
+            </div>
 
 		<?php if (!empty($selectedTagIds)): ?>
             <input type="hidden" name="tags" value="<?= implode(',', $selectedTagIds) ?>">

@@ -15,10 +15,12 @@ use Core\Services\ImageService;
 
 class ProductCreateController
 {
+	
 	private ProductService $productService;
 	private TagService $tagService;
 	private AdminService $adminService;
 	private ImageService $imageService;
+
 	public function __construct()
 	{
 
@@ -29,12 +31,14 @@ class ProductCreateController
         $ratingRepository = new RatingRepository($pdo);
 
         $this->adminService = new AdminService(new AdminRepository($pdo));
-        $this->productService = new ProductService(
+        $this->productService = new ProductService
+		(
             $productRepository,
             $ratingRepository
         );
         $this->tagService = new TagService(new TagRepository($pdo));
         $this->imageService = new ImageService($pdo);
+
 	}
 
 	public function create(): void
@@ -47,13 +51,15 @@ class ProductCreateController
 
 		$tags = $this->tagService->getAllTags();
 
-		$content = View::make(__DIR__ . '/../../Views/admin/products/add_product.php',
-			[
+		$content = View::make
+		(__DIR__ . '/../../Views/admin/products/add_product.php',
+	[
 				'tags' => $tags,
 			]
 		);
-		echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php',
-			[
+		echo View::make
+		(__DIR__ . '/../../Views/layouts/admin_layout.php',
+	[
 				'content' => $content,
 			]
 		);
@@ -61,6 +67,7 @@ class ProductCreateController
 
 	public function store()
 	{
+
 		if (!$this->adminService->isAdminLoggedIn())
 		{
 			header('Location: /admin/login');
@@ -75,37 +82,46 @@ class ProductCreateController
 		$additionalImages = $_FILES['additional_images'] ?? [];
 		$tags = $_POST['tags'] ?? [];
 
-		$productId = $this->productService->createProduct(
-			[
+		$productId = $this->productService->createProduct
+		(
+	  [
 				'name' => $name,
 				'description' => $description,
 				'desc_short' => $descShort,
 				'price' => $price,
 			]
 		);
+
 		if (!empty($mainImage))
 		{
 			$this->imageService->saveImage($productId, $mainImage, true);
 		}
 
-		if (!empty($additionalImages)) {
-			foreach ($additionalImages['tmp_name'] as $key => $tmpName) {
-				$file = [
+		if (!empty($additionalImages)) 
+		{
+			foreach ($additionalImages['tmp_name'] as $key => $tmpName) 
+			{
+				$file = 
+				[
 					'tmp_name' => $tmpName,
 					'name' => $additionalImages['name'][$key],
 					'type' => $additionalImages['type'][$key],
 					'error' => $additionalImages['error'][$key],
 					'size' => $additionalImages['size'][$key]
 				];
+
 				$this->imageService->saveImage($productId, $file);
 			}
 		}
 
-		if (!empty($tags)) {
+		if (!empty($tags)) 
+		{
 			$this->tagService->addTagsToProduct($productId, $tags);
 		}
 
 		header('Location: /admin/products');
 		exit;
+
 	}
+	
 }

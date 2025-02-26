@@ -30,7 +30,8 @@ class HomeController
         $ratingRepository = new RatingRepository($pdo);
         
         $this->tagService = new TagService(new TagRepository($pdo));
-        $this->productService = new ProductService(
+        $this->productService = new ProductService
+        (
             $productRepository,
             $ratingRepository
         );
@@ -40,10 +41,13 @@ class HomeController
 
     public function index(): void
 	{
-		if (isset($_GET['tags']) && $_GET['tags'] === '') {
+
+		if (isset($_GET['tags']) && $_GET['tags'] === '') 
+        {
 			header('Location: /');
 			exit;
 		}
+
 		$selectedTagIds = isset($_GET['tags']) ? explode(',', $_GET['tags']) : [];
 		$currentPage = max(1, (int)($_GET['page'] ?? 1));
 
@@ -60,7 +64,8 @@ class HomeController
             if (!is_numeric($minPrice) && $minPrice !== null)
             {
                 $priceError = "Минимальная цена должна быть числом.";
-            } elseif (!is_numeric($maxPrice) && $maxPrice !== null)
+            } 
+            elseif (!is_numeric($maxPrice) && $maxPrice !== null)
             {
                 $priceError = "Максимальная цена должна быть числом.";
             }
@@ -92,7 +97,8 @@ class HomeController
             }
             else
             {
-                $products = $this->productService->getPaginatedProducts(
+                $products = $this->productService->getPaginatedProducts
+                (
                     $currentPage,
                     ITEMS_PER_PAGE,
                     $selectedTagIds,
@@ -100,14 +106,14 @@ class HomeController
                     $maxPrice
                 );
 
-                $totalPages = $this->productService->getTotalPages(
+                $totalPages = $this->productService->getTotalPages
+                (
                     ITEMS_PER_PAGE,
                     $selectedTagIds,
                     $searchQuery,
                     $minPrice,
                     $maxPrice
                 );
-
             }
 
             if ($priceError)
@@ -117,7 +123,9 @@ class HomeController
             }
 
             $selectedTagNames = [];
-            foreach ($tags as $tag) {
+
+            foreach ($tags as $tag) 
+            {
                 if (in_array($tag->toListDTO()->id, $selectedTagIds))
                 {
                     $selectedTagNames[] = $tag->toListDTO()->name;
@@ -134,26 +142,32 @@ class HomeController
             $productIds = array_map(fn($product) => $product->id, $products);
             $ratingsMap = $this->ratingService->getRatingsForProducts($productIds);
 
-            $content = View::make(__DIR__ . "/../Views/home/catalog.php", [
-                'products' => $products,
-                'ratingsMap' => $ratingsMap,
-                'tags' => $tags,
-                'selectedTagIds' => $selectedTagIds,
-                'selectedTagName' => $selectedTagName,
-                'totalPages' => $totalPages,
-                'currentPage' => $currentPage,
-                'searchQuery' => $searchQuery,
-                'searchValue' => $searchValue,
-                'minPrice' => $minPrice,
-                'maxPrice' => $maxPrice,
-                'priceError' => $priceError,
-            ]);
+            $content = View::make
+            (__DIR__ . "/../Views/home/catalog.php", 
+        [
+                    'products' => $products,
+                    'ratingsMap' => $ratingsMap,
+                    'tags' => $tags,
+                    'selectedTagIds' => $selectedTagIds,
+                    'selectedTagName' => $selectedTagName,
+                    'totalPages' => $totalPages,
+                    'currentPage' => $currentPage,
+                    'searchQuery' => $searchQuery,
+                    'searchValue' => $searchValue,
+                    'minPrice' => $minPrice,
+                    'maxPrice' => $maxPrice,
+                    'priceError' => $priceError,
+                ]
+            );
 
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
                 'content' => $content,
                 'searchQuery' => $searchQuery,
                 'searchValue' => $searchValue,
-            ]);
+                ]
+            );
         }
         catch (\PDOException $e)
         {
@@ -162,27 +176,34 @@ class HomeController
         }
         catch (\Exception $e)
         {
-            $content = View::make(__DIR__ . "/../Views/home/catalog.php", [
-                'products' => [],
-                'tags' => $tags,
-                'selectedTagIds' => [],
-                'selectedTagName' => '',
-                'error' => 'Товары не найдены',
-                'totalPages' => 0,
-                'currentPage' => 1,
-                'searchQuery' => $searchQuery,
-                'searchValue' => $searchValue,
-                'minPrice' => $minPrice,
-                'maxPrice' => $maxPrice,
-                'priceError' => $priceError,
-            ]);
+            $content = View::make
+            (__DIR__ . "/../Views/home/catalog.php", 
+        [
+                    'products' => [],
+                    'tags' => $tags,
+                    'selectedTagIds' => [],
+                    'selectedTagName' => '',
+                    'error' => 'Товары не найдены',
+                    'totalPages' => 0,
+                    'currentPage' => 1,
+                    'searchQuery' => $searchQuery,
+                    'searchValue' => $searchValue,
+                    'minPrice' => $minPrice,
+                    'maxPrice' => $maxPrice,
+                    'priceError' => $priceError,
+                ]
+            );
 
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-                'content' => $content,
-                'searchQuery' => $searchQuery,
-                'searchValue' => $searchValue,
-            ]);
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
+                    'content' => $content,
+                    'searchQuery' => $searchQuery,
+                    'searchValue' => $searchValue,
+                ]
+            );
         }
+        
     }
 
 }

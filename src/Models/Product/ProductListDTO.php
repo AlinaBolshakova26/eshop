@@ -5,7 +5,9 @@ use Models\Rating\RatingListDTO;
 
 final class ProductListDTO
 {
-	public function __construct(
+
+	public function __construct
+	(
 		public readonly int $id,
 		public readonly string $name,
 		public readonly string $desc_short,
@@ -15,4 +17,5 @@ final class ProductListDTO
 		public readonly ?array $additional_image_paths,
         public readonly ?RatingListDTO $rating = null
     ) {}
+	
 }

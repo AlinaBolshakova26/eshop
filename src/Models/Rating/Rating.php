@@ -4,6 +4,7 @@ namespace Models\Rating;
 
 class Rating
 {
+
     private int $id;
     private int $productId;
     private int $userId;
@@ -51,15 +52,17 @@ class Rating
         return $this->createdAt;
     }
 
-    public function toDTO(): RatingDTO
-    {
-        return new RatingDTO(
-            $this->id,
-            $this->productId,
-            $this->userId,
-            $this->rating,
-            $this->comment,
-            $this->createdAt->format('Y-m-d H:i:s')
-        );
-    }
+    // public function toDTO(): RatingDTO
+    // {
+    //     return new RatingDTO
+    //     (
+    //         $this->id,
+    //         $this->productId,
+    //         $this->userId,
+    //         $this->rating,
+    //         $this->comment,
+    //         $this->createdAt->format('Y-m-d H:i:s')
+    //     );
+    // }
+
 }

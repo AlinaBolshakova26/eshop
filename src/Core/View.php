@@ -10,10 +10,8 @@ class View
 
 	public function __construct($templatePath, $params = [])
 	{
-
 		$this->templatePath = $templatePath;
 		$this->params = $params;
-
 	}
 
 	public static function make($templatePath, $params = [])

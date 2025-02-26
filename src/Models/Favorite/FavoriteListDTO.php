@@ -2,7 +2,9 @@
 
 namespace Models\Favorite;
 
-class FavoriteListDTO {
+class FavoriteListDTO 
+{
+    
     public int $id;
     public int $user_id;
     public int $item_id;
@@ -12,7 +14,8 @@ class FavoriteListDTO {
     public ?float $product_price;
     public ?string $main_image;
 
-    public function __construct(array $data) {
+    public function __construct(array $data) 
+    {
         $this->id            = (int)($data['id'] ?? 0);
         $this->user_id       = (int)($data['user_id'] ?? 0);
         $this->item_id       = (int)($data['item_id'] ?? 0);
@@ -21,4 +24,5 @@ class FavoriteListDTO {
         $this->product_price = isset($data['product_price']) ? (float)$data['product_price'] : null;
         $this->main_image    = $data['main_image'] ?? null;
     }
+
 }

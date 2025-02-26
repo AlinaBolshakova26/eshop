@@ -13,9 +13,7 @@ class AdminService
 
     public function __construct(AdminRepository $repository)
     {
-
         $this->repository = $repository;
-
     }
 
     public function authenticate(string $email, string $password): bool
@@ -36,16 +34,12 @@ class AdminService
 
     public function isAdminLoggedIn(): bool
     {
-
         return Session::has('admin');
-
     }
 
     public function logout(): void
     {
-
         Session::destroy();
-
     }
     
 }

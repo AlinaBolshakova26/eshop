@@ -6,60 +6,79 @@ use PDOException;
 
 class Tag
 {
+
 	private int $id;
 	private string $name;
 	private string $created_at;
 	private string $updated_at;
-	private bool $is_active; // Изменено на bool
+	private bool $is_active; 
 
 	public static function fromDatabase(array $row): self
 	{
+
 		$tag = new self();
 		$tag->id = $row['id'];
 		$tag->name = $row['name'];
 		$tag->created_at = $row['created_at'] ?? date('Y-m-d H:i:s');
 		$tag->updated_at = $row['updated_at'] ?? date('Y-m-d H:i:s');
-		$tag->is_active = isset($row['is_active']) ? (bool)$row['is_active'] : true; // Обработка NULL значений
+		$tag->is_active = isset($row['is_active']) ? (bool)$row['is_active'] : true; 
 
 		return $tag;
+
 	}
 
 	public function toListDTO(): TagListDTO
 	{
-		return new TagListDTO(
+		return new TagListDTO
+		(
 			$this->id,
 			$this->name,
 			$this->created_at,
 			$this->updated_at,
-			$this->is_active // Передаем булево значение
+			$this->is_active 
 		);
 	}
 
 	public function rename(PDO $pdo, string $newName): bool
 	{
+
 		$this->name = $newName;
 		$this->updated_at = date('Y-m-d H:i:s');
+
 		return $this->save($pdo);
+
 	}
 
 	private function save(PDO $pdo): bool
 	{
-		try {
-			$stmt = $pdo->prepare("
+
+		try 
+		{
+			$stmt = $pdo->prepare
+			("
                 UPDATE up_tag 
-                SET name = :name, updated_at = :updated_at 
+                SET 
+					name = :name, 
+					updated_at = :updated_at 
                 WHERE id = :id
             ");
 
-			return $stmt->execute([
-				'id' => $this->id,
-				'name' => $this->name,
-				'updated_at' => $this->updated_at,
-			]);
-		} catch (PDOException $e) {
+			return $stmt->execute
+			(
+				[
+					'id' => $this->id,
+					'name' => $this->name,
+					'updated_at' => $this->updated_at,
+				]
+			);
+		} 
+		catch (PDOException $e) 
+		{
 			error_log("Database error: " . $e->getMessage());
+
 			return false;
 		}
+
 	}
 
 	// Геттеры
@@ -83,7 +102,7 @@ class Tag
 		return $this->updated_at;
 	}
 
-	public function getIsActive(): bool // Добавлен геттер
+	public function getIsActive(): bool
 	{
 		return $this->is_active;
 	}
@@ -109,8 +128,9 @@ class Tag
 		$this->updated_at = $updated_at;
 	}
 
-	public function setIsActive(bool $isActive): void // Добавлен сеттер
+	public function setIsActive(bool $isActive): void
 	{
 		$this->is_active = $isActive;
 	}
+	
 }

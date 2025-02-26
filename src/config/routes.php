@@ -39,7 +39,9 @@ $router->addRoute('POST', '/admin/login', [\Controllers\Admin\AdminController::c
 $router->addRoute('GET', '/admin/logout', [\Controllers\Admin\AdminController::class, 'logout']);
 //$router->addRoute('GET', '/admin', [\Controllers\Admin\AdminController::class, 'index']);
 
-$router->addRoute('GET', '/admin', function()
+$router->addRoute
+('GET', '/admin', 
+function()
 	{
 		header('Location: /admin/products');
 		exit;
@@ -64,7 +66,6 @@ $router->addRoute('POST', '/favorites/remove/{id:\d+}', [\Controllers\FavoriteCo
 $router->addRoute('POST', '/favorites/toggle', [\Controllers\FavoriteController::class, 'toggle']);
 $router->addRoute('GET', '/favorites/data', [\Controllers\FavoriteController::class, 'data']);
 
-
 $router->addRoute('GET', '/admin/tags', [\Controllers\Admin\TagAdminController::class, 'index']);
 $router->addRoute('GET', '/admin/tags/create', [\Controllers\Admin\TagAdminController::class, 'create']);
 $router->addRoute('POST', '/admin/tags/create', [\Controllers\Admin\TagAdminController::class, 'store']);
@@ -74,6 +75,5 @@ $router->addRoute('POST', '/admin/tags/process', [\Controllers\Admin\TagAdminCon
 
 $router->addRoute('GET', '/admin/ratings', [\Controllers\Admin\RatingAdminController::class, 'index']);
 $router->addRoute('GET', '/admin/ratings/{id:\d+}', [\Controllers\Admin\RatingAdminController::class, 'show']);
-
 
 return $router;

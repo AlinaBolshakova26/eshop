@@ -12,6 +12,7 @@ use Core\View;
 
 class OrderController
 {
+    
     private OrderRepository $orderRepository;
 
     public function __construct()
@@ -22,10 +23,12 @@ class OrderController
 
     public static function create($id)
     {
+
         $controller = new self();
         $product = $controller->orderRepository->getProductById($id);
 
-        if (!$product) {
+        if (!$product) 
+        {
             http_response_code(404);
             echo '404 Not Found';
             return;
@@ -39,20 +42,28 @@ class OrderController
             $userData = $controller->orderRepository->getUserById($_SESSION['user_id']);
         }
 
-        $content = View::make(__DIR__ . '/../Views/order/form.php', [
-            'product' => $product,
-            'quantity' => $quantity,
-            'errors' => [],
-            'user' => $userData,
-        ]);
+        $content = View::make
+        (__DIR__ . '/../Views/order/form.php', 
+    [
+                'product' => $product,
+                'quantity' => $quantity,
+                'errors' => [],
+                'user' => $userData,
+            ]
+        );
 
-        echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-            'content' => $content
-        ]);
+        echo View::make
+        (__DIR__ . '/../Views/layouts/main_template.php', 
+    [
+                'content' => $content
+            ]
+        );
+
     }
 
     public static function store()
     {
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST')
         {
             return;
@@ -100,15 +111,22 @@ class OrderController
         if (!empty($errors))
         {
             $product = $controller->orderRepository->getProductById($product_id);
-            $content = View::make(__DIR__ . '/../Views/order/form.php', [
-                'product' => $product,
-                'quantity' => $quantity,
-                'errors' => $errors,
-                'user' => []
-            ]);
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-                'content' => $content
-            ]);
+            $content = View::make
+            (__DIR__ . '/../Views/order/form.php', 
+        [
+                    'product' => $product,
+                    'quantity' => $quantity,
+                    'errors' => $errors,
+                    'user' => []
+                ]
+            );
+
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
+                    'content' => $content
+                ]
+            );
             return;
         }
 
@@ -127,6 +145,7 @@ class OrderController
         $total_price = $price * $quantity;
 
         $order = new Order($user_id, $product_id, $total_price, $city, $street, $house, $apartment);
+
         if ($order->saveInDb())
         {
             header("Location: /order/success");
@@ -136,15 +155,18 @@ class OrderController
         {
             echo "<script>alert('Ошибка при оформлении заказа. Пожалуйста, попробуйте ещё раз.'); window.location.href='/order/create/{$product_id}';</script>";
         }
+
     }
 
     public static function createCartOrder()
     {
+
         if (!isset($_SESSION['user_id']))
         {
             header("Location: /user/login");
             exit;
         }
+
         $userId = $_SESSION['user_id'];
 
         $db = (new MySQLDatabase())->getConnection();
@@ -171,27 +193,39 @@ class OrderController
             $userData = (new OrderController())->orderRepository->getUserById($_SESSION['user_id']);
         }
 
-        $content = View::make(__DIR__ . '/../Views/order/checkout_cart.php', [
-            'cartItems' => $cartItems,
-            'total'     => $total,
-            'user'      => $userData,
-            'errors'    => []
-        ]);
+        $content = View::make
+        (__DIR__ . '/../Views/order/checkout_cart.php', 
+    [
+                'cartItems' => $cartItems,
+                'total'     => $total,
+                'user'      => $userData,
+                'errors'    => []
+            ]
+        );
 
-        echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-            'content' => $content
-        ]);
+        echo View::make
+        (__DIR__ . '/../Views/layouts/main_template.php', 
+    [
+                'content' => $content
+            ]
+        );
+
     }
 
     public static function storeCartOrder()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') 
+        {
             return;
         }
-        if (!isset($_SESSION['user_id'])) {
+        
+        if (!isset($_SESSION['user_id'])) 
+        {
             header("Location: /user/login");
             exit;
         }
+
         $userId = $_SESSION['user_id'];
 
         $customer_name = trim($_POST['customer_name'] ?? '');
@@ -206,51 +240,66 @@ class OrderController
         if (empty($customer_name)) {
             $errors['customer_name'] = 'Введите ФИО';
         }
-        if (!preg_match('/^(\+7|8)\d{10}$/', $phone)) {
+        if (!preg_match('/^(\+7|8)\d{10}$/', $phone)) 
+        {
             $errors['phone'] = 'Телефон должен быть в формате +7XXXXXXXXXX или 8XXXXXXXXXX.';
         }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) 
+        {
             $errors['email'] = 'Введите корректный email';
         }
-        if (strlen($city) < 3) {
+        if (strlen($city) < 3) 
+        {
             $errors['city'] = 'Город должен содержать минимум 3 символа';
         }
-        if (strlen($street) < 3) {
+        if (strlen($street) < 3) 
+        {
             $errors['street'] = 'Улица должна содержать минимум 3 символа';
         }
-        if (empty($house)) {
+        if (empty($house)) 
+        {
             $errors['house'] = 'Укажите номер дома';
         }
 
-        if (!empty($errors)) {
+        if (!empty($errors)) 
+        {
             $db = (new MySQLDatabase())->getConnection();
             $cartRepository = new CartRepository($db);
             $cartService = new CartService($cartRepository);
             $cartItems = $cartService->getCartItems($userId);
 
             $total = 0;
-            foreach ($cartItems as $item) {
+
+            foreach ($cartItems as $item)
+            {
                 $total += ($item->product_price ?? 0) * $item->getQuantity();
             }
 
-            $content = View::make(__DIR__ . '/../Views/order/checkout_cart.php', [
-                'cartItems' => $cartItems,
-                'total'     => $total,
-                'user'      => [
-                    'name'      => $customer_name,
-                    'phone'     => $phone,
-                    'email'     => $email,
-                    'city'      => $city,
-                    'street'    => $street,
-                    'house'     => $house,
-                    'apartment' => $apartment,
-                ],
-                'errors'    => $errors
-            ]);
+            $content = View::make
+            (__DIR__ . '/../Views/order/checkout_cart.php', 
+        [
+                    'cartItems' => $cartItems,
+                    'total'     => $total,
+                    'user'      => 
+                    [
+                        'name'      => $customer_name,
+                        'phone'     => $phone,
+                        'email'     => $email,
+                        'city'      => $city,
+                        'street'    => $street,
+                        'house'     => $house,
+                        'apartment' => $apartment,
+                    ],
+                    'errors'    => $errors
+                ]
+            );
 
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-                'content' => $content
-            ]);
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
+                    'content' => $content
+                ]
+            );
             return;
         }
 
@@ -259,7 +308,8 @@ class OrderController
         $cartService = new CartService($cartRepository);
         $cartItems = $cartService->getCartItems($userId);
 
-        if (empty($cartItems)) {
+        if (empty($cartItems)) 
+        {
             $_SESSION['flash'] = ['type' => 'warning', 'message' => 'Ваша корзина пуста'];
             header("Location: /cart");
             exit;
@@ -269,12 +319,12 @@ class OrderController
         $db->beginTransaction();
         $allSaved = true;
 
-
         foreach ($cartItems as $item) {
             $quantity = $item->getQuantity();
             $totalPrice = ($item->product_price ?? 0) * $quantity;
 
-            $saved = $orderRepository->saveOrder(
+            $saved = $orderRepository->saveOrder
+            (
                 $userId,
                 $item->getItemId(),
                 $quantity,
@@ -284,30 +334,43 @@ class OrderController
                 $house,
                 $apartment
             );
-            if (!$saved) {
+
+            if (!$saved) 
+            {
                 $allSaved = false;
                 break;
             }
         }
 
-        if ($allSaved) {
+        if ($allSaved) 
+        {
             $cartService->clearCart($userId);
             $db->commit();
             $_SESSION['flash'] = ['type' => 'success', 'message' => 'Заказ оформлен успешно'];
             header("Location: /order/success");
-        } else {
+        } 
+        else 
+        {
             $db->rollBack();
             $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Ошибка при оформлении заказа'];
             header("Location: /order/checkout-cart");
         }
+
         exit;
+
     }
 
     public static function success()
     {
+
         $content = View::make(__DIR__ . '/../Views/order/success_order.php');
-        echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-            'content' => $content
-        ]);
+        echo View::make
+        (__DIR__ . '/../Views/layouts/main_template.php',
+    [
+                'content' => $content
+            ]
+        );
+
     }
+
 }

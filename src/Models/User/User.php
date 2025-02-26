@@ -7,6 +7,7 @@ use InvalidArgumentException;
 
 class User
 {
+
 	private int $id;
 	private string $name;
 	private string $phone;
@@ -21,6 +22,7 @@ class User
 
 	public static function fromDatabase(array $row): self
 	{
+
 		$user = new self();
 		$user->id        = (int)$row['id'];
 		$user->name      = $row['name'];
@@ -33,11 +35,13 @@ class User
 		$user->address   = $row['address'] ?? null;
 
 		return $user;
+
 	}
 
 	public function toListDTO(): UserListDTO
 	{
-		return new UserListDTO(
+		return new UserListDTO
+		(
 			$this->id,
 			$this->name,
 			$this->phone,
@@ -48,37 +52,51 @@ class User
 
 	public function updateProfile(string $name, string $phone, string $email, ?string $address): void
 	{
+
 		$this->name     = $name;
 		$this->phone    = $phone;
 		$this->email    = $email;
 		$this->address  = $address;
 		$this->touch();
+
 	}
 
 	public function changeRole(string $role): void
 	{
-		if (!in_array($role, ['admin', 'customer'], true)) {
+
+		if (!in_array($role, ['admin', 'customer'], true)) 
+		{
 			throw new InvalidArgumentException("Недопустимая роль: $role");
 		}
+
 		$this->role = $role;
 		$this->touch();
+
 	}
 
 	public function verifyPassword(string $password): bool
 	{
-		if ($this->password === null) {
+
+		if ($this->password === null) 
+		{
 			error_log("Пароль не установлен для пользователя с ID {$this->id}");
+
 			return false;
 		}
 
 		$isValid = password_verify($password, $this->password);
-		if ($isValid) {
+
+		if ($isValid) 
+		{
 			error_log("Пароль корректный для пользователя с ID {$this->id}");
-		} else {
+		} 
+		else 
+		{
 			error_log("Пароль некорректный для пользователя с ID {$this->id}");
 		}
 
 		return $isValid;
+
 	}
 
 	public function setPassword(string $password): void
@@ -171,4 +189,5 @@ class User
 	{
 		$this->address = $address;
 	}
+	
 }

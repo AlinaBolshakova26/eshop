@@ -10,9 +10,7 @@ class OrderService
 
     public function __construct(OrderRepository $orderRepository)
     {
-
         $this->orderRepository = $orderRepository;
-
     }
 
     public function getPaginatedOrders(int $page, int $itemsPerPage): array
@@ -60,4 +58,5 @@ class OrderService
     {
         return $this->orderRepository->getOrdersByUserId($userId);
     }
+    
 }

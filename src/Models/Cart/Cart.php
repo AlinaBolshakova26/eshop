@@ -19,6 +19,7 @@ class Cart
 
 	public static function fromDatabase(array $row): self
 	{
+
 		$cart = new self();
 		$cart->id = (int)$row['id'];
 		$cart->user_id = (int)$row['user_id'];
@@ -32,6 +33,7 @@ class Cart
 		$cart->product_image = $row['product_image'] ?? null;
 
 		return $cart;
+		
 	}
 
 

@@ -13,6 +13,7 @@ use PDOException;
 
 class ProductController
 {
+    
     private ProductService $productService;
     private RatingService $ratingService;
 
@@ -30,6 +31,7 @@ class ProductController
 
     public function show($id)
     {
+
         try
         {
             $product = $this->productService->getProductByid((int)$id);
@@ -46,20 +48,28 @@ class ProductController
             $averageRating = $rating ? $rating->averageRating : 0;
             $totalReviews = $rating ? $rating->totalReviews : 0;
 
-            $content = View::make(__DIR__ . '/../Views/product/detail.php', [
-                'product' => $product,
-                'averageRating' => $averageRating,
-                'totalReviews' => $totalReviews
-            ]);
+            $content = View::make
+            (__DIR__ . '/../Views/product/detail.php', 
+        [
+                    'product' => $product,
+                    'averageRating' => $averageRating,
+                    'totalReviews' => $totalReviews
+                ]
+            );
 
-            echo View::make(__DIR__ . '/../Views/layouts/main_template.php', [
-                'content' => $content
-            ]);
+            echo View::make
+            (__DIR__ . '/../Views/layouts/main_template.php', 
+        [
+                    'content' => $content
+                ]
+            );
         }
         catch (PDOException $e)
         {
             error_log("Database error: " . $e->getMessage());
             echo "Произошла ошибка при загрузке товара.";
         }
+
     }
+    
 }

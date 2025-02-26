@@ -32,13 +32,15 @@ class OrderDetailAdminController
             exit;
         }
 
-        $content = View::make(__DIR__ . '/../../Views/admin/orders/detail.php', 
+        $content = View::make
+        (__DIR__ . '/../../Views/admin/orders/detail.php', 
     [
                 'order' => $order
             ]
         );
 
-        echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', 
+        echo View::make
+        (__DIR__ . '/../../Views/layouts/admin_layout.php', 
     [
                 'content' => $content,
             ]

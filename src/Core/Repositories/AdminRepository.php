@@ -7,20 +7,26 @@ use Models\User\User;
 
 class AdminRepository
 {
+    
     private PDO $pdo;
 
     public function __construct(PDO $pdo)
     {
-
         $this->pdo = $pdo;
-        
     }
 
     public function findUserByEmail(string $email): ?User
     {
 
-        $stmt = $this->pdo->prepare("
-            SELECT id, name, phone, email, password, role 
+        $stmt = $this->pdo->prepare
+        ("
+            SELECT 
+                id, 
+                name, 
+                phone, 
+                email, 
+                password, 
+                role 
             FROM up_user 
             WHERE email = :email
         ");

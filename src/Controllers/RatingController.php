@@ -7,6 +7,7 @@ use Core\Database\MySQLDatabase;
 
 class RatingController
 {
+	
     private RatingService $ratingService;
 
     public function __construct()
@@ -20,6 +21,7 @@ class RatingController
 
     public function create()
 	{
+
 		header('Content-Type: application/json');
 
 		if (!isset($_SESSION['user_id']))
@@ -51,7 +53,8 @@ class RatingController
 
 		try
 		{
-			$this->ratingService->createRating(
+			$this->ratingService->createRating
+			(
 				$userId,
 				$productId,
 				$rating,
@@ -65,5 +68,7 @@ class RatingController
 			http_response_code(500);
 			echo json_encode(['error' => 'Ошибка сервера: ' . $e->getMessage()]);
 		}
+
 	}
+	
 }

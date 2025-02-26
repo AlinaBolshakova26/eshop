@@ -57,10 +57,10 @@ class OrdersAdminController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
-            // Смена статуса для конкретного заказа
             if (isset($_POST['status'], $_POST['order_id']))
             {
-                $this->orderService->changeOrderStatus(
+                $this->orderService->changeOrderStatus
+                (
                     (int)$_POST['order_id'],
                     $_POST['status']
                 );
@@ -89,15 +89,21 @@ class OrdersAdminController
             $orders = $this->orderService->getPaginatedOrders($currentPage, $itemsPerPage);
             $totalPages = $this->orderService->getTotalPages($itemsPerPage);
 
-            $content = View::make(__DIR__ . '/../../Views/admin/orders/index.php', [
-                'orders' => $orders,
-                'totalPages' => $totalPages,
-                'currentPage' => $currentPage
-            ]);
+            $content = View::make
+            (__DIR__ . '/../../Views/admin/orders/index.php', 
+        [
+                    'orders' => $orders,
+                    'totalPages' => $totalPages,
+                    'currentPage' => $currentPage
+                ]
+            );
 
-            echo View::make(__DIR__ . '/../../Views/layouts/admin_layout.php', [
-                'content' => $content,
-            ]);
+            echo View::make
+            (__DIR__ . '/../../Views/layouts/admin_layout.php', 
+        [
+                    'content' => $content,
+                ]
+            );
         } 
         catch (\Exception $e) 
         {

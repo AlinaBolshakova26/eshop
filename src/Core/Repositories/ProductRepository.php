@@ -30,13 +30,30 @@ class ProductRepository
 		$params = [];
 
 		$sql = $countOnly
-			? 	"SELECT COUNT(DISTINCT i.id) FROM up_item i "
-			: 	"SELECT DISTINCT i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, " .
-			(!empty($filters['isAdmin']) ? "i.description, " : "") .
-			"img.path AS main_image_path
+			? 	
+			"
+				SELECT 
+					COUNT(DISTINCT i.id) 
+				FROM up_item i 
+			"
+			: 	
+			"
+				SELECT DISTINCT 
+					i.id, 
+					i.name, 
+					i.price, 
+					i.is_active, 
+					i.created_at, 
+					i.desc_short, 
+			" 
+			.
+			(!empty($filters['isAdmin']) ? "i.description, " : "") 
+			.
+			"
+					img.path AS main_image_path
 				FROM up_item i
 				LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
-				";
+			";
 
 		if (!empty($filters['tagIds']))
 		{
@@ -50,11 +67,13 @@ class ProductRepository
 			$sql .= "AND i.is_active = 1 ";
 		}
 
-		if (!empty($filters['tagIds'])) {
+		if (!empty($filters['tagIds'])) 
+		{
 			$this->addTagFilterToQuery($sql, $params, $filters['tagIds']);
 		}
 
-		if (!empty($filters['query'])) {
+		if (!empty($filters['query'])) 
+		{
 			$searchOptions =
 				[
 					'searchInTags' => !empty($filters['searchInTags']) && $filters['searchInTags'] !== false,
@@ -63,14 +82,19 @@ class ProductRepository
 			$this->addSearchFilterToQuery($sql, $params, $filters['query'], $searchOptions);
 		}
 
-		if (isset($filters['minPrice']) || isset($filters['maxPrice'])) {
-			$this->addPriceFilterToQuery($sql, $params,
+		if (isset($filters['minPrice']) || isset($filters['maxPrice'])) 
+		{
+			$this->addPriceFilterToQuery
+			(
+				$sql, 
+				$params,
 				$filters['minPrice'] ?? null,
 				$filters['maxPrice'] ?? null
 			);
 		}
 
-		if (!$countOnly) {
+		if (!$countOnly) 
+		{
 			$sql .= "ORDER BY i.id ASC LIMIT :limit OFFSET :offset";
 			$params[':limit'] = $limit;
 			$params[':offset'] = $offset;
@@ -80,6 +104,7 @@ class ProductRepository
 		$stmt->execute($params);
 
 		if ($countOnly) {
+
 			return (int) $stmt->fetchColumn();
 		}
 
@@ -140,12 +165,17 @@ class ProductRepository
 			$imagesByProduct[$image['item_id']][] = $image['path'];
 		}
 
-		return array_map(
-			function ($productData) use ($imagesByProduct) {
+		return array_map
+		(
+			function ($productData) use ($imagesByProduct) 
+			{
+
 				$product = Product::fromDatabase($productData);
 				$additionalImages = $imagesByProduct[$productData['id']] ?? [];
 				$product->setAdditionalImagePaths($additionalImages);
+
 				return $product;
+
 			},
 			$productsData
 		);
@@ -158,18 +188,22 @@ class ProductRepository
 		if(!empty($tagIds))
 		{
 			$placeholders = implode(',', array_map(fn($index) => ":tagId$index", range(0, count($tagIds) - 1)));
-			$sql .= "AND i.id IN (
-				SELECT item_id
-				FROM up_item_tag
-				WHERE tag_id IN ($placeholders)
-				GROUP BY item_id
-        	) ";
+			
+			$sql .= 
+			"
+				AND i.id IN 
+				(
+					SELECT item_id
+					FROM up_item_tag
+					WHERE tag_id IN ($placeholders)
+					GROUP BY item_id
+				) 
+			";
 
 			foreach ($tagIds as $index => $tagId)
 			{
 				$params[":tagId$index"] = $tagId;
 			}
-
 		}
 
 	}
@@ -182,6 +216,7 @@ class ProductRepository
 			if (!empty($options['searchInTags']) && !empty($options['productIdsByTagIds']))
 			{
 				$tagPlaceholders = [];
+
 				foreach($options['productIdsByTagIds'] as $index => $id)
 				{
 					$paramName = ":tagProductId$index";
@@ -189,15 +224,23 @@ class ProductRepository
 					$params[$paramName] = $id;
 				}
 
-				$sql .= "AND (
-					LOWER(i.name) LIKE LOWER(:query1) 
-					OR LOWER(i.description) LIKE LOWER(:query2)
-					OR i.id IN (" . implode(',', $tagPlaceholders) . ")
-				) ";
+				$sql .= 
+				"
+					AND 
+					(
+						LOWER(i.name) LIKE LOWER(:query1) 
+						OR LOWER(i.description) LIKE LOWER(:query2)
+						OR i.id IN (" . implode(',', $tagPlaceholders) . ")
+					) 
+				";
 			}
 			else
 			{
-				$sql .= "AND (LOWER(i.name) LIKE LOWER(:query1) OR LOWER(i.description) LIKE LOWER(:query2))";
+				$sql .= 
+				"
+					AND (LOWER(i.name) LIKE LOWER(:query1) 
+					OR LOWER(i.description) LIKE LOWER(:query2))
+				";
 			}
 			$params[':query1'] = '%' . str_replace('%', '\%', $query) . '%';
 			$params[':query2'] = '%' . str_replace('%', '\%', $query) . '%';
@@ -208,12 +251,14 @@ class ProductRepository
 	private function addPriceFilterToQuery(string &$sql, array &$params, ?int $minPrice, ?int $maxPrice): void
 	{
 
-		if ($minPrice !== null) {
+		if ($minPrice !== null) 
+		{
 			$sql .= "AND i.price >= :minPrice ";
 			$params[':minPrice'] = $minPrice;
 		}
 
-		if ($maxPrice !== null) {
+		if ($maxPrice !== null) 
+		{
 			$sql .= "AND i.price <= :maxPrice ";
 			$params[':maxPrice'] = $maxPrice;
 		}
@@ -224,11 +269,31 @@ class ProductRepository
 	{
 
 		$fields = $isAdmin
-			? "i.id, i.name, i.description, i.desc_short, i.price, i.is_active, i.created_at, i.updated_at, img.path AS main_image_path"
-			: "i.id, i.name, i.price, i.description, img.path AS main_image_path";
+			? 
+			"
+					i.id, 
+					i.name, 
+					i.description, 
+					i.desc_short, 
+					i.price, 
+					i.is_active, 
+					i.created_at, 
+					i.updated_at, 
+					img.path AS main_image_path
+			"
+			: 
+			"
+					i.id, 
+					i.name, 
+					i.price, 
+					i.description, 
+					img.path AS main_image_path
+			";
 
-		$stmt = $this->pdo->prepare("
-            SELECT {$fields}
+		$stmt = $this->pdo->prepare
+		("
+            SELECT 
+				{$fields}
             FROM up_item i 
             LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
             WHERE i.id = :id
@@ -255,8 +320,12 @@ class ProductRepository
 	private function findAdditionalImagesById(int $productId): array
 	{
 
-		$stmt = $this->pdo->prepare("
-            SELECT id, path FROM up_image	
+		$stmt = $this->pdo->prepare
+		("
+            SELECT 
+				id, 
+				path 
+			FROM up_image	
             WHERE item_id = :id AND is_main = 0
             ORDER BY id
         ");
@@ -297,10 +366,12 @@ class ProductRepository
 		$placeholders = str_repeat('?,', count($productIds) - 1) . '?';
 		$params = array_merge([$newStatus ? 1 : 0], $productIds);
 
-		$stmt = $this->pdo->prepare("UPDATE up_item 
-        SET is_active = ?
-        WHERE id IN ($placeholders)");
-
+		$stmt = $this->pdo->prepare
+		("
+			UPDATE up_item 
+        	SET is_active = ?
+        	WHERE id IN ($placeholders)
+		");
 		$stmt->execute($params);
 
 	}
@@ -308,8 +379,11 @@ class ProductRepository
 	public function findAdditionalImages(array $productIds)
 	{
 
-		$stmt = $this->pdo->prepare("
-            SELECT item_id, path
+		$stmt = $this->pdo->prepare
+		("
+            SELECT 
+				item_id, 
+				path
             FROM up_image
             WHERE item_id IN (" . implode(',', array_fill(0, count($productIds), '?')) . ")        
             AND is_main = 0
@@ -317,29 +391,38 @@ class ProductRepository
         ");
 
 		$stmt->execute($productIds);
+
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 	}
 
 	public function create(array $data): int
 	{
-		$stmt = $this->pdo->prepare("
+
+		$stmt = $this->pdo->prepare
+		("
             INSERT INTO up_item (name, description, desc_short, price, is_active, created_at, updated_at)
             VALUES (:name, :description, :desc_short, :price, 1, NOW(), NOW())
         ");
-		$stmt->execute([
-			':name' => $data['name'],
-			':description' => $data['description'],
-			':desc_short' => $data['desc_short'],
-			':price' => $data['price'],
-		]);
+		$stmt->execute
+		(
+			[
+				':name' => $data['name'],
+				':description' => $data['description'],
+				':desc_short' => $data['desc_short'],
+				':price' => $data['price'],
+			]
+		);
 
 		return $this->pdo->lastInsertId();
+
 	}
 
 	public function updateProduct(Product $product, array $changedFields): void
 	{
-		if (empty($changedFields)) {
+
+		if (empty($changedFields)) 
+		{
 			return;
 		}
 
@@ -347,27 +430,32 @@ class ProductRepository
 		$updates = [];
 		$params = [':id' => $product->getId()];
 
-		if (array_key_exists('name', $changedFields)) {
+		if (array_key_exists('name', $changedFields)) 
+		{
 			$updates[] = "name = :name";
 			$params[':name'] = $changedFields['name'];
 		}
 
-		if (array_key_exists('description', $changedFields)) {
+		if (array_key_exists('description', $changedFields)) 
+		{
 			$updates[] = "description = :description";
 			$params[':description'] = $changedFields['description'];
 		}
 
-		if (array_key_exists('desc_short', $changedFields)) {
+		if (array_key_exists('desc_short', $changedFields)) 
+		{
 			$updates[] = "desc_short = :desc_short";
 			$params[':desc_short'] = $changedFields['desc_short'];
 		}
 
-		if (array_key_exists('price', $changedFields)) {
+		if (array_key_exists('price', $changedFields)) 
+		{
 			$updates[] = "price = :price";
 			$params[':price'] = $changedFields['price'];
 		}
 
-		if (array_key_exists('is_active', $changedFields)) {
+		if (array_key_exists('is_active', $changedFields)) 
+		{
 			$updates[] = "is_active = :is_active";
 			$params[':is_active'] = $changedFields['is_active'] ? 1 : 0;
 		}
@@ -378,6 +466,7 @@ class ProductRepository
 
 		$stmt = $this->pdo->prepare($sql);
 		$stmt->execute($params);
+
 	}
 
 	public function findIdsByTagIds(array $tagIds): array
@@ -385,11 +474,12 @@ class ProductRepository
 
 		$placeholders = rtrim(str_repeat('?,', count($tagIds)), ',');
 
-		$sql = "
-        SELECT DISTINCT
-            item_id
-        FROM up_item_tag
-        WHERE tag_id IN ($placeholders)
+		$sql = 
+		"
+        	SELECT DISTINCT
+            	item_id
+        	FROM up_item_tag
+        	WHERE tag_id IN ($placeholders)
         ";
 
 		$stmt = $this->pdo->prepare($sql);
@@ -404,31 +494,46 @@ class ProductRepository
 
 	public function getAllProducts(): array
 	{
-		$sql = "
-        SELECT 
-            i.id, i.name, i.price, i.is_active, i.created_at, i.desc_short, i.description,
-            img.path AS main_image_path
-        FROM up_item i
-        LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
-        WHERE 1=1
-        ORDER BY i.id ASC
-    ";
+
+		$sql = 
+		"
+        	SELECT 
+            	i.id, 
+				i.name, 
+				i.price, 
+				i.is_active, 
+				i.created_at, 
+				i.desc_short, 
+				i.description,
+            	img.path AS main_image_path
+			FROM up_item i
+			LEFT JOIN up_image img ON i.id = img.item_id AND img.is_main = 1
+			WHERE 1=1
+			ORDER BY i.id ASC
+    	";
 
 		$stmt = $this->pdo->query($sql);
 		$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-		if (!empty($products)) {
+		if (!empty($products)) 
+		{
 			$productIds = array_column($products, 'id');
 			$additionalImages = $this->findAdditionalImages($productIds);
 			$imagesByProduct = [];
-			foreach ($additionalImages as $image) {
+
+			foreach ($additionalImages as $image) 
+			{
 				$imagesByProduct[$image['item_id']][] = $image['path'];
 			}
-			return array_map(
-				function ($productData) use ($imagesByProduct) {
+
+			return array_map
+			(
+				function ($productData) use ($imagesByProduct) 
+				{
 					$product = Product::fromDatabase($productData);
 					$additionalImages = $imagesByProduct[$productData['id']] ?? [];
 					$product->setAdditionalImagePaths($additionalImages);
+
 					return $product;
 				},
 				$products
@@ -436,5 +541,7 @@ class ProductRepository
 		}
 
 		return [];
+		
 	}
+
 }

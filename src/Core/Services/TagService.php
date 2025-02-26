@@ -23,26 +23,33 @@ class TagService
 
 	public function addTagsToProduct(int $productId, array $tagIds): void
 	{
-		foreach ($tagIds as $tagId) {
+		foreach ($tagIds as $tagId) 
+		{
 			$this->tagRepository->addTagToProduct($productId, $tagId);
 		}
 	}
 
 	public function updateProductTags(int $productId, array $selectedTagIds): void
 	{
+
 		$currentTagIds = $this->tagRepository->getTagsByProductId($productId);
 
-		foreach ($currentTagIds as $tagId) {
-			if (!in_array($tagId, $selectedTagIds)) {
+		foreach ($currentTagIds as $tagId) 
+		{
+			if (!in_array($tagId, $selectedTagIds)) 
+			{
 				$this->tagRepository->removeTagFromProduct($productId, $tagId);
 			}
 		}
 
-		foreach ($selectedTagIds as $tagId) {
-			if (!in_array($tagId, $currentTagIds)) {
+		foreach ($selectedTagIds as $tagId) 
+		{
+			if (!in_array($tagId, $currentTagIds)) 
+			{
 				$this->tagRepository->addTagToProduct($productId, $tagId);
 			}
 		}
+
 	}
 
 	public function getTagsByProductId(int $productId): array
@@ -52,41 +59,50 @@ class TagService
 
 	public function getIdByQuery(array $tags, string $query = ''): ?int
 	{
+
 		$query = trim($query, '%');
 		$pattern = '/' . preg_quote($query, '/') . '/ui';
 
-		foreach ($tags as $tag) {
-			if (preg_match($pattern, $tag->getName())) {
+		foreach ($tags as $tag) 
+		{
+			if (preg_match($pattern, $tag->getName())) 
+			{
 				return $tag->getId();
 			}
 		}
 
 		return null;
+
 	}
 
-	public function getPaginatedTags(
-		int $page,
-		int $itemsPerPage,
-	): array {
+	public function getPaginatedTags(int $page, int $itemsPerPage): array 
+	{
+
 		$offset = ($page - 1) * $itemsPerPage;
 
 		return $this->tagRepository->findAllPaginated($itemsPerPage, $offset);
+
 	}
 
 	public function getTotalPages(int $itemsPerPage): int
 	{
+
 		$totalTags = $this->tagRepository->getTotalCount();
 
 		return ceil($totalTags / $itemsPerPage);
+
 	}
 
 	public function createTag(string $name): int
 	{
-		if (trim($name) === '') {
+
+		if (trim($name) === '') 
+		{
 			throw new \InvalidArgumentException('Название тега не может быть пустым');
 		}
 
 		return $this->tagRepository->create($name);
+
 	}
 
 	public function findTagById(int $id): ?Tag
@@ -94,22 +110,16 @@ class TagService
 		return $this->tagRepository->findTagById($id);
 	}
 
-	// public function updateTag(int $id, string $newName): void
-	// {
-	// 	if (trim($newName) === '') {
-	// 		throw new \InvalidArgumentException('Новое название тега не может быть пустым');
-	// 	}
-
-	// 	$this->tagRepository->updateName($id, $newName);
-	// }
-
 	public function toggleTagsStatus(array $tagIds, bool $isActive): void
 	{
-		if (empty($tagIds)) {
+
+		if (empty($tagIds)) 
+		{
 			throw new \InvalidArgumentException('Не выбрано ни одного тега');
 		}
 
 		$this->tagRepository->updateStatus($tagIds, $isActive);
+
 	}
 
 	public function addTagToProduct(int $productId, int $tagId): void
@@ -129,13 +139,16 @@ class TagService
 
 	public function updateTagWithStatus(int $id, string $newName, bool $isActive): void
 	{
-		if (trim($newName) === '') {
+
+		if (trim($newName) === '')
+		{
 			throw new \InvalidArgumentException('Новое название тега не может быть пустым');
 		}
 
 		$this->tagRepository->updateName($id, $newName);
 
 		$this->tagRepository->updateStatus([$id], $isActive);
+
 	}
 
 	public function getIdsLikeQuery(array $tags, string $query): array
@@ -147,6 +160,7 @@ class TagService
 		foreach($tags as $tag)
 		{
 			$lowerTagName = mb_strtolower($tag->getName(), 'UTF-8');
+
 			if (str_contains($lowerTagName, $lowerQuery))
 			{
 				$tagIds[] = $tag->getId();
@@ -156,4 +170,5 @@ class TagService
 		return $tagIds;
 
 	}
+	
 }

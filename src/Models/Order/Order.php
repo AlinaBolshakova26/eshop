@@ -4,6 +4,7 @@ namespace Models\Order;
 use Core\Database\MySQLDatabase;
 class Order
 {
+    
     private ?int $id;
     private int $user_id;
     private int $item_id;
@@ -16,7 +17,8 @@ class Order
     private string $created_at;
     private string $updated_at;
 
-    public function __construct(
+    public function __construct
+    (
         int $user_id,
         int $item_id,
         float $price,
@@ -24,7 +26,8 @@ class Order
         string $street,
         string $house,
         ?string $apartment = null
-    ) {
+    ) 
+    {
         $this->user_id = $user_id;
         $this->item_id = $item_id;
         $this->price = $price;
@@ -38,21 +41,27 @@ class Order
 
     public function saveInDb(): bool
     {
+
         $db = (new MySQLDatabase())->getConnection();
-        $stmt = $db->prepare("
+        $stmt = $db->prepare
+        ("
             INSERT INTO up_order (user_id, item_id, price, city, street, house, apartment, status) 
             VALUES (:user_id, :item_id, :price, :city, :street, :house, :apartment, 'Создан')
         ");
 
-        return $stmt->execute([
-            'user_id' => $this->user_id,
-            'item_id' => $this->item_id,
-            'price' => $this->price,
-            'city' => $this->city,
-            'street' => $this->street,
-            'house' => $this->house,
-            'apartment' => $this->apartment
-        ]);
+        return $stmt->execute
+        (
+            [
+                'user_id' => $this->user_id,
+                'item_id' => $this->item_id,
+                'price' => $this->price,
+                'city' => $this->city,
+                'street' => $this->street,
+                'house' => $this->house,
+                'apartment' => $this->apartment
+            ]
+        );
+
     }
 
     public function getId(): ?int
@@ -130,4 +139,5 @@ class Order
     {
         $this->updated_at = $updated_at;
     }
+    
 }

@@ -6,6 +6,7 @@ use Core\Database\MySQLDatabase;
 
 class Product
 {
+
 	private int $id;
 	private string $name;
 	private string $description;
@@ -21,6 +22,7 @@ class Product
 
 	public static function fromDatabase(array $row): self
 	{
+		
 		$product = new self();
 		$product->id = $row['id'];
 		$product->name = $row['name'];
@@ -34,19 +36,24 @@ class Product
 		$product->additional_image_paths = $row['additional_image_paths'] ?? null;
 
 		return $product;
+
 	}
 
     public function withRating(RatingListDTO $rating): self
     {
+
         $clone = clone $this;
         $clone->rating = $rating;
+
         return $clone;
+
     }
 
 
 	public function toListDTO(): ProductListDTO
 	{
-		return new ProductListDTO(
+		return new ProductListDTO
+		(
 			$this->id,
 			$this->name,
 			$this->desc_short,
@@ -61,7 +68,8 @@ class Product
 
 	public function toDetailDTO(): ProductDetailDTO
 	{
-		return new ProductDetailDTO(
+		return new ProductDetailDTO
+		(
 			$this->id,
 			$this->name,
 			$this->price,
@@ -185,4 +193,5 @@ class Product
 	{
 		$this->main_image_path = $main_image_path;
 	}
+	
 }
