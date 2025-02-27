@@ -2,7 +2,9 @@
 
 namespace Core\Services;
 
+use Exception;
 use PDO;
+use Core\Repositories\ImageRepository;
 
 class ImageService
 {
@@ -13,9 +15,12 @@ class ImageService
 
 	private PDO $pdo;
 
-	public function __construct(PDO $pdo)
+	private ImageRepository $repository;
+
+	public function __construct(PDO $pdo, ImageRepository $repository)
 	{
 		$this->pdo = $pdo;
+		$this->repository = $repository;
 	}
 
 	public function saveImage(int $productId, array $uploadedFile, bool $isMain = false): void
@@ -33,7 +38,7 @@ class ImageService
 
 		list($width, $height) = getimagesize($uploadPath);
 
-		$this->saveImageToDatabase($productId, $imageDir . basename($uploadPath), $isMain, $width, $height, $uploadedFile['name']);
+		$this->processImage($productId, $imageDir . basename($uploadPath), $width, $height, $uploadedFile['name'], $isMain);
 
 	}
 
@@ -73,94 +78,49 @@ class ImageService
 		}
 	}
 
-	private function saveImageToDatabase(int $productId, string $imagePath, bool $isMain, int $width, int $height, string $description): void
+	private function processImage(int $productId, string $imagePath, int $width, int $height, string $description, bool $isMain): void
 	{
 
-		if ($isMain) 
+		try 
 		{
-			$this->saveOrUpdateMainImage($productId, $imagePath, $width, $height, $description);
-		} 
-		else 
-		{
-			$this->insertAdditionalImage($productId, $imagePath, $width, $height, $description);
-		}
+			$this->pdo->beginTransaction();
 
-	}
-
-	private function saveOrUpdateMainImage(int $productId, string $imagePath, int $width, int $height, string $description): void
-	{
-
-		$this->pdo->beginTransaction();
-
-		try {
-			$stmt = $this->pdo->prepare
-			("
-				SELECT 
-					id, 
-					path 
-				FROM up_image 
-				WHERE item_id = :item_id 
-				AND is_main = 1 FOR UPDATE
-			");
-			$stmt->execute
-			(
-				[
-					':item_id' => $productId
-				]
-			);
-			$existingImage = $stmt->fetch(PDO::FETCH_ASSOC);
-
-			if ($existingImage) 
+			if ($isMain === false)
 			{
-				$oldImagePath = self::UPLOAD_BASE_DIR . $existingImage['path'];
-
-				if (file_exists($oldImagePath)) 
-				{
-					unlink($oldImagePath);
-				}
-
-				$stmt = $this->pdo->prepare
-				("
-                	UPDATE up_image 
-                	SET 
-						path = :path, 
-						height = :height, 
-						width = :width, 
-						description = :description, 
-						updated_at = NOW()
-                	WHERE id = :id
-            	");
-				$stmt->execute
-				(
-					[
-						':path' => $imagePath,
-						':height' => $height,
-						':width' => $width,
-						':description' => $description,
-						':id' => $existingImage['id'],
-					]
-				);
-			} 
-			else 
-			{
-				$stmt = $this->pdo->prepare
-				("
-                	INSERT INTO up_image (path, item_id, is_main, height, width, description, created_at, updated_at) 
-                	VALUES (:path, :item_id, :is_main, :height, :width, :description, NOW(), NOW())
-            	");
-				$stmt->execute
-				(
+				$params = 
 					[
 						':path' => $imagePath,
 						':item_id' => $productId,
-						':is_main' => 1,
+						':is_main' => 0,
 						':height' => $height,
 						':width' => $width,
 						':description' => $description,
-					]
-				);
+					];
+				$this->repository->insert($params);
 			}
-			$this->pdo->commit();
+			else
+			{
+				$params =
+				[
+					'product_id' => $productId,
+					'image_path' => $imagePath,
+					'width' => $width,
+					'height' => $height,
+					'description' => $description
+				];
+
+				$result = $this->repository->processMainImage($params);	
+
+				if ($result['action'] === 'update' && isset($result['existingImage']))
+				{
+					$oldImagePath = self::UPLOAD_BASE_DIR . $result['existingImage']['path'];
+					if (file_exists($oldImagePath))
+					{
+						unlink($oldImagePath);
+					}
+				}
+			}	
+			$this->pdo->commit();    
 		} 
 		catch (\Exception $e) 
 		{
@@ -170,67 +130,40 @@ class ImageService
 
 	}
 
-	private function insertAdditionalImage(int $productId, string $imagePath, int $width, int $height, string $description): void
-	{
-
-		$stmt = $this->pdo->prepare
-		("
-            	INSERT INTO up_image (path, item_id, is_main, height, width, description, created_at, updated_at) 
-            	VALUES (:path, :item_id, :is_main, :height, :width, :description, NOW(), NOW())
-        ");
-		$stmt->execute
-		(
-			[
-				':path' => $imagePath,
-				':item_id' => $productId,
-				':is_main' => 0,
-				':height' => $height,
-				':width' => $width,
-				':description' => $description,
-			]
-		);
-
-	}
-
 	public function deleteImage(int $imageId): void
 	{
 
-		$stmt = $this->pdo->prepare
-		("
-			SELECT 
-				path 
-			FROM up_image 
-			WHERE id = :id
-		");
-		$stmt->execute
-		(
-			[
-				':id' => $imageId
-			]
-		);
-		$image = $stmt->fetch(PDO::FETCH_ASSOC);
+		$image = $this->repository->findPathById($imageId);
 
-		if ($image) 
+		if (!$image) 
 		{
-			$filePath = __DIR__ . '/../../../public' . $image['path'];
+			return;
+		}
 
-			if (file_exists($filePath)) 
+		$filePath = __DIR__ . '/../../../public' . $image['path'];
+		$fileExists = file_exists($filePath);
+
+		$this->pdo->beginTransaction();
+
+		try
+		{
+			$this->repository->deleteById($imageId);
+
+			$this->pdo->commit();
+
+			if ($fileExists) 
 			{
-				unlink($filePath);
+				if (!unlink($filePath)) 
+				{
+					error_log('Не удалось удалить файл: ' . $filePath);
+				}
 			}
-
-			$stmt = $this->pdo->prepare
-			("
-				DELETE 
-				FROM up_image 
-				WHERE id = :id
-			");
-			$stmt->execute
-			(
-				[
-					':id' => $imageId
-				]
-			);
+		}
+		catch(Exception $e)
+		{
+			$this->pdo->rollBack();
+			throw new \RuntimeException('Не удалось удалить изображение из базы данных: ' . $e->getMessage());
+	
 		}
 
 	}

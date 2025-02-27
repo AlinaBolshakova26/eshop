@@ -123,8 +123,7 @@ class FavoriteController {
         $userId = $_SESSION['user_id'];
         $productId = (int)$id;
 
-        $favoriteModel = new \Models\Favorite\Favorite();
-        $success = $favoriteModel->remove($userId, $productId);
+        $success = $this->favoriteService->removeFavorite($userId, $productId);
 
         header("Content-Type: application/json");
         echo json_encode(['success' => $success]);
