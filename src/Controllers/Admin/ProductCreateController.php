@@ -12,6 +12,7 @@ use Core\Repositories\RatingRepository;
 use Core\Services\TagService;
 use Core\Repositories\TagRepository;
 use Core\Services\ImageService;
+use Core\Repositories\ImageRepository;
 
 class ProductCreateController
 {
@@ -29,6 +30,7 @@ class ProductCreateController
 
 		$productRepository = new ProductRepository($pdo);
         $ratingRepository = new RatingRepository($pdo);
+		$imageRepository = new ImageRepository($pdo);
 
         $this->adminService = new AdminService(new AdminRepository($pdo));
         $this->productService = new ProductService

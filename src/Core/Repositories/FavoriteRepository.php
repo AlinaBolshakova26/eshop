@@ -76,6 +76,7 @@ class FavoriteRepository
 
     public function getFavoritesByUserId(int $userId): array 
     {
+        
         $stmt = $this->pdo->prepare
         ("
             SELECT 

@@ -12,6 +12,8 @@ use Core\Services\ProductService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\ProductRepository;
 use Core\Repositories\RatingRepository;
+use Core\Repositories\ImageRepository;
+use PDO;
 
 class ProductDetailAdminController
 {
@@ -23,13 +25,13 @@ class ProductDetailAdminController
 
     public function __construct()
     {
-
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
 
         $productRepository = new ProductRepository($pdo);
         $ratingRepository = new RatingRepository($pdo);
-
+		$imageRepository = new ImageRepository($pdo);
+		
         $this->adminService = new AdminService(new AdminRepository($pdo));
         $this->productService = new ProductService
 		(
@@ -37,7 +39,7 @@ class ProductDetailAdminController
             $ratingRepository
         );
         $this->tagService = new TagService(new TagRepository($pdo));
-        $this->imageService = new ImageService($pdo);
+        $this->imageService = new ImageService($pdo, $imageRepository);
     }
 
     public function edit(int $id): void
