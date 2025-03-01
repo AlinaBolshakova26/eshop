@@ -148,12 +148,14 @@ class OrderController
 
         if ($order->saveInDb())
         {
-            header("Location: /order/success");
+            header( "Location: " . url('order.success'));
             exit;
         }
         else
         {
-            echo "<script>alert('Ошибка при оформлении заказа. Пожалуйста, попробуйте ещё раз.'); window.location.href='/order/create/{$product_id}';</script>";
+            $redirectUrl = url('order.create', ['id' => $product_id]);
+            echo "<script>alert('Ошибка при оформлении заказа. Пожалуйста, попробуйте ещё раз.')</script>";
+            exit;
         }
 
     }
