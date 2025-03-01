@@ -78,5 +78,9 @@ class RatingService
 	{
 		$this->repository->createRating($userId, $productId, $rating, $comment);
 	}
-    
+
+    public function deleteRatings(array $ratingIds): bool
+    {
+        return $this->repository->deleteRatings($ratingIds);
+    }
 }

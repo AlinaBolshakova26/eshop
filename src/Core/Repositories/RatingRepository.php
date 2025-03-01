@@ -206,5 +206,17 @@ class RatingRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
         
     }
-    
+
+    public function deleteRatings(array $ratingIds): bool
+    {
+        if (empty($ratingIds)) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($ratingIds), '?'));
+        $sql = "DELETE FROM up_ratings WHERE id IN ($placeholders)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($ratingIds);
+    }
+
+
 }

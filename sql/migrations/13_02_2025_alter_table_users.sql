@@ -1,1 +1,0 @@
-ALTER TABLE up_user ADD COLUMN avatar VARCHAR(255) NOT NULL DEFAULT 'default.jpg';
