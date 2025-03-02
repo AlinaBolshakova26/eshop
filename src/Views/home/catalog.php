@@ -1,14 +1,12 @@
 <div class="tag-filter mb-4">
     <div class="tag-cloud">
 		<?php if (!empty($tags)): ?>
-            <a href="/"
+            <a href="<?= url('catalog-index') ?>"
                class="btn tag-btn <?php echo empty($selectedTagIds) ? 'active' : ''; ?>"
                data-tag-id="all">Все</a>
 		<?php endif; ?>
 		<?php foreach ($tags as $tag): ?>
-            <a href="/?tags=<?php
-			echo Utils\PaginationHelper::buildTagParam($tag->toListDTO()->id, $selectedTagIds);
-			?>"
+            <a href="<?= url('catalog-index') ?>?tags=<?= Utils\PaginationHelper::buildTagParam($tag->toListDTO()->id, $selectedTagIds) ?>"
                class="btn tag-btn <?php echo in_array($tag->toListDTO()->id, $selectedTagIds ?? []) ? 'active' : ''; ?>"
                data-tag-id="<?php echo htmlspecialchars($tag->toListDTO()->id); ?>">
 				<?php echo htmlspecialchars($tag->toListDTO()->name); ?>
@@ -113,7 +111,7 @@
                         <p class="card-text"><?php echo nl2br(htmlspecialchars($product->desc_short)); ?></p>
                         <p class="card-text"><strong>&#8381; <?php echo number_format($product->price); ?></strong></p>
                         <div class="d-flex justify-content-between mt-auto">
-                            <a href="/product/<?php echo $product->id; ?>" class="btn btn-primary">Подробнее</a>
+                            <a href="<?= url('product-show', ['id' => $product->id]); ?>" class="btn btn-primary">Подробнее</a>
 							<?php if (isset($_SESSION['user_id'])): ?>
                                 <form method="POST" action="/cart/add" style="margin:0;">
                                     <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($product->id); ?>">
@@ -121,7 +119,7 @@
                                     <button type="submit" class="btn btn-success">Добавить в корзину</button>
                                 </form>
 							<?php else: ?>
-                                <a href="/order/create/<?php echo $product->id; ?>" class="btn btn-success">Купить</a>
+                                <a href="<?= url('order.create', ['id' => $product->id]); ?>" class="btn btn-success">Купить</a>
 							<?php endif; ?>
                         </div>
                     </div>

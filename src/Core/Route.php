@@ -78,5 +78,10 @@ class Route
         return call_user_func_array($this->callback, $params);
 
     }
-    
+
+    public function getPath(): string
+    {
+        return $this->path;
+    }
+
 }

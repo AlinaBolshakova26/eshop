@@ -14,7 +14,7 @@
     <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
         <button type="submit" name="action" value="deactivate" class="btn btn-danger">Деактивировать</button>
         <button type="submit" name="action" value="activate" class="btn btn-success">Активировать</button>
-        <a href="/admin/products/create" class="btn btn-primary">+ Добавить элемент</a>
+        <a href="<?= url('admin.products.create') ?>" class="btn btn-primary">+ Добавить элемент</a>
     </div>
 
     <div class="mt-5">
@@ -37,7 +37,7 @@
                     <td><?php echo htmlspecialchars($product->getName()); ?></td>
                     <td><?php echo $product->getIsActive() ? 'true' : 'false'; ?></td>
                     <td>
-                        <a href="/admin/products/edit/<?php echo $product->getId(); ?>" class="btn btn-sm btn-warning btn-edit">
+                        <a href="<?= url('admin.products.edit', ['id' => $product->getId()]) ?>" class="btn btn-sm btn-warning btn-edit">
                             Редактировать
                         </a>
                     </td>

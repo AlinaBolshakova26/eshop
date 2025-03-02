@@ -15,7 +15,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <a href="/" class="logo-link me-3">
+        <a href="<?= url('catalog-index') ?>" class="logo-link me-3">
             <img src="/assets/images/logo.png" alt="logo">
         </a>
 <!--        <h4>Позвольте вашей красоте сиять</h4>-->
@@ -31,16 +31,16 @@
         </div>
             <div class="col-md-4 d-flex justify-content-end align-items-center">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="/cart" class="btn btn-outline-primary me-2">Корзина</a>
-                    <a href="/favorites" class="btn btn-outline-primary me-2">
+                    <a href="<?= url('cart-index') ?>" class="btn btn-outline-primary me-2">Корзина</a>
+                    <a href="<?= url('favorites-index') ?>" class="btn btn-outline-primary me-2">
                         <i class="fa fa-heart header-favorite-icon"></i>
                     </a>
-                    <a href="/user/profile" class="btn btn-outline-primary me-2">Профиль</a>
-                    <a href="/user/logout" class="logout-link">
+                    <a href="<?= url('user.profile') ?>" class="btn btn-outline-primary me-2">Профиль</a>
+                    <a href="<?= url('user.logout') ?>" class="logout-link">
                         <img src="/assets/images/logout.png" alt="logout" class="img-fluid">
                     </a>
                 <?php else: ?>
-                    <a href="/user/login" class="btn btn-primary">Войти</a>
+                    <a href="<?= url('user.login') ?>" class="btn btn-primary">Войти</a>
                 <?php endif; ?>
             </div>
         </div>

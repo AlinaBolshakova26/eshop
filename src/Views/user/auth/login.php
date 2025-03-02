@@ -8,7 +8,7 @@
                 <?php if (isset($error) && $error): ?>
                     <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                 <?php endif; ?>
-                <form method="post" action="/user/login">
+                <form method="post" action="<?= url('user.auth') ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input
@@ -36,7 +36,7 @@
             </div>
             <div class="card-footer text-center bg-white border-0">
                 <p class="mb-2">Еще нет аккаунта?</p>
-                <a href="/user/register" class="btn btn-outline-primary">Создайте его!</a>
+                <a href="<?= url('user.register') ?>" class="btn btn-outline-primary">Создайте его!</a>
             </div>
         </div>
     </div>

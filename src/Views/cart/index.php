@@ -46,7 +46,7 @@
             <h5 id="cart-total">Итого: ₽<?= number_format($total, 2) ?></h5>
         </div>
         <div class="text-center mb-5">
-            <a href="/order/checkout-cart" class="btn btn-success btn-lg">Купить</a>
+            <a href="<?= url('order.checkout-cart') ?>" class="btn btn-success btn-lg">Купить</a>
         </div>
     <?php else: ?>
         <div class="alert alert-info text-center">Ваша корзина пуста</div>

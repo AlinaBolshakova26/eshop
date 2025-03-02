@@ -18,28 +18,28 @@
 	<div class="sidebar-sticky">
 		<ul class="nav flex-column">
 			<li class="nav-item mb-4">
-				<a class="btn btn-outline-danger logout mb-3" href="/admin/logout">
+				<a class="btn btn-outline-danger logout mb-3" href="<?= url('admin.logout') ?>">
 					<span>Выход</span>
 				</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link active" href="/admin/products">
+				<a class="nav-link active" href="<?= url('admin.products') ?>">
 					<span>Товары</span>
 				</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="/admin/orders">
+				<a class="nav-link" href="<?= url('admin.orders-index') ?>">
 					<span>Заказы</span>
 				</a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="/admin/tags">
+				<a class="nav-link" href="<?= url('admin.tags') ?>">
 					<span>Теги</span>
 				</a>
 			</li>
 
             <li class="nav-item">
-                <a class="nav-link" href="/admin/ratings">
+                <a class="nav-link" href="<?= url('admin.ratings-index') ?>">
                     <span>Рейтинги</span>
                 </a>
             </li>

@@ -39,7 +39,7 @@ class ProductCreateController
             $ratingRepository
         );
         $this->tagService = new TagService(new TagRepository($pdo));
-        $this->imageService = new ImageService($pdo);
+        $this->imageService = new ImageService($pdo, $imageRepository);
 
 	}
 
