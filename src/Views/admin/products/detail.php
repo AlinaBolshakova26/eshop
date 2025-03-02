@@ -121,7 +121,7 @@
                     <p><strong>Обновлен:</strong> <?= htmlspecialchars($product->getUpdatedAt()) ?></p>
 
                     <button type="submit" class="btn btn-success mt-3"><i class="fas fa-save"></i> Сохранить изменения</button>
-                    <a href="/admin/products" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
+                    <a href="<?= url('admin.products') ?>" class="btn btn-secondary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
                 </form>
             </div>
         </div>

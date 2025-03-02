@@ -39,7 +39,7 @@
             <div class="preview-container" id="additional-images-preview"></div>
         </div>
         <button type="submit" class="btn btn-primary">Создать товар</button>
-        <a href="/admin/products" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Назад</a>
+        <a href="<?= url('admin.products') ?>" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Назад</a>
     </form>
 </div>
 <script defer>

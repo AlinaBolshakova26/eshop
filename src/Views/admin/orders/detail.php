@@ -18,7 +18,7 @@
                 <p><strong>Название:</strong> <?= htmlspecialchars($order['item_name']) ?></p>
                 <p><strong>Количество:</strong> <?= htmlspecialchars($order['quantity']) ?></p>
                 <p><strong>Общая стоимость:</strong> <span class="text-success fw-bold"><?= htmlspecialchars($order['price']) ?> ₽</span></p>
-                <a href="/product/<?= htmlspecialchars($order['item_id']) ?>" class="btn btn-outline-secondary mt-2">
+                <a href="<?= url('product-show', ['id' => $order['item_id']]) ?>" class="btn btn-outline-secondary mt-2">
                     <i class="fas fa-arrow-right"></i> Ссылка на товар
                 </a>
 
@@ -26,7 +26,9 @@
                 <p><strong>Создан:</strong> <?= htmlspecialchars($order['created_at']) ?></p>
                 <p><strong>Обновлен:</strong> <?= htmlspecialchars($order['updated_at']) ?></p>
 
-                <a href="/admin/orders" class="btn btn-primary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
+                <a href="<?= url('admin.orders-index') ?>" class="btn btn-primary mt-3">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
             </div>
         </div>
     </div>

@@ -48,8 +48,8 @@
             </button>
         <?php else: ?>
             <div class="mb-4 d-flex gap-2">
-                <a href="/order/create/<?php echo $product->id; ?>" class="btn btn-success w-50">Купить</a>
-                <a href="/user/login?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="btn btn-warning w-50">Добавить в корзину</a>
+                <a href="<?= url('order.create', ['id' => $product->id]) ?>" class="btn btn-success w-50">Купить</a>
+                <a href="<?= url('user.login',['redirect' => urlencode($_SERVER['REQUEST_URI'])]) ?>" class="btn btn-warning w-50">Добавить в корзину</a>
             </div>
         <?php endif; ?>
 

@@ -15,7 +15,7 @@
                 <h4 class="mt-3"><i class="fas fa-box"></i> Товар</h4>
                 <p><strong>ID:</strong> <?= htmlspecialchars($rating->productId ?? '—') ?></p>
                 <p><strong>Название:</strong> <?= htmlspecialchars($rating->productName ?? '—') ?></p>
-                <a href="/product/<?= htmlspecialchars($rating->productId ?? '') ?>" class="btn btn-outline-secondary mt-2">
+                <a href="<?= url('product-show', ['id' => $rating->productId ?? '']) ?>" class="btn btn-outline-secondary mt-2">
                     <i class="fas fa-arrow-right"></i> Перейти к товару
                 </a>
 
@@ -28,7 +28,7 @@
                 <p><strong>ID заказа:</strong> <?= htmlspecialchars($rating->orderId ?? '—') ?></p>
                 <p><strong>Дата заказа:</strong> <?= htmlspecialchars($rating->orderDate ?? '—') ?></p>
 
-                <a href="/admin/ratings" class="btn btn-primary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
+                <a href="<?= url('admin.ratings-index') ?>" class="btn btn-primary mt-3"><i class="fas fa-arrow-left"></i> Назад</a>
             </div>
         </div>
     </div>

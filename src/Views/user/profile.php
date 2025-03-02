@@ -25,7 +25,7 @@
         </div>
         <div class="collapse mt-4" id="editProfileCollapse">
             <div class="card card-body">
-                <form method="post" action="/user/update">
+                <form method="post" action="<?= url('user.update') ?>">
                     <input type="hidden" name="avatar" id="selected-avatar" value="<?= htmlspecialchars($user['avatar'] ?? 'default.jpg'); ?>">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -47,7 +47,7 @@
                     </div>
                     <div class="text-center mt-3">
                         <button type="submit" class="btn btn-success">Сохранить изменения</button>
-                        <a href="/" class="btn btn-outline-secondary">На главную</a>
+                        <a href="<?= url('catalog-index') ?>" class="btn btn-outline-secondary">На главную</a>
                     </div>
                 </form>
             </div>
@@ -64,7 +64,7 @@
                     <button class="carousel-arrow left-arrow"><i class="bi bi-chevron-left"></i></button>
                     <div class="order-carousel">
                         <?php foreach ($pendingOrders as $order): ?>
-                            <a href="/product/<?= $order['product_id']; ?>" class="order-card-link">
+                            <a href="<?= url('product-show', ['id' => $order['product_id']]) ?>" class="order-card-link">
                                 <div class="card order-card">
                                     <img src="<?= htmlspecialchars($order['main_image'] ?? '/img/no-image.png'); ?>" class="order-img" alt="Товар">
                                     <div class="order-card-body">
