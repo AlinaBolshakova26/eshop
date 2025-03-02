@@ -42,7 +42,7 @@ document.querySelectorAll('.rating-section').forEach(ratingSection => {
                 }
 
                 const comment = textarea ? textarea.value.trim() : '';
-                
+
                 try {
                     const response = await fetch('/rating/create', {
                         method: 'POST',
@@ -105,3 +105,4 @@ function showFeedback(container, message, isSuccess) {
         }
     }
 }
+

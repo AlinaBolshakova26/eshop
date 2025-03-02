@@ -84,5 +84,27 @@ class RatingAdminController
         }
 
     }
-    
+
+    public function delete(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: /admin/ratings");
+            exit;
+        }
+
+        $ratingIds = $_POST['rating_ids'] ?? [];
+        if (!empty($ratingIds) && is_array($ratingIds)) {
+            $success = $this->ratingService->deleteRatings($ratingIds);
+            if ($success) {
+                $_SESSION['flash'] = ['type' => 'success', 'message' => 'Рейтинги успешно удалены'];
+            } else {
+                $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Ошибка при удалении рейтингов'];
+            }
+        } else {
+            $_SESSION['flash'] = ['type' => 'warning', 'message' => 'Не выбраны рейтинги для удаления'];
+        }
+
+        header("Location: /admin/ratings");
+        exit;
+    }
 }
