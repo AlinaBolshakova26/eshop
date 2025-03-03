@@ -71,6 +71,5 @@
 <script src="/assets/js/main.js"></script>
 <script src="/assets/js/favorite.js"></script>
 <script src="/assets/js/rating.js"></script>
-<script src="/assets/js/comments.js"></script>
 </body>
 </html>
