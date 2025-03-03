@@ -23,7 +23,7 @@
                 </div>
             </div>
         </div>
-        <form action="/order/submit" method="POST" id="orderForm">
+        <form action="<?= url('order.submit') ?>" method="POST" id="orderForm">
             <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
             <input type="hidden" name="quantity" value="<?php echo $quantity; ?>">
 

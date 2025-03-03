@@ -7,33 +7,29 @@ use Models\Order\Order;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\OrderRepository;
 use Core\Repositories\CartRepository;
+use Controllers\BaseController;
 use Core\Services\CartService;
-use Core\View;
+;
 
-class OrderController
+class OrderController extends BaseController
 {
     
     private OrderRepository $orderRepository;
 
     public function __construct()
     {
-        $db = (new MySQLDatabase())->getConnection();
-        $this->orderRepository = new OrderRepository($db);
+        $database = new MySQLDatabase();
+        $pdo = $database->getConnection();
+
+        $this->orderRepository = new OrderRepository($pdo);
     }
 
-    public static function create($id)
+    public function create($id)
     {
-
         $controller = new self();
+
         $product = $controller->orderRepository->getProductById($id);
-
-        if (!$product) 
-        {
-            http_response_code(404);
-            echo '404 Not Found';
-            return;
-        }
-
+        
         $quantity = isset($_GET['quantity']) ? max(1, (int)$_GET['quantity']) : 1;
         $userData = null;
 
@@ -42,26 +38,19 @@ class OrderController
             $userData = $controller->orderRepository->getUserById($_SESSION['user_id']);
         }
 
-        $content = View::make
-        (__DIR__ . '/../Views/order/form.php', 
-    [
+        $this->render
+        (
+            'order/form',
+            [
                 'product' => $product,
                 'quantity' => $quantity,
                 'errors' => [],
                 'user' => $userData,
             ]
         );
-
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php', 
-    [
-                'content' => $content
-            ]
-        );
-
     }
 
-    public static function store()
+    public function store()
     {
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST')
@@ -111,9 +100,11 @@ class OrderController
         if (!empty($errors))
         {
             $product = $controller->orderRepository->getProductById($product_id);
-            $content = View::make
-            (__DIR__ . '/../Views/order/form.php', 
-        [
+
+            $this->render
+            (
+                'order/form',
+                [
                     'product' => $product,
                     'quantity' => $quantity,
                     'errors' => $errors,
@@ -121,12 +112,6 @@ class OrderController
                 ]
             );
 
-            echo View::make
-            (__DIR__ . '/../Views/layouts/main_template.php', 
-        [
-                    'content' => $content
-                ]
-            );
             return;
         }
 
@@ -148,26 +133,20 @@ class OrderController
 
         if ($order->saveInDb())
         {
-            header( "Location: " . url('order.success'));
-            exit;
+            $this->redirect(url('order.success'));
         }
         else
         {
-            $redirectUrl = url('order.create', ['id' => $product_id]);
-            echo "<script>alert('Ошибка при оформлении заказа. Пожалуйста, попробуйте ещё раз.')</script>";
-            exit;
+            echo "<script>alert('Ошибка при оформлении заказа. Пожалуйста, попробуйте ещё раз.'); window.location.href='" . url('order.create', ['id' => $product_id]) . "';</script>";
         }
 
     }
 
-    public static function createCartOrder()
+
+    public  function createCartOrder()
     {
 
-        if (!isset($_SESSION['user_id']))
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
 
@@ -179,7 +158,7 @@ class OrderController
         if (empty($cartItems))
         {
             $_SESSION['flash'] = ['type' => 'warning', 'message' => 'Ваша корзина пуста'];
-            header("Location: /cart");
+            header("Location: " . url('cart-index'));
             exit;
         }
 
@@ -195,9 +174,9 @@ class OrderController
             $userData = (new OrderController())->orderRepository->getUserById($_SESSION['user_id']);
         }
 
-        $content = View::make
-        (__DIR__ . '/../Views/order/checkout_cart.php', 
-    [
+        $this->render(
+            'order/checkout_cart', 
+            [
                 'cartItems' => $cartItems,
                 'total'     => $total,
                 'user'      => $userData,
@@ -205,16 +184,9 @@ class OrderController
             ]
         );
 
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php', 
-    [
-                'content' => $content
-            ]
-        );
-
     }
 
-    public static function storeCartOrder()
+    public function storeCartOrder()
     {
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') 
@@ -222,11 +194,7 @@ class OrderController
             return;
         }
         
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
 
@@ -277,9 +245,10 @@ class OrderController
                 $total += ($item->product_price ?? 0) * $item->getQuantity();
             }
 
-            $content = View::make
-            (__DIR__ . '/../Views/order/checkout_cart.php', 
-        [
+            $this->render
+            (
+                'order/checkout_cart', 
+                [
                     'cartItems' => $cartItems,
                     'total'     => $total,
                     'user'      => 
@@ -295,13 +264,6 @@ class OrderController
                     'errors'    => $errors
                 ]
             );
-
-            echo View::make
-            (__DIR__ . '/../Views/layouts/main_template.php', 
-        [
-                    'content' => $content
-                ]
-            );
             return;
         }
 
@@ -310,11 +272,11 @@ class OrderController
         $cartService = new CartService($cartRepository);
         $cartItems = $cartService->getCartItems($userId);
 
+
         if (empty($cartItems)) 
         {
             $_SESSION['flash'] = ['type' => 'warning', 'message' => 'Ваша корзина пуста'];
-            header("Location: /cart");
-            exit;
+            $this->redirect(url('cart-index'));
         }
 
         $orderRepository = new OrderRepository($db);
@@ -349,30 +311,25 @@ class OrderController
             $cartService->clearCart($userId);
             $db->commit();
             $_SESSION['flash'] = ['type' => 'success', 'message' => 'Заказ оформлен успешно'];
-            header("Location: /order/success");
+            $this->redirect(url('order.success'));
         } 
         else 
         {
             $db->rollBack();
             $_SESSION['flash'] = ['type' => 'danger', 'message' => 'Ошибка при оформлении заказа'];
-            header("Location: /order/checkout-cart");
+            $this->redirect(url('order.checkout-cart'));
         }
 
         exit;
 
     }
 
-    public static function success()
+    public function success()
     {
-
-        $content = View::make(__DIR__ . '/../Views/order/success_order.php');
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php',
-    [
-                'content' => $content
-            ]
+        $this->render
+        (
+            'order/success_order'
         );
-
     }
 
 }

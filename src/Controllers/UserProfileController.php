@@ -2,15 +2,16 @@
 
 namespace Controllers;
 
-use Core\View;
+;
 use Core\Services\UserService;
 use Core\Services\OrderService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\UserRepository;
 use Core\Repositories\OrderRepository;
 use Core\Repositories\RatingRepository;
+use Controllers\BaseController;
 
-class UserProfileController
+class UserProfileController extends BaseController
 {
     
     private UserService $userService;
@@ -29,14 +30,9 @@ class UserProfileController
 
     public function profile(): void
     {
-        
-        $userId = $_SESSION['user_id'] ?? null;
-
-        if (!$userId)
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
+     
+        $userId = $_SESSION['user_id'];
 
         $user = $this->userService->getUserById($userId);
         $orders = $this->orderService->getOrdersByUserId($userId);
@@ -64,18 +60,14 @@ class UserProfileController
                 }
             }
 
-            echo View::make
-            (__DIR__ . "/../Views/layouts/main_template.php", 
-        [
-                    'content' => View::make
-                    (__DIR__ . "/../Views/user/profile.php", 
+            $this->render
+            (
+                'user/profile',
                 [
-                            'user' => $user,
-                            'avatars' => $avatars,
-                            'orders' => $orders,
-                            'ratings' => $ratings
-                        ]
-                    ),
+                    'user' => $user,
+                    'avatars' => $avatars,
+                    'orders' => $orders,
+                    'ratings' => $ratings
                 ]
             );
         }
@@ -84,14 +76,9 @@ class UserProfileController
 
     public function update(): void
     {
-
-        $userId = $_SESSION['user_id'] ?? null;
-
-        if (!$userId)
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
+     
+        $userId = $_SESSION['user_id'];
 
         $data = $_POST;
         $user = $this->userService->getUserById($userId);
@@ -102,18 +89,14 @@ class UserProfileController
 
         $result = $this->userService->updateUser($userId, $data);
 
-        echo View::make
-        (__DIR__ . "/../Views/layouts/main_template.php", 
-    [
-                'content' => View::make
-                (__DIR__ . "/../Views/user/profile.php", 
+        $this->render
+        (
+            'user/profile',
             [
-                        'user' => $this->userService->getUserById($userId),
-                        'message' => $result ? "Профиль успешно обновлён." : "Ошибка обновления профиля.",
-                        'orders' => $this->orderService->getOrdersByUserId($userId),
-                        'avatars' => $this->userService->getAvatars(),
-                    ]
-                ),
+                'user' => $this->userService->getUserById($userId),
+                'message' => $result ? "Профиль успешно обновлён." : "Ошибка обновления профиля.",
+                'orders' => $this->orderService->getOrdersByUserId($userId),
+                'avatars' => $this->userService->getAvatars(),
             ]
         );
 

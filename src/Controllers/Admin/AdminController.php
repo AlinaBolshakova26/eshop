@@ -5,9 +5,10 @@ namespace Controllers\Admin;
 use Core\Services\AdminService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\AdminRepository;
+use Controllers\Admin\AdminBaseController;
 use Core\Session;
 
-class AdminController
+class AdminController extends AdminBaseController
 {
 
     private AdminService $adminService;
@@ -15,25 +16,19 @@ class AdminController
     public function __construct()
     {
 
+        parent::__construct();
+
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
+
         $repository = new AdminRepository($pdo);
         $this->adminService = new AdminService($repository);
-
-        if (!in_array($_SERVER['REQUEST_URI'], ['/admin/login', '/admin/login?error=1']))
-        {
-            if (!Session::has('admin'))
-            {
-                header('Location: /admin/login');
-                exit;
-            }
-        }
 
     }
 
     public function login(): void
     {
-        require __DIR__ . '/../../Views/admin/auth/login.php';
+        $this->renderWithoutLayout('admin/auth/login');
     }
 
     public function authenticate(): void
@@ -46,12 +41,10 @@ class AdminController
 
             if ($this->adminService->authenticate($email, $password))
             {
-                header('Location: /admin/products');
-                exit;
+                $this->redirect(url('admin.products'));
             }
 
-            header('Location: /admin/login?error=1');
-            exit;
+            $this->redirect(url('admin.login') . '?error=1');
         }
 
     }
@@ -60,8 +53,7 @@ class AdminController
     {
 
         $this->adminService->logout();
-        header('Location: /admin/login');
-        exit;
+        $this->redirect(url('admin.login'));
 
     }
     

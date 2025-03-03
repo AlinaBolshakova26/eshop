@@ -150,4 +150,9 @@ class ImageRepository
 
     }
 
+    public function getPDO(): PDO
+    {
+        return $this->pdo;
+    }
+
 }

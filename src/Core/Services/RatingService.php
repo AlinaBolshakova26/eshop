@@ -4,8 +4,9 @@ namespace Core\Services;
 
 use Core\Repositories\RatingRepository;
 use Models\Rating\RatingListDTO;
+use Controllers\BaseController;
 
-class RatingService
+class RatingService extends BaseController
 {
 
     private RatingRepository $repository;

@@ -1,4 +1,4 @@
-<form id="products-form" action="/admin/products/process" method="POST">
+<form id="products-form" action="<?= url('admin.products.process') ?>" method="POST">
     <div class="fixed-top-row">
         <div class="d-flex justify-content-between align-items-center">
             <div class="mx-3 flex-grow-1">
@@ -18,7 +18,7 @@
     </div>
 
     <div class="mt-5">
-        <?= $error ?>
+        <!-- <?= $error ?> -->
         <table class="table">
             <thead>
             <tr>

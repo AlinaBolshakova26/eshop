@@ -30,7 +30,7 @@
                 <span class="badge bg-success"><?= htmlspecialchars($product->getId()) ?></span>
             </div>
             <div class="card-body">
-                <form action="/admin/products/update/<?= htmlspecialchars($product->getId()) ?>" enctype="multipart/form-data" method="POST">
+                <form action="<?= url('admin.products.update', ['id' => htmlspecialchars($product->getId())]) ?>" enctype="multipart/form-data" method="POST">
                     <h4><i class="fas fa-product"></i> Данные</h4>
 
                     <div class="mb-3">

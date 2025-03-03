@@ -2,14 +2,14 @@
 
 namespace Controllers\Admin;
 
-use Core\View;
 use Core\Services\AdminService;
 use Core\Services\OrderService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\AdminRepository;
 use Core\Repositories\OrderRepository;
+use Controllers\Admin\AdminBaseController;
 
-class OrdersAdminController
+class OrdersAdminController extends AdminBaseController
 {
 
     private AdminService $adminService;
@@ -17,6 +17,8 @@ class OrdersAdminController
 
     public function __construct()
     {
+
+        parent::__construct();
 
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
@@ -29,17 +31,10 @@ class OrdersAdminController
     public function index(): void
     {
 
-        if (!$this->adminService->isAdminLoggedIn()) 
-        {
-            header('Location: /admin/login');
-            exit;
-        }
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
             $this->handlePost();
-            header('Location: /admin/orders');
-            exit;
+            $this->redirect('/admin/orders');
         }
 
         $this->showOrderList();
@@ -48,12 +43,6 @@ class OrdersAdminController
 
     public function handlePost(): void
     {
-
-        if (!$this->adminService->isAdminLoggedIn())
-        {
-            header('Location: /admin/login');
-            exit;
-        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
@@ -73,43 +62,25 @@ class OrdersAdminController
             }
         }
 
-        header('Location: /admin/orders');
-        exit;
-
+        $this->redirect('/admin/orders');
     }
 
     private function showOrderList(): void
     {
-        
-        try 
-        {
-            $currentPage = (int)($_GET['page'] ?? 1);
-            $itemsPerPage = 30;
+        $currentPage = (int)($_GET['page'] ?? 1);
+        $itemsPerPage = 30;
 
-            $orders = $this->orderService->getPaginatedOrders($currentPage, $itemsPerPage);
-            $totalPages = $this->orderService->getTotalPages($itemsPerPage);
+        $orders = $this->orderService->getPaginatedOrders($currentPage, $itemsPerPage);
+        $totalPages = $this->orderService->getTotalPages($itemsPerPage);
 
-            $content = View::make
-            (__DIR__ . '/../../Views/admin/orders/index.php', 
-        [
-                    'orders' => $orders,
-                    'totalPages' => $totalPages,
-                    'currentPage' => $currentPage
-                ]
-            );
-
-            echo View::make
-            (__DIR__ . '/../../Views/layouts/admin_layout.php', 
-        [
-                    'content' => $content,
-                ]
-            );
-        } 
-        catch (\Exception $e) 
-        {
-            View::make('error.php', ['message' => 'Произошла ошибка при загрузке заказов']);
-        }
-
+        $this->render
+        (
+            'admin/orders/index', 
+            [
+                'orders' => $orders,
+                'totalPages' => $totalPages,
+                'currentPage' => $currentPage
+            ]
+        );
     }
-    
 }

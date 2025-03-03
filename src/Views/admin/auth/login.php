@@ -11,7 +11,7 @@
 <div class="login-container">
     <h1>Вход для администраторов</h1>
 
-    <form method="POST" action="/admin/login">
+    <form method="POST" action="<?= url('admin.auth') ?>">
         <div class="form-group">
             <input type="email" name="email" placeholder="Email" required>
         </div>

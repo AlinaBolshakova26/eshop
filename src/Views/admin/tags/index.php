@@ -33,25 +33,38 @@
 </form>
 
 <?php if ($totalPages > 1): ?>
+    <?php
+    $baseUrl = '/admin/tags';
+    
+    $urlWithPage = $baseUrl . '?page=';
+    ?>
     <nav aria-label="Tags pagination">
         <ul class="pagination justify-content-center">
-			<?php if ($currentPage > 1): ?>
+            <?php if ($currentPage > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?= url('admin.tags', ['page' => $currentPage - 1]) ?>"><<</a>
+                    <?php if ($currentPage == 2): ?>
+                        <a class="page-link" href="<?php echo $baseUrl; ?>"><<</a>
+                    <?php else: ?>
+                        <a class="page-link" href="<?php echo $urlWithPage . ($currentPage - 1); ?>"><<</a>
+                    <?php endif; ?>
                 </li>
-			<?php endif; ?>
+            <?php endif; ?>
 
-			<?php for ($i = 1; $i <= $totalPages; $i++): ?>
+            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                 <li class="page-item <?php echo $currentPage == $i ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?= url('admin.tags', ['page' => $i]) ?>"><?php echo $i; ?></a>
+                    <?php if ($i == 1): ?>
+                        <a class="page-link" href="<?php echo $baseUrl; ?>"><?php echo $i; ?></a>
+                    <?php else: ?>
+                        <a class="page-link" href="<?php echo $urlWithPage . $i; ?>"><?php echo $i; ?></a>
+                    <?php endif; ?>
                 </li>
-			<?php endfor; ?>
+            <?php endfor; ?>
 
-			<?php if ($currentPage < $totalPages): ?>
+            <?php if ($currentPage < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="<?= url('admin.tags', ['page' => $currentPage + 1]) ?>"> >> </a>
+                    <a class="page-link" href="<?php echo $urlWithPage . ($currentPage + 1); ?>">>></a>
                 </li>
-			<?php endif; ?>
+            <?php endif; ?>
         </ul>
     </nav>
 <?php endif; ?>

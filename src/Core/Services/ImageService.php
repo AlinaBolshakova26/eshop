@@ -3,7 +3,6 @@
 namespace Core\Services;
 
 use Exception;
-use PDO;
 use Core\Repositories\ImageRepository;
 
 class ImageService
@@ -11,15 +10,12 @@ class ImageService
 
 	private const MAIN_IMAGE_DIR = '/assets/images/main_product_images/';
 	private const ADDITIONAL_IMAGE_DIR = '/assets/images/additional_product_images/';
-	private const UPLOAD_BASE_DIR = __DIR__ . '/../../../public';
-
-	private PDO $pdo;
+	private const UPLOAD_BASE_DIR = __DIR__ . '/public';
 
 	private ImageRepository $repository;
 
-	public function __construct(PDO $pdo, ImageRepository $repository)
+	public function __construct(ImageRepository $repository)
 	{
-		$this->pdo = $pdo;
 		$this->repository = $repository;
 	}
 
@@ -83,7 +79,8 @@ class ImageService
 
 		try 
 		{
-			$this->pdo->beginTransaction();
+			$pdo = $this->repository->getPDO();
+			$pdo->beginTransaction();
 
 			if ($isMain === false)
 			{
@@ -120,11 +117,11 @@ class ImageService
 					}
 				}
 			}	
-			$this->pdo->commit();    
+			$pdo->commit();   
 		} 
 		catch (\Exception $e) 
 		{
-			$this->pdo->rollBack();
+			$pdo->rollBack();
 			throw new \RuntimeException('Failed to save or update main image: ' . $e->getMessage());
 		}
 
@@ -140,16 +137,17 @@ class ImageService
 			return;
 		}
 
-		$filePath = __DIR__ . '/../../../public' . $image['path'];
+		$filePath = __DIR__ . '/public' . $image['path'];
 		$fileExists = file_exists($filePath);
 
-		$this->pdo->beginTransaction();
+		$pdo = $this->repository->getPDO();
+		$pdo->beginTransaction();
 
 		try
 		{
 			$this->repository->deleteById($imageId);
 
-			$this->pdo->commit();
+			$pdo->commit();
 
 			if ($fileExists) 
 			{
@@ -161,7 +159,7 @@ class ImageService
 		}
 		catch(Exception $e)
 		{
-			$this->pdo->rollBack();
+			$pdo->rollBack();
 			throw new \RuntimeException('Не удалось удалить изображение из базы данных: ' . $e->getMessage());
 	
 		}

@@ -2,35 +2,39 @@
 
 namespace Core;
 
+use Core\Exceptions\AppException;
+
 class View
 {
-	
-	protected $templatePath;
-	protected $params;
+	protected static string $viewsPath = ROOT . '/Views/';
+	protected string $templatePath;
+	protected array $params;
 
-	public function __construct($templatePath, $params = [])
+	public function __construct(string $templatePath, array $params = [])
 	{
-		$this->templatePath = $templatePath;
+		$this->templatePath = static::$viewsPath . $templatePath . '.php';
 		$this->params = $params;
 	}
 
-	public static function make($templatePath, $params = [])
+	public static function make(string $templatePath, array $params = []): self
 	{
 		return new static($templatePath, $params);
 	}
 
-	public function render()
+	public function render(): string
 	{
+		if (!file_exists($this->templatePath)) {
+			throw new AppException("View template not found: {$this->templatePath}");
+		}
 
 		ob_start();
 		extract($this->params);
-		require_once $this->templatePath;
+		require $this->templatePath;
 
 		return ob_get_clean();
-
 	}
 
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->render();
 	}

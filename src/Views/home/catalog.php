@@ -113,7 +113,7 @@
                         <div class="d-flex justify-content-between mt-auto">
                             <a href="<?= url('product-show', ['id' => $product->id]); ?>" class="btn btn-primary">Подробнее</a>
 							<?php if (isset($_SESSION['user_id'])): ?>
-                                <form method="POST" action="/cart/add" style="margin:0;">
+                                <form method="POST" action="<?= url('cart.add') ?>" style="margin:0;">
                                     <input type="hidden" name="item_id" value="<?php echo htmlspecialchars($product->id); ?>">
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="btn btn-success">Добавить в корзину</button>

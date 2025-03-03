@@ -2,13 +2,13 @@
 
 namespace Controllers;
 
-use Core\View;
+use Controllers\BaseController;
 use Core\Services\UserService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\UserRepository;
 use Requests\UserRegistrationRequest;
 
-class UserController
+class UserController extends BaseController
 {
     
     private UserService $userService;
@@ -23,90 +23,45 @@ class UserController
 
     public function index(): void
     {
-
-        $content = View::make(__DIR__ . '/../Views/user/auth/login.php');
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php', 
-    [
-                'content' => $content,
-            ]
-        );
-
+        $this->render('user/auth/login');
     }
 
     public function authenticate(): void
     {
-        
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
 
-        try
-        {
-            $user = $this->userService->login($email, $password);
+        $user = $this->userService->login($email, $password);
 
-            if ($user)
-            {
-                $_SESSION['user_id'] = $user['id'];
-                header("Location: /user/profile");
-                exit;
-            }
-            else
-            {
-                $error = "Неверный email или пароль.";
-                $content = View::make
-                (__DIR__ . '/../Views/user/auth/login.php', 
-            [
-                        'error' => $error
-                    ]
-                );
-                echo View::make
-                (__DIR__ . '/../Views/layouts/main_template.php', 
-            [
-                    'content' => $content,
-                    ]
-                );
-            }
-        }
-        catch (\Exception $e)
+        if ($user)
         {
-            error_log("Ошибка при аутентификации: " . $e->getMessage());
-            $error = "Произошла ошибка при попытке входа.";
-            $content = View::make
-            (__DIR__ . '/../Views/user/auth/login.php', 
-        [
+            $_SESSION['user_id'] = $user['id'];
+            $this->redirect(url('user.profile'));
+        }
+        else
+        {
+            $error = "Неверный email или пароль.";
+            $this->render
+            (
+                'user/auth/login',
+                [
                     'error' => $error
                 ]
             );
-            echo View::make
-            (__DIR__ . '/../Views/layouts/main_template.php', 
-        [
-                    'content' => $content,
-                ]
-            );
         }
-
     }
 
     public function logout(): void
     {
 
         session_destroy();
-        header("Location: /user/login");
-        exit;
+        $this->redirect(url('user.login'));
 
     }
 
     public function register(): void
     {
-
-        $content = View::make(__DIR__ . '/../Views/user/auth/register.php');
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php', 
-    [
-                'content' => $content,
-            ]
-        );
-
+        $this->render('user/auth/register');
     }
 
     public function store(): void
@@ -119,16 +74,11 @@ class UserController
         }
         catch (\InvalidArgumentException $e)
         {
-            $content = View::make
-            (__DIR__ . '/../Views/user/auth/register.php', 
-        [
+            $this->render
+            (
+                'user/auth/register',
+                [
                     'error' => $e->getMessage()
-                ]
-            );
-            echo View::make
-            (__DIR__ . '/../Views/layouts/main_template.php', 
-        [
-                    'content' => $content
                 ]
             );
             return;
@@ -141,40 +91,28 @@ class UserController
 
             if ($result)
             {
-                header("Location: /user/login");
-                exit;
+                $this->redirect(url('user.login'));
             }
             else
             {
                 $error = "Ошибка регистрации. Попробуйте еще раз.";
-                $content = View::make
-                (__DIR__ . '/../Views/user/auth/register.php', 
-            [
+                $this->render
+                (
+                    'user/auth/register',
+                    [
                         'error' => $error
-                    ]
-                );
-                echo View::make
-                (__DIR__ . '/../Views/layouts/main_template.php', 
-            [
-                        'content' => $content
                     ]
                 );
             }
         }
         catch (\Exception $e)
         {
-            error_log("Ошибка регистрации: " . $e->getMessage());
             $error = "Ошибка регистрации: " . $e->getMessage();
-            $content = View::make
-            (__DIR__ . '/../Views/user/auth/register.php', 
-        [
+            $this->render
+            (
+                'user/auth/register',
+                [
                     'error' => $error
-                ]
-            );
-            echo View::make
-            (__DIR__ . '/../Views/layouts/main_template.php', 
-        [
-                    'content' => $content
                 ]
             );
         }

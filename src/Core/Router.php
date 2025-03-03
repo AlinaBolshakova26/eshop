@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use Core\Exceptions\AppException;
+
 class Router
 {
 
@@ -47,8 +49,12 @@ class Router
             }    
         }
 
-        http_response_code(404);
-        echo "Страница не найдена";
+        throw new AppException
+        (
+            "Route not found: {$requestMethod} {$requestUri}",
+            "Страница не найдена",
+            404
+        );
 
     }
 

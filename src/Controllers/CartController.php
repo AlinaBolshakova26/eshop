@@ -2,12 +2,12 @@
 
 namespace Controllers;
 
+use Controllers\BaseController;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\CartRepository;
 use Core\Services\CartService;
-use Core\View;
 
-class CartController
+class CartController extends BaseController
 {
     
     private CartService $cartService;
@@ -15,48 +15,35 @@ class CartController
     public function __construct()
     {
 
-        $db = (new MySQLDatabase())->getConnection();
-        $cartRepository = new CartRepository($db);
+        $database = new MySQLDatabase();
+        $pdo = $database->getConnection();
+
+        $cartRepository = new CartRepository($pdo);
         $this->cartService = new CartService($cartRepository);
 
     }
 
     public function index()
     {
-        
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
         $cartItems = $this->cartService->getCartItems($userId);
 
-        $content = View::make
-        (__DIR__ . '/../Views/cart/index.php', 
-    [
+        $this->render
+        (
+            'cart/index', 
+            [
                 'cartItems' => $cartItems
             ]
         );
-
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php', 
-    [
-                'content' => $content
-            ]
-        );
-
     }
 
     public function add()
     {
 
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
         $itemId = isset($_POST['item_id']) ? (int)$_POST['item_id'] : 0;
@@ -70,19 +57,13 @@ class CartController
             $favoriteService->removeFavorite($userId, $itemId);
         }
 
-        header("Location: /cart");
-        exit;
-
+        $this->redirect(url('cart-index'));
     }
 
     public function update()
     {
 
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
         $itemId = isset($_POST['item_id']) ? (int)$_POST['item_id'] : 0;
@@ -100,9 +81,7 @@ class CartController
             exit;
         }
 
-        header("Location: /cart");
-        exit;
-
+        $this->redirect(url('cart-index'));
     }
 
 
@@ -110,11 +89,7 @@ class CartController
     public function remove()
     {
 
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
         $itemId = isset($_POST['item_id']) ? (int)$_POST['item_id'] : 0;
@@ -137,8 +112,7 @@ class CartController
 
         if ($success) 
         {
-            header("Location: /cart");
-            exit;
+            $this->redirect(url('cart-index'));
         } 
         else 
         {
@@ -151,55 +125,37 @@ class CartController
 
     public function checkout()
     {
-
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
         $cartItems = $this->cartService->getCartItems($userId);
 
-        $content = View::make
-        (__DIR__ . '/../Views/cart/checkout.php', 
-    [
+        $this->render
+        (
+            'cart/checkout', 
+            [
             'cartItems' => $cartItems
             ]
-        );
-
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php', 
-    [
-            'content' => $content
-            ]
-        );
-
+        );    
     }
 
     public function processCheckout()
     {
-
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
         $success = $this->cartService->clearCart($userId);
 
         if ($success) 
         {
-            header("Location: /order/success");
+            $url = url('order.success');
         } 
         else 
         {
-            header("Location: /cart/checkout");
+            $url = url('cart.checkout');
         }
 
-        exit;
-
+        $this->redirect($url);
     }
 
 }

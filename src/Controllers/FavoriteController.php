@@ -1,21 +1,25 @@
 <?php
 namespace Controllers;
 
+use Controllers\BaseController;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\FavoriteRepository;
 use Core\Services\FavoriteService;
 use Models\Favorite\Favorite;
-use Core\View;
+;
 
-class FavoriteController {
+class FavoriteController extends BaseController 
+{
     
     private FavoriteService $favoriteService;
 
     public function __construct() 
     {
 
-        $db = (new MySQLDatabase())->getConnection();
-        $favoriteRepository = new FavoriteRepository($db);
+        $database = new MySQLDatabase();
+        $pdo = $database->getConnection();
+
+        $favoriteRepository = new FavoriteRepository($pdo);
         $this->favoriteService = new FavoriteService($favoriteRepository);
 
     }
@@ -87,27 +91,18 @@ class FavoriteController {
     public function index() 
     {
 
-        if (!isset($_SESSION['user_id'])) 
-        {
-            header("Location: /user/login");
-            exit;
-        }
+        $this->checkLogin();
 
         $userId = $_SESSION['user_id'];
         $favorites = $this->favoriteService->getFavorites($userId);
-        $content = View::make
-        (__DIR__ . '/../Views/favorites/index.php', 
-    [
+
+        $this->render
+        (
+            'favorites/index', 
+            [
                 'favorites' => $favorites
             ]
         );
-        echo View::make
-        (__DIR__ . '/../Views/layouts/main_template.php', 
-    [
-                'content' => $content
-            ]
-        );
-
     }
 
     public function remove($id) 
@@ -123,6 +118,7 @@ class FavoriteController {
         $userId = $_SESSION['user_id'];
         $productId = (int)$id;
 
+        $favoriteModel = new Favorite();
         $success = $this->favoriteService->removeFavorite($userId, $productId);
 
         header("Content-Type: application/json");

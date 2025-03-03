@@ -75,5 +75,6 @@ $router->addRoute('POST', '/admin/tags/process', [\Controllers\Admin\TagAdminCon
 
 $router->addRoute('GET', '/admin/ratings', [\Controllers\Admin\RatingAdminController::class, 'index'], 'admin.ratings-index');
 $router->addRoute('GET', '/admin/ratings/{id:\d+}', [\Controllers\Admin\RatingAdminController::class, 'show'], 'admin.ratings-show');
+$router->addRoute('POST', '/admin/ratings/delete', [\Controllers\Admin\RatingAdminController::class, 'delete'], 'admin.ratings-delete');
 
 return $router;

@@ -1,5 +1,5 @@
 <div class="container mt-4">
-    <form action="/admin/ratings/delete" method="POST">
+    <form action="<?= url('admin.ratings-delete') ?>" method="POST">
         <div class="mb-3">
             <button type="submit" class="btn btn-danger">Удалить выбранные</button>
         </div>
@@ -17,7 +17,7 @@
             </thead>
             <tbody>
             <?php foreach ($ratings as $rating): ?>
-                <tr ondblclick="window.location='/admin/ratings/<?= htmlspecialchars($rating->id) ?>';" style="cursor: pointer;">
+                <tr ondblclick="window.location='<?= url('admin.ratings-show', ['id' => htmlspecialchars($rating->id)]) ?>';" style="cursor: pointer;">
                     <td>
                         <input type="checkbox" name="rating_ids[]" value="<?= htmlspecialchars($rating->id) ?>">
                     </td>
@@ -38,7 +38,7 @@
             <ul class="pagination justify-content-center">
                 <?php for ($i = 1; $i <= $totalPages; $i++): ?>
                     <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
-                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                        <a class="page-link" href="<?= url('admin.ratings-index', ['page' => $i]) ?>"><?= $i ?></a>
                     </li>
                 <?php endfor; ?>
             </ul>

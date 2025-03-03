@@ -10,253 +10,237 @@ use Core\Services\AdminService;
 use Core\Services\ProductService;
 use Core\Services\RatingService;
 use Core\Services\TagService;
-use Core\View;
+use Controllers\Admin\AdminBaseController;
 
 use Core\Services\TransliterateService;
 
 
-class TagAdminController
+class TagAdminController extends AdminBaseController
 {
-	
-	private AdminService $adminService;
-	private TagService $tagService;
+  
+  private AdminService $adminService;
+  private TagService $tagService;
 
-	private RatingService $ratingService;
-	private ProductService $productService;
+  private RatingService $ratingService;
+  private ProductService $productService;
 
-	public function __construct()
-	{
-		$database = new MySQLDatabase();
-		$pdo = $database->getConnection();
+  public function __construct()
+  {
+    parent::__construct();
 
-		$this->adminService = new AdminService(new AdminRepository($pdo));
-		$this->tagService = new TagService(new TagRepository($pdo));
-		$this->productService = new ProductService(new ProductRepository($pdo),new RatingRepository($pdo));
-	}
+    $database = new MySQLDatabase();
+    $pdo = $database->getConnection();
+
+    $this->adminService = new AdminService(new AdminRepository($pdo));
+    $this->tagService = new TagService(new TagRepository($pdo));
+    $this->productService = new ProductService(new ProductRepository($pdo),new RatingRepository($pdo));
+  }
 
 
-	public function index(): void
-	{
+  public function index(): void
+  {
 
-		try 
-		{
-			$currentPage = max(1, (int)($_GET['page'] ?? 1));
-			define("ITEMS_PER_PAGE", 10);
+    try 
+    {
+      $currentPage = max(1, (int)($_GET['page'] ?? 1));
 
-			$tags = $this->tagService->getPaginatedTags($currentPage, ITEMS_PER_PAGE);
+      $tags = $this->tagService->getPaginatedTags($currentPage, BY_RATING_OR_TAG_ITEMS_PER_PAGE_ADMIN);
 
-			$totalPages = $this->tagService->getTotalPages(ITEMS_PER_PAGE);
+      $totalPages = $this->tagService->getTotalPages(BY_RATING_OR_TAG_ITEMS_PER_PAGE_ADMIN);
 
-			$content = View::make
-			(__DIR__ . '/../../Views/admin/tags/index.php', 
-		[
-					'tags' => $tags,
-					'totalPages' => $totalPages,
-					'currentPage' => $currentPage,
-				]	
-			);
+      $this->render
+      (
+        'admin/tags/index',
+      [
+          'tags' => $tags,
+          'totalPages' => $totalPages,
+          'currentPage' => $currentPage,
+        ]  
+      );
+    } 
+    catch (\Exception $e) 
+    {
+      echo "Ошибка: " . htmlspecialchars($e->getMessage());
+    }
 
-			echo View::make
-			(__DIR__ . '/../../Views/layouts/admin_layout.php', 
-		[
-				'content' => $content,
-				]
-			);
-		} 
-		catch (\Exception $e) 
-		{
-			echo "Ошибка: " . htmlspecialchars($e->getMessage());
-		}
+  }
 
-	}
+  public function create(): void
+  {
 
-	public function create(): void
-	{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') 
+    {
+      $name = trim($_POST['name'] ?? '');
+      if ($name === '') 
+      {
+        echo "Ошибка: Название тега не может быть пустым.";
+        return;
+      }
 
-		if ($_SERVER['REQUEST_METHOD'] === 'POST') 
-		{
-			$name = trim($_POST['name'] ?? '');
-			if ($name === '') 
-			{
-				echo "Ошибка: Название тега не может быть пустым.";
-				return;
-			}
+      if ($this->tagService->isTagNameExists($name)) 
+      {
+        echo "Ошибка: Тег с таким названием уже существует.";
+        return;
+      }
 
-			if ($this->tagService->isTagNameExists($name)) 
-			{
-				echo "Ошибка: Тег с таким названием уже существует.";
-				return;
-			}
+      try 
+      {
+        $this->tagService->createTag($name);
 
-			try 
-			{
-				$this->tagService->createTag($name);
+        $tagId = $this->tagService->getLastCreatedTagId();
 
-				$tagId = $this->tagService->getLastCreatedTagId();
+        if (isset($_POST['products']) && is_array($_POST['products'])) 
+        {
+          foreach ($_POST['products'] as $productId) 
+          {
+            $this->tagService->addTagToProduct((int)$productId, $tagId);
+          }
+        }
 
-				if (isset($_POST['products']) && is_array($_POST['products'])) 
-				{
-					foreach ($_POST['products'] as $productId) 
-					{
-						$this->tagService->addTagToProduct((int)$productId, $tagId);
-					}
-				}
+        $this->redirect('/admin/tags');
+      } 
+      catch (\Exception $e) 
+      {
+        echo "Ошибка: " . htmlspecialchars($e->getMessage());
+      }
+    }
 
-				header('Location: /admin/tags');
-				exit;
-			} 
-			catch (\Exception $e) 
-			{
-				echo "Ошибка: " . htmlspecialchars($e->getMessage());
-			}
-		}
+    $products = $this->productService->getAllProducts();
 
-		$products = $this->productService->getAllProducts();
+    $this->render
+    (
+      'admin/tags/add_tag',
+      [
+        'products' => $products,
+      ]
+    );
+  }
 
-		$content = View::make
-		(__DIR__ . '/../../Views/admin/tags/add_tag.php', 
-	[
-				'products' => $products,
-			]
-		);
+  public function edit(int $id): void
+  {
 
-		echo View::make
-		(__DIR__ . '/../../Views/layouts/admin_layout.php', 
-	[
-				'content' => $content,
-			]
-		);
+    $tag = $this->tagService->findTagById($id);
 
-	}
+    if (!$tag) 
+    {
+      echo "Тег не найден.";
+      return;
+    }
 
-	public function edit(int $id): void
-	{
+    $this->render
+    (
+      'admin/tags/detail',
+      [
+        'tag' => $tag,
+      ]
+    );
+  }
 
-		$tag = $this->tagService->findTagById($id);
+  public function process(): void
+  {
 
-		if (!$tag) 
-		{
-			echo "Тег не найден.";
-			return;
-		}
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST')
+    {
+      $this->redirect('/admin/tags');
+    }
 
-		$content = View::make
-		(__DIR__ . '/../../Views/admin/tags/detail.php', 
-	[
-				'tag' => $tag,
-			]
-		);
+    $action = $_POST['action'] ?? '';
+    $selectedTags = $_POST['selected_tags'] ?? [];
 
-		echo View::make
-		(__DIR__ . '/../../Views/layouts/admin_layout.php', 
-	[
-				'content' => $content,
-			]
-		);
+    if (empty($selectedTags) && in_array($action, ['activate', 'deactivate'])) 
+    {
+      $this->redirect('/admin/tags?error=no_tags_selected');
+      return;
+    }
 
-	}
+    try 
+    {
+      switch ($action) 
+      {
+        case 'activate':
+          $this->tagService->toggleTagsStatus($selectedTags, true);
+          break;
 
-	public function process(): void
-	{
+        case 'deactivate':
+          $this->tagService->toggleTagsStatus($selectedTags, false);
+          break;
 
-		if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-		{
-			header('Location: /admin/tags');
-			exit;
-		}
+        default:
+          throw new \Exception('Неизвестное действие');
+      }
 
-		$action = $_POST['action'] ?? '';
-		$selectedTags = $_POST['selected_tags'] ?? [];
+      $this->redirect('/admin/tags');
+    } 
+    catch (\Exception $e) 
+    {
+      echo "Ошибка: " . htmlspecialchars($e->getMessage());
+    }
 
-		try 
-		{
-			switch ($action) 
-			{
-				case 'activate':
-					$this->tagService->toggleTagsStatus($selectedTags, true);
-					break;
+  }
+  public function store(): void
+  {
+    
+    $name = trim($_POST['name'] ?? '');
 
-				case 'deactivate':
-					$this->tagService->toggleTagsStatus($selectedTags, false);
-					break;
+    if ($name === '') 
+    {
+      echo "Ошибка: Название тега не может быть пустым.";
+      return;
+    }
 
-				default:
-					throw new \Exception('Неизвестное действие');
-			}
+    if ($this->tagService->isTagNameExists($name))
+    {
+      echo "Ошибка: Тег с таким названием уже существует.";
+      return;
+    }
 
-			header('Location: /admin/tags');
-			exit;
-		} 
-		catch (\Exception $e) 
-		{
-			echo "Ошибка: " . htmlspecialchars($e->getMessage());
-		}
-	}
-	public function store(): void
-	{
-		
-		$name = trim($_POST['name'] ?? '');
 
-		if ($name === '') 
-		{
-			echo "Ошибка: Название тега не может быть пустым.";
-			return;
-		}
+    try 
+    {
+      $this->tagService->createTag($name);
 
-		if ($this->tagService->isTagNameExists($name))
-		{
-			echo "Ошибка: Тег с таким названием уже существует.";
-			return;
-		}
+      if (isset($_POST['products']) && is_array($_POST['products'])) 
+      {
+        $tagId = $this->tagService->getLastCreatedTagId();
 
-		try 
-		{
-			$this->tagService->createTag($name);
+        foreach ($_POST['products'] as $productId) 
+        {
+          $this->tagService->addTagToProduct((int)$productId, $tagId);
+        }
+      }
 
-			if (isset($_POST['products']) && is_array($_POST['products'])) 
-			{
-				$tagId = $this->tagService->getLastCreatedTagId();
+      $this->redirect('/admin/tags');
+    } 
+    catch (\Exception $e) 
+    {
+      echo "Ошибка: " . htmlspecialchars($e->getMessage());
+    }
 
-				foreach ($_POST['products'] as $productId) 
-				{
-					$this->tagService->addTagToProduct((int)$productId, $tagId);
-				}
-			}
+  }
 
-			header('Location: /admin/tags');
-			exit;
-		} 
-		catch (\Exception $e) 
-		{
-			echo "Ошибка: " . htmlspecialchars($e->getMessage());
-		}
+  public function update(int $id): void
+  {
 
-	}
+    $newName = trim($_POST['name'] ?? '');
+    $isActive = isset($_POST['is_active']) && $_POST['is_active'] === 'on';
 
-	public function update(int $id): void
-	{
+    if ($newName === '') 
+    {
+      echo "Ошибка: Название тега не может быть пустым.";
+      return;
+    }
 
-		$newName = trim($_POST['name'] ?? '');
-		$isActive = isset($_POST['is_active']) && $_POST['is_active'] === 'on';
+    try 
+    {
+      $this->tagService->updateTagWithStatus($id, $newName, $isActive);
 
-		if ($newName === '') 
-		{
-			echo "Ошибка: Название тега не может быть пустым.";
-			return;
-		}
+      $this->redirect('/admin/tags');
+    } 
+    catch (\Exception $e) 
+    {
+      echo "Ошибка: " . htmlspecialchars($e->getMessage());
+    }
 
-		try 
-		{
-			$this->tagService->updateTagWithStatus($id, $newName, $isActive);
-
-			header('Location: /admin/tags');
-			exit;
-		} 
-		catch (\Exception $e) 
-		{
-			echo "Ошибка: " . htmlspecialchars($e->getMessage());
-		}
-
-	}
-	
+  }
+  
 }

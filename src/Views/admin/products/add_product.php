@@ -1,6 +1,6 @@
 <div class="container mt-5">
     <h2>Создание нового товара</h2>
-    <form action="/admin/products/create" method="POST" enctype="multipart/form-data">
+    <form action="<?= url('admin.products.store') ?>" method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="name" class="form-label">Название товара:</label>
             <input type="text" id="name" name="name" class="form-control" required>

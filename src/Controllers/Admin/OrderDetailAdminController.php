@@ -2,18 +2,20 @@
 
 namespace Controllers\Admin;
 
-use Core\View;
 use Core\Services\OrderService;
 use Core\Database\MySQLDatabase;
 use Core\Repositories\OrderRepository;
+use Controllers\Admin\AdminBaseController;
 
-class OrderDetailAdminController
+class OrderDetailAdminController extends AdminBaseController
 {
 
     private OrderService $orderService;
 
     public function __construct()
     {
+
+        parent::__construct();
 
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
@@ -28,24 +30,17 @@ class OrderDetailAdminController
 
         if (!$order)
         {
-            header('Location: /admin/orders');
-            exit;
+            $this->redirect('/admin/orders');
         }
 
-        $content = View::make
-        (__DIR__ . '/../../Views/admin/orders/detail.php', 
-    [
+        $this->render
+        (
+            'admin/orders/detail', 
+            [
                 'order' => $order
             ]
         );
-
-        echo View::make
-        (__DIR__ . '/../../Views/layouts/admin_layout.php', 
-    [
-                'content' => $content,
-            ]
-        );
-
+        
     }
     
 }

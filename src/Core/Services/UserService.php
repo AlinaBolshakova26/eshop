@@ -80,7 +80,7 @@ class UserService
     {
         
         $avatarPath = "/assets/images/avatars/";
-        $fullPath = __DIR__ . "/../../../public" . $avatarPath;
+        $fullPath = ROOT . "/public" . $avatarPath;
 
         if (!is_dir($fullPath))
         {

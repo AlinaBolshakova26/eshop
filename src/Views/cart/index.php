@@ -18,7 +18,7 @@
                         <div class="card-body p-2">
                             <h6 class="card-title mb-1"><?= htmlspecialchars($item->product_name ?? '') ?></h6>
                             <p class="card-text mb-1">₽<?= number_format($item->product_price ?? 0, 2) ?></p>
-                            <form action="/cart/update" method="POST" class="d-flex mb-2">
+                            <form action="<?= url('cart.update') ?>" method="POST" class="d-flex mb-2">
                                 <input type="hidden" name="item_id" value="<?= $item->getItemId() ?>">
                                 <input type="number" name="quantity"
                                        value="<?= $item->getQuantity() ?>"
@@ -27,7 +27,7 @@
                                        data-price="<?= $item->product_price ?>"
                                        style="width: 70px;">
                             </form>
-                            <form action="/cart/remove" method="POST">
+                            <form action="<?= url('cart.remove') ?>" method="POST">
                                 <input type="hidden" name="item_id" value="<?= $item->getItemId() ?>">
                                 <button type="submit" class="btn btn-danger btn-sm w-100">Удалить</button>
                             </form>
@@ -54,4 +54,3 @@
 </div>
 
 <script src="./assets/js/cart.js"></script>
-

@@ -8,7 +8,7 @@
                 <?php if (isset($error) && $error): ?>
                     <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                 <?php endif; ?>
-                <form method="post" action="/user/register">
+                <form method="post" action="<?= url('user.register-store') ?>">
                     <div class="mb-3">
                         <label for="name" class="form-label">Имя</label>
                         <input type="text" class="form-control" id="name" name="name"

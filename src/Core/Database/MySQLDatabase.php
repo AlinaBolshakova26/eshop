@@ -5,7 +5,7 @@ use PDO;
 use PDOException;
 use Exception;
 
-require_once __DIR__ . '/../../config/config_database.php';
+require_once ROOT . '/config/config_database.php';
 
 class MySQLDatabase extends Database
 {

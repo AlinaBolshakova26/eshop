@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <form action="/order/submit-cart" method="POST" id="orderForm">
+        <form action="<?= url('order.submit-cart') ?>" method="POST" id="orderForm">
             <div class="mb-3">
                 <label for="customer_name" class="form-label">ФИО *</label>
                 <input type="text"
@@ -115,4 +115,3 @@
     document.getElementById('orderForm').addEventListener('submit', function(e) {
     });
 </script>
-

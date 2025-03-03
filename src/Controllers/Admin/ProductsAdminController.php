@@ -2,7 +2,6 @@
 
 namespace Controllers\Admin;
 
-use Core\View;
 use Core\Services\AdminService;
 use Core\Services\ProductService;
 use Core\Database\MySQLDatabase;
@@ -12,8 +11,9 @@ use Core\Services\TransliterateService;
 use Core\Services\TagService;
 use Core\Repositories\TagRepository;
 use Core\Repositories\RatingRepository;
+use Controllers\Admin\AdminBaseController;
 
-class ProductsAdminController
+class ProductsAdminController extends AdminBaseController
 {
 
     private AdminService $adminService;
@@ -24,6 +24,8 @@ class ProductsAdminController
 
     public function __construct()
     {
+
+        parent::__construct();
 
         $database = new MySQLDatabase();
         $pdo = $database->getConnection();
@@ -45,16 +47,9 @@ class ProductsAdminController
     public function index(?string $query = null): void
     {
 
-        if (!$this->adminService->isAdminLoggedIn())
-        {
-            header('Location: /admin/login');
-            exit;
-        }
-
-		$searchQuery = '';
+        $searchQuery = '';
         $searchValue = $query ?? $_GET['searchInput'] ?? null;
         $currentPage = max(1, (int)($_GET['page'] ?? 1));
-        define("ITEMS_PER_PAGE", 30);
 
         try 
         {
@@ -65,40 +60,34 @@ class ProductsAdminController
                 $searchQuery = TransliterateService::transliterate($searchValue);
 
                 $tagIdsLikeQuery = $this->tagService->getIdsLikeQuery($tags, $searchQuery); 
-				$productIdsByTagIds = $this->productService->getIdsByTagIds($tagIdsLikeQuery);
+        $productIdsByTagIds = $this->productService->getIdsByTagIds($tagIdsLikeQuery);
 
-                $searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE, $productIdsByTagIds, $searchQuery, false);
+                $searchResults = $this->productService->searchProducts($currentPage, ITEMS_PER_PAGE_ADMIN, $productIdsByTagIds, $searchQuery, false);
 
-				$products = $searchResults['products'];
-                $totalPages = ceil($searchResults['totalProducts'] / ITEMS_PER_PAGE);
+        $products = $searchResults['products'];
+                $totalPages = ceil($searchResults['totalProducts'] / ITEMS_PER_PAGE_ADMIN);
             }
             else 
             {
-                $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE);
-                $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE);
+                $products = $this->productService->adminGetPaginatedProducts($currentPage, ITEMS_PER_PAGE_ADMIN);
+                $totalPages = $this->productService->getTotalPages(ITEMS_PER_PAGE_ADMIN);
             }
 
-            $content = View::make(__DIR__ . '/../../Views/admin/products/index.php', 
-        [
+            $this->render
+            (
+                'admin/products/index', 
+                [
                     'products' => $products,
                     'totalPages' => $totalPages,
                     'currentPage' => $currentPage,
                     'searchQuery' => $searchQuery,
                     'searchValue' => $searchValue,
-                    'error' => View::make(__DIR__ . '/../../Views/admin/error_block.php')
-                ]
-            );
-
-            echo View::make
-            (__DIR__ . '/../../Views/layouts/admin_layout.php', 
-        [
-                    'content' => $content,
+                    // 'error' => View::make('admin/error_block')
                 ]
             );
         }
         catch (\PDOException $e)
         {
-            error_log("Database error: " . $e->getMessage());
             echo "Произошла ошибка при загрузке товаров.";
         }
 
@@ -107,12 +96,6 @@ class ProductsAdminController
     public function process(): void
     {
 
-        if (!$this->adminService->isAdminLoggedIn()) 
-        {
-            header('Location: /admin/login');
-            exit;
-        }
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
             if (isset($_POST['action']) && $_POST['action'] === 'search')
@@ -120,11 +103,10 @@ class ProductsAdminController
                 $searchInput = trim(strip_tags($_POST['searchInput'] ?? ''));
                 if ($searchInput !== '') 
                 {
-                    header('Location: /admin/products?searchInput=' . urlencode($searchInput));
-                    exit;
+                    $this->redirect('/admin/products?searchInput=' . urlencode($searchInput));
+                    
                 }
-                header('Location: /admin/products');
-                exit;
+                $this->redirect('/admin/products');
             }
 
             $selectedProducts = $_POST['selected_products'] ?? [];
@@ -132,13 +114,13 @@ class ProductsAdminController
 
             if (empty($selectedProducts)) 
             {
-                header('Location: /admin/products?error=no_products_selected');
-                exit;
+                $this->redirect('/admin/products?error=no_products_selected');
             }
 
             try 
             {
                 $productIds = array_map('intval', $selectedProducts);
+
 
                 switch ($action) 
                 {
@@ -149,24 +131,19 @@ class ProductsAdminController
                         $this->productService->adminToggleStatus($productIds, true);
                         break;
                     default:
-                        header('Location: /admin/products?error=invalid_action');
-                        exit;
+                        $this->redirect('/admin/products?error=invalid_action');
                 }
 
-                header('Location: /admin/products?success=1');
-                exit;
+                $this->redirect('/admin/products?success=1');
             }
             catch (\PDOException $e)
             {
                 error_log("Database error: " . $e->getMessage());
-                header('Location: /admin/products?error=database_error');
-                exit;
+                $this->redirect('/admin/products?error=database_error');
             }
         }
 
-        header('Location: /admin/products');
-        exit;
-
+        $this->redirect('/admin/products');
     }
     
 }
